@@ -91,8 +91,10 @@ module.exports = {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        extractComments: {
-          banner: () => banner,
+        // Banner kept as a preamble; no extracted .LICENSE.txt file.
+        extractComments: false,
+        terserOptions: {
+          format: { preamble: `/*${banner}*/` },
         },
       }),
     ],

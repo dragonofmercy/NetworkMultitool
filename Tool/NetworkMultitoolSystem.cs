@@ -124,13 +124,18 @@ namespace NetworkMultitool.Tool
         private JobHandle UpdateFrame(JobHandle inputDeps)
         {
             inputDeps = DestroyDefinitions(m_DefinitionQuery, m_Barrier, inputDeps);
-            if (m_FocusChanged || (m_ToolRaycastSystem.raycastFlags & (RaycastFlags.DebugDisable | RaycastFlags.UIDisable)) != 0)
+            var blocked = m_FocusChanged || (m_ToolRaycastSystem.raycastFlags & (RaycastFlags.DebugDisable | RaycastFlags.UIDisable)) != 0;
+            if (blocked && !m_Context.ApplyRequested)
             {
                 applyMode = ApplyMode.Clear;
                 return inputDeps;
             }
 
-            FillContext();
+            // A UI Apply click arrives on a UIDisable frame (cursor over the panel): the mode still validates its current state.
+            if (blocked)
+                FillBlockedContext();
+            else
+                FillContext();
             m_Mode.Update(m_Context);
             // A request the mode did not consume this frame must not fire later in another mode.
             m_Context.ApplyRequested = false;
@@ -151,6 +156,7 @@ namespace NetworkMultitool.Tool
         {
             if (!InGame)
                 return;
+            m_Context.ApplyRequested = false;
             if (IsActive)
                 m_ToolSystem.activeTool = m_DefaultToolSystem;
             else
@@ -173,6 +179,7 @@ namespace NetworkMultitool.Tool
                 // When not running, OnStartRunning enters the new mode.
                 if (m_Running)
                     m_Mode.Exit(m_Context);
+                m_Context.ApplyRequested = false;
                 m_Mode = next;
                 if (m_Running)
                     m_Mode.Enter(m_Context);
@@ -212,6 +219,16 @@ namespace NetworkMultitool.Tool
             m_Context.ApplyPressed = applyAction.WasPressedThisFrame();
             m_Context.ApplyHeld = applyAction.IsPressed();
             m_Context.SecondaryPressed = secondaryApplyAction.WasPressedThisFrame();
+            m_Context.ApplyMode = ApplyMode.None;
+        }
+
+        // Keeps the last world hover, hit and mouse position; no fresh hit and no mouse input.
+        private void FillBlockedContext()
+        {
+            m_Context.HasHit = false;
+            m_Context.ApplyPressed = false;
+            m_Context.ApplyHeld = false;
+            m_Context.SecondaryPressed = false;
             m_Context.ApplyMode = ApplyMode.None;
         }
 

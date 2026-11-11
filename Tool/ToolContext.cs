@@ -45,6 +45,7 @@ namespace NetworkMultitool.Tool
         /// <summary>Raycast hit position on a node, an edge or the terrain; keeps the last value when nothing is hit.</summary>
         public float3 MousePosition { get; internal set; }
 
+        /// <summary>Mouse primary click this frame (selection). Validation is <c>Pressed(ToolAction.Apply)</c> (Enter key or UI Apply button); modes must use that one to validate.</summary>
         public bool ApplyPressed { get; internal set; }
 
         public bool ApplyHeld { get; internal set; }
