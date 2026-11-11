@@ -1,0 +1,7 @@
+bin/
+obj/
+Library/
+.idea/
+*.user
+UI/node_modules/
+UI/dist/
