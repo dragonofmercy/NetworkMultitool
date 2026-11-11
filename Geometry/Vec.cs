@@ -15,7 +15,7 @@ namespace NetworkMultitool.Geometry
 
         public static float DotXZ(float3 a, float3 b) => a.x * b.x + a.z * b.z;
 
-        private static float CrossXZ(float3 a, float3 b) => a.x * b.z - a.z * b.x;
+        public static float CrossXZ(float3 a, float3 b) => a.x * b.z - a.z * b.x;
 
         public static float3 Turn90(float3 v, bool clockwise) => clockwise ? new float3(v.z, v.y, -v.x) : new float3(-v.z, v.y, v.x);
 
@@ -26,7 +26,7 @@ namespace NetworkMultitool.Geometry
             return new float3(v.x * c - v.z * s, v.y, v.x * s + v.z * c);
         }
 
-        /// <summary>Signed angle in radians in ]-pi, pi], positive when counter-clockwise (CS1 GetAngle used the opposite sign).</summary>
+        /// <summary>Signed angle in radians in ]-pi, pi]. Same sign convention as the CS1 MathExtention.GetAngle (positive = counter-clockwise).</summary>
         public static float Angle(float3 from, float3 to)
         {
             var a = NormalizeXZ(from);

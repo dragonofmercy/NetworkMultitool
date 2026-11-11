@@ -1,0 +1,117 @@
+using System.Collections.Generic;
+using NetworkMultitool.Geometry;
+using Unity.Mathematics;
+using Xunit;
+
+namespace NetworkMultitool.Tests
+{
+    public class SolverTests
+    {
+        private const float MinRadius = 16f;
+        private const float MaxRadius = 5000f;
+
+        private static Point P(float x, float y, float z, float dx, float dz) => new Point(new float3(x, y, z), new float3(dx, 0f, dz));
+
+        private static void AssertContinuous(List<Point> pts, Point start, Point end, float maxLen)
+        {
+            Assert.True(pts.Count >= 2, $"expected at least 2 points, got {pts.Count}");
+            Assert.True(math.distance(pts[0].Position, start.Position) < 1e-3f, $"first point {pts[0].Position} != {start.Position}");
+            Assert.True(math.distance(pts[pts.Count - 1].Position, end.Position) < 1e-3f, $"last point {pts[pts.Count - 1].Position} != {end.Position}");
+
+            for (var i = 0; i < pts.Count; i++)
+            {
+                Assert.False(math.any(math.isnan(pts[i].Position)) || math.any(math.isnan(pts[i].Direction)), $"NaN at {i}");
+                if (i > 0)
+                {
+                    var dist = math.distance(pts[i - 1].Position, pts[i].Position);
+                    Assert.True(dist <= maxLen * 1.05f + 8f, $"gap {dist} between {i - 1} and {i}");
+                }
+                if (i > 0 && i < pts.Count - 1)
+                {
+                    var dot = Vec.DotXZ(pts[i].Direction, Vec.NormalizeXZ(pts[i + 1].Position - pts[i - 1].Position));
+                    Assert.True(dot > 0.7f, $"direction at {i} deviates (dot {dot})");
+                }
+            }
+        }
+
+        [Fact]
+        public void Curve_FacingSegments_Ok()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(200, 0, 100, -1, 0);
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, CurveSolver.Solve(start, end, 40f, pts));
+            AssertContinuous(pts, start, end, 40f);
+            Assert.True(pts.Count > 3);
+            Assert.Equal(new float3(1, 0, 0), pts[0].Direction);
+            Assert.Equal(new float3(1, 0, 0), pts[pts.Count - 1].Direction);
+        }
+
+        [Fact]
+        public void Curve_BackToBack_WrongShape()
+        {
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.WrongShape, CurveSolver.Solve(P(0, 0, 0, -1, 0), P(200, 0, 0, 1, 0), 40f, pts));
+        }
+
+        [Fact]
+        public void Loop_ParallelGuides_NotIntersect()
+        {
+            var solver = new LoopSolver(P(0, 0, 0, 1, 0), P(0, 0, 50, 1, 0), MinRadius, MaxRadius);
+            Assert.Equal(SolveResult.NotIntersect, solver.Solve(40f, new List<Point>()));
+        }
+
+        [Fact]
+        public void Loop_PerpendicularGuides_Ok()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(100, 0, 100, 0, -1);
+            var solver = new LoopSolver(start, end, MinRadius, MaxRadius) { Radius = 30f };
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            AssertContinuous(pts, start, end, 40f);
+            Assert.True(solver.IsDirect);
+            Assert.Equal(30f, solver.Arc.Radius, 4);
+            Assert.True(math.distance(new float3(70, 0, 30), solver.Arc.Center) < 1e-3f, $"center {solver.Arc.Center}");
+            Assert.Equal(math.PI / 2f, solver.Arc.Angle, 4);
+            Assert.Equal(new float3(0, 0, 1), pts[pts.Count - 1].Direction);
+        }
+
+        [Fact]
+        public void Connection_Default_Ok()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(300, 0, 120, -1, 0);
+            var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            AssertContinuous(pts, start, end, 40f);
+            Assert.Equal(Turn.Left, solver.First.Turn);
+            Assert.Equal(Turn.Right, solver.Second.Turn);
+            Assert.True(math.distance(new float3(0, 0, 50), solver.First.Center) < 1e-3f, $"first center {solver.First.Center}");
+            Assert.True(math.distance(new float3(300, 0, 70), solver.Second.Center) < 1e-3f, $"second center {solver.Second.Center}");
+        }
+
+        [Fact]
+        public void Connection_RadiusTooBig_WrongShape()
+        {
+            var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius) { FirstRadius = 400f, SecondRadius = 400f };
+            Assert.Equal(SolveResult.WrongShape, solver.Solve(40f, new List<Point>()));
+        }
+
+        [Fact]
+        public void Connection_SwitchSide_StillContinuous()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(300, 0, 120, -1, 0);
+            var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
+            solver.SwitchSide();
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            AssertContinuous(pts, start, end, 40f);
+            Assert.Equal(Turn.Right, solver.First.Turn);
+            Assert.Equal(Turn.Left, solver.Second.Turn);
+            Assert.True(math.distance(new float3(0, 0, -50), solver.First.Center) < 1e-3f, $"first center {solver.First.Center}");
+        }
+    }
+}
