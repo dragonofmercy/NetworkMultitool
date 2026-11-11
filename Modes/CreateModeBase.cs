@@ -56,6 +56,11 @@ namespace NetworkMultitool.Modes
         {
         }
 
+        /// <summary>Called at the end of every full reset (Enter, Exit, Apply, right click deselecting First, entity loss) to clear mode-specific state.</summary>
+        protected virtual void OnReset()
+        {
+        }
+
         protected void MarkDirty() => _dirty = true;
 
         public virtual void Enter(ToolContext ctx) => Reset();
@@ -252,6 +257,7 @@ namespace NetworkMultitool.Modes
             Invert = false;
             _hoverEnd = false;
             _dirty = true;
+            OnReset();
         }
     }
 }
