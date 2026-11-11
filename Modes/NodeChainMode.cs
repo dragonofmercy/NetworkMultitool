@@ -81,8 +81,7 @@ namespace NetworkMultitool.Modes
             }
             else if (Nodes.Count >= 3 && ctx.Pressed(ToolAction.Apply))
             {
-                Apply(ctx);
-                Clear(ctx);
+                OnApplyRequested(ctx);
             }
             else
             {
@@ -92,7 +91,7 @@ namespace NetworkMultitool.Modes
             UpdateState(ctx);
         }
 
-        public void Render(ToolContext ctx, Overlay overlay)
+        public virtual void Render(ToolContext ctx, Overlay overlay)
         {
             foreach (var node in Nodes)
                 overlay.Node(node, Overlay.White);
@@ -112,6 +111,13 @@ namespace NetworkMultitool.Modes
             }
 
             RenderPreview(ctx, overlay);
+        }
+
+        /// <summary>Validation key pressed with at least 3 nodes in the chain. Default: <see cref="Apply"/> then clear the chain.</summary>
+        protected virtual void OnApplyRequested(ToolContext ctx)
+        {
+            Apply(ctx);
+            Clear(ctx);
         }
 
         /// <summary>Called after <see cref="Nodes"/> changed through a click or a reset.</summary>
@@ -150,7 +156,7 @@ namespace NetworkMultitool.Modes
         }
 
         // Nodes or edges may vanish or be replaced between frames (undo, other tools, our own apply).
-        private bool IsValid(ToolContext ctx)
+        protected bool IsValid(ToolContext ctx)
         {
             for (var i = 0; i < Nodes.Count; i++)
             {
@@ -163,7 +169,7 @@ namespace NetworkMultitool.Modes
             return true;
         }
 
-        private void Clear(ToolContext ctx)
+        protected void Clear(ToolContext ctx)
         {
             Nodes.Clear();
             ToAdd.Clear();

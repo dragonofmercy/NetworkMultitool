@@ -59,6 +59,7 @@ namespace NetworkMultitool.Tool
             RegisterMode(new RemoveNodeMode());
             RegisterMode(new SlopeMode());
             RegisterMode(new ArrangeLineMode());
+            RegisterMode(new ArrangeCircleMode());
             m_Mode = m_Modes[ToolModeId.None];
 
             BindActions();
