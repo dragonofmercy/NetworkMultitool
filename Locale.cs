@@ -29,7 +29,12 @@ namespace NetworkMultitool
                 { _settings.GetOptionDescLocaleID(nameof(Settings.FollowTerrain)), "Let created roads follow the terrain height instead of staying flat." },
             };
 
-            void Bind(string action, string label) => entries[_settings.GetBindingKeyLocaleID(action)] = label;
+            // The options page labels each ProxyBinding property; the binding key label is shown in the key map.
+            void Bind(string action, string label, string property = null)
+            {
+                entries[_settings.GetBindingKeyLocaleID(action)] = label;
+                entries[_settings.GetOptionLabelLocaleID(property ?? action)] = label;
+            }
 
             Bind(nameof(Settings.Toggle), "Toggle tool");
             Bind(nameof(Settings.ModeAddNode), "Mode: add node");
@@ -41,7 +46,7 @@ namespace NetworkMultitool
             Bind(nameof(Settings.ModeLoop), "Mode: loop");
             Bind(nameof(Settings.ModeConnection), "Mode: connection");
             Bind(nameof(Settings.ModeCurve), "Mode: curve");
-            Bind(ToolActions.Apply, "Apply");
+            Bind(ToolActions.Apply, "Apply", nameof(Settings.ApplyKey));
             Bind(nameof(Settings.RadiusUp), "Increase radius");
             Bind(nameof(Settings.RadiusDown), "Decrease radius");
             Bind(nameof(Settings.OffsetUp), "Increase offset");

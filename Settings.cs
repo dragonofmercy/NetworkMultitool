@@ -2,6 +2,7 @@ using Colossal.IO.AssetDatabase;
 using Game.Input;
 using Game.Modding;
 using Game.Settings;
+using Game.UI;
 
 namespace NetworkMultitool
 {
@@ -61,7 +62,7 @@ namespace NetworkMultitool
         public const string KeybindingsGroup = "Keybindings";
 
         [SettingsUISection(GeneralGroup)]
-        [SettingsUISlider(min = 20f, max = 200f, step = 1f, scalarMultiplier = 1f)]
+        [SettingsUISlider(min = 20f, max = 200f, step = 1f, scalarMultiplier = 1f, unit = Unit.kLength)]
         public float SegmentLength { get; set; }
 
         [SettingsUISection(GeneralGroup)]
@@ -156,6 +157,8 @@ namespace NetworkMultitool
 
         public Settings(IMod mod) : base(mod)
         {
+            // ModSetting does not call it; loaded values override these defaults.
+            SetDefaults();
         }
 
         public override void SetDefaults()
