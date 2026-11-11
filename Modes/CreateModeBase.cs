@@ -86,7 +86,8 @@ namespace NetworkMultitool.Modes
                 StartPoint = new Point(net.NodePosition(FirstNode), -net.DirectionAt(First, FirstNode));
                 EndPoint = new Point(net.NodePosition(SecondNode), -net.DirectionAt(Second, SecondNode));
                 Points.Clear();
-                Result = Solve(ctx, Points);
+                // Both chosen ends on the same node would make a degenerate zero-length course.
+                Result = FirstNode == SecondNode ? SolveResult.WrongShape : Solve(ctx, Points);
                 for (var i = 0; i < Points.Count; i++)
                     Points[i] = new Point(Vec.WithY(Points[i].Position, Points[i].Position.y + Height), Points[i].Direction);
             }
@@ -109,7 +110,7 @@ namespace NetworkMultitool.Modes
                 _emitted.AddRange(Points);
             }
 
-            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, net.Elevation(startNode), net.Elevation(endNode), !ctx.Settings.FollowTerrain || Height != 0f);
+            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, net.Elevation(startNode), net.Elevation(endNode), ctx.Settings == null || !ctx.Settings.FollowTerrain || Height != 0f);
             ctx.ApplyMode = ApplyMode.Clear;
             if (ctx.Pressed(ToolAction.Apply))
             {
@@ -180,6 +181,8 @@ namespace NetworkMultitool.Modes
                 {
                     Second = ctx.Hover;
                     SecondNode = SmallerEnd(ctx, Second);
+                    if (SecondNode == FirstNode)
+                        SecondNode = ctx.Net.OtherNode(Second, SecondNode);
                 }
 
                 _dirty = true;
