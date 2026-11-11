@@ -47,7 +47,7 @@ namespace NetworkMultitool.Modes
                 if (!_editing)
                     return base.Info;
 
-                return "Radius: " + _radius.ToString("0.0", CultureInfo.InvariantCulture) + " m\nUp/Down: change radius\nDrag center or circle edge\nCtrl+D: distribute evenly (" + (_evenly ? "on" : "off") + ")\nEnter: apply, right click: back";
+                return (_wrongOrder ? "Wrong order\n" : string.Empty) + "Radius: " + _radius.ToString("0.0", CultureInfo.InvariantCulture) + " m\nUp/Down: change radius\nDrag center or circle edge\nCtrl+D: distribute evenly (" + (_evenly ? "on" : "off") + ")\nEnter: apply, right click: back";
             }
         }
 
@@ -71,7 +71,7 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
-            if (ctx.Pressed(ToolAction.Apply))
+            if (ctx.Pressed(ToolAction.Apply) && !_wrongOrder)
             {
                 Apply(ctx);
                 Clear(ctx);
