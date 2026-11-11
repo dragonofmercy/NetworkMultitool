@@ -5,14 +5,14 @@ namespace NetworkMultitool.Tool
     {
         ToolModeId Id { get; }
 
-        /// <summary>Status text shown in the UI; compared each frame to raise <c>Changed</c>.</summary>
+        /// <summary>Status text shown in the UI (polled by the UI system).</summary>
         string Info { get; }
 
         void Enter(ToolContext ctx);
 
         void Exit(ToolContext ctx);
 
-        /// <summary>Runs every frame while the tool is active, after old definitions were scheduled for destruction.</summary>
+        /// <summary>Runs every frame while the tool is active (also over the UI, without mouse input), after old definitions were scheduled for destruction.</summary>
         void Update(ToolContext ctx);
 
         /// <summary>Draws the overlay; runs right after <see cref="Update"/>.</summary>

@@ -55,10 +55,11 @@ namespace NetworkMultitool.Tool
         /// <summary>Set by the UI Apply button; consumed by the next <see cref="Pressed"/> of <see cref="ToolAction.Apply"/>.</summary>
         public bool ApplyRequested { get; set; }
 
-        /// <summary>What the game should do with the definitions emitted this frame; reset to None before each Update.</summary>
+        /// <summary>Reset to Clear before each Update: the previous Temp preview is replaced by the definitions emitted this frame.
+        /// A mode validating sets Apply and emits nothing, so the Temp entities built from last frame's definitions become permanent.</summary>
         public ApplyMode ApplyMode { get; set; }
 
-        public float MaxSegmentLength => Settings?.SegmentLength ?? 80f;
+        public float MaxSegmentLength => Settings != null && Settings.SegmentLength > 0f ? Settings.SegmentLength : 80f;
 
         /// <summary>Shift 10, Ctrl 0.1, Alt 0.01, otherwise 1.</summary>
         public float StepMultiplier

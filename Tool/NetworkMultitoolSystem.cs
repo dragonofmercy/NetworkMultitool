@@ -30,7 +30,6 @@ namespace NetworkMultitool.Tool
         private IToolMode m_Mode;
         private bool m_Running;
         private readonly List<(ProxyAction Proxy, Action<ProxyAction, InputActionPhase> Handler)> m_Bindings = new List<(ProxyAction, Action<ProxyAction, InputActionPhase>)>();
-        private string m_LastInfo;
 
         public override string toolID => "NetworkMultitool";
 
@@ -39,9 +38,6 @@ namespace NetworkMultitool.Tool
         public bool IsActive => m_ToolSystem.activeTool == this;
 
         public string Info => m_Mode.Info;
-
-        /// <summary>Raised when <see cref="Mode"/>, <see cref="IsActive"/> or <see cref="Info"/> changes.</summary>
-        public event Action Changed;
 
         protected override void OnCreate()
         {
@@ -94,7 +90,6 @@ namespace NetworkMultitool.Tool
             SetToolActionsEnabled(true);
             m_Running = true;
             m_Mode.Enter(m_Context);
-            NotifyChanged();
         }
 
         // Also reached when the game switches to another tool.
@@ -106,7 +101,6 @@ namespace NetworkMultitool.Tool
             SetToolActionsEnabled(false);
             base.OnStopRunning();
             m_Context.ResetEcb();
-            NotifyChanged();
         }
 
         protected override void OnDestroy()
@@ -132,31 +126,40 @@ namespace NetworkMultitool.Tool
 
         private JobHandle UpdateFrame(JobHandle inputDeps)
         {
+            // Definitions live one frame: the mode re-emits them every frame and the game rebuilds the Temp preview from them.
             inputDeps = DestroyDefinitions(m_DefinitionQuery, m_Barrier, inputDeps);
             var blocked = m_FocusChanged || (m_ToolRaycastSystem.raycastFlags & (RaycastFlags.DebugDisable | RaycastFlags.UIDisable)) != 0;
-            if (blocked && !m_Context.ApplyRequested)
-            {
-                applyMode = ApplyMode.Clear;
-                return inputDeps;
-            }
 
-            // A UI Apply click arrives on a UIDisable frame (cursor over the panel): the mode still validates its current state.
+            // Over the UI the mode still runs (without mouse input) so its preview survives and a UI Apply click validates it like the Enter key.
             if (blocked)
                 FillBlockedContext();
             else
                 FillContext();
-            m_Mode.Update(m_Context);
-            // A request the mode did not consume this frame must not fire later in another mode.
-            m_Context.ApplyRequested = false;
-            applyMode = m_Context.ApplyMode;
+            var mode = m_Mode;
+            try
+            {
+                mode.Update(m_Context);
+                applyMode = m_Context.ApplyMode;
+                var buffer = m_Overlay.GetBuffer(out var overlayDeps);
+                overlayDeps.Complete();
+                mode.Render(m_Context, new Overlay(buffer, m_Net));
+                m_Overlay.AddBufferWriter(default);
+            }
+            catch (Exception e)
+            {
+                // Logged once: the failing mode is dropped instead of throwing every frame.
+                Mod.Log.Error(e, $"{nameof(NetworkMultitoolSystem)}: mode {mode.Id} failed, switching to {ToolModeId.None}");
+                applyMode = ApplyMode.Clear;
+                // The failing mode is not exited: its Exit may throw too.
+                m_Mode = m_Modes[ToolModeId.None];
+                m_Mode.Enter(m_Context);
+            }
+            finally
+            {
+                // A request the mode did not consume this frame must not fire later in another mode.
+                m_Context.ApplyRequested = false;
+            }
 
-            var buffer = m_Overlay.GetBuffer(out var overlayDeps);
-            overlayDeps.Complete();
-            m_Mode.Render(m_Context, new Overlay(buffer, m_Net));
-            m_Overlay.AddBufferWriter(default);
-
-            if (!string.Equals(Info, m_LastInfo))
-                NotifyChanged();
             return inputDeps;
         }
 
@@ -196,7 +199,6 @@ namespace NetworkMultitool.Tool
 
             if (!IsActive)
                 Activate();
-            NotifyChanged();
         }
 
         /// <summary>Same as pressing the Apply key on the next tool update; ignored while the tool is inactive.</summary>
@@ -228,7 +230,7 @@ namespace NetworkMultitool.Tool
             m_Context.ApplyPressed = applyAction.WasPressedThisFrame();
             m_Context.ApplyHeld = applyAction.IsPressed();
             m_Context.SecondaryPressed = secondaryApplyAction.WasPressedThisFrame();
-            m_Context.ApplyMode = ApplyMode.None;
+            m_Context.ApplyMode = ApplyMode.Clear;
         }
 
         // Keeps the last world hover, hit and mouse position; no fresh hit and no mouse input.
@@ -238,13 +240,7 @@ namespace NetworkMultitool.Tool
             m_Context.ApplyPressed = false;
             m_Context.ApplyHeld = false;
             m_Context.SecondaryPressed = false;
-            m_Context.ApplyMode = ApplyMode.None;
-        }
-
-        private void NotifyChanged()
-        {
-            m_LastInfo = Info;
-            Changed?.Invoke();
+            m_Context.ApplyMode = ApplyMode.Clear;
         }
 
         private void SetToolActionsEnabled(bool enabled)

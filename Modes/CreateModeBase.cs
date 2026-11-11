@@ -72,7 +72,6 @@ namespace NetworkMultitool.Modes
 
         public void Update(ToolContext ctx)
         {
-            ctx.ApplyMode = ApplyMode.None;
             var em = ctx.Em;
             if ((First != Entity.Null && !em.Exists(First)) || (Second != Entity.Null && !em.Exists(Second)) || (FirstNode != Entity.Null && !em.Exists(FirstNode)) || (SecondNode != Entity.Null && !em.Exists(SecondNode)))
                 Reset();
@@ -98,6 +97,14 @@ namespace NetworkMultitool.Modes
             if (Result != SolveResult.Ok)
                 return;
 
+            // The preview built from last frame's definitions becomes permanent; nothing is emitted this frame.
+            if (ctx.Pressed(ToolAction.Apply))
+            {
+                ctx.ApplyMode = ApplyMode.Apply;
+                Reset();
+                return;
+            }
+
             var startNode = FirstNode;
             var endNode = SecondNode;
             _emitted.Clear();
@@ -114,12 +121,6 @@ namespace NetworkMultitool.Modes
             }
 
             ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, net.Elevation(startNode), net.Elevation(endNode), ctx.Settings == null || !ctx.Settings.FollowTerrain || Height != 0f);
-            ctx.ApplyMode = ApplyMode.Clear;
-            if (ctx.Pressed(ToolAction.Apply))
-            {
-                ctx.ApplyMode = ApplyMode.Apply;
-                Reset();
-            }
         }
 
         public void Render(ToolContext ctx, Overlay overlay)

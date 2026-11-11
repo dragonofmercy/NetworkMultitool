@@ -61,7 +61,6 @@ namespace NetworkMultitool.Modes
 
         public void Update(ToolContext ctx)
         {
-            ctx.ApplyMode = ApplyMode.None;
             _hover = Entity.Null;
             var net = ctx.Net;
             if (_source != Entity.Null && (!ctx.Em.Exists(_source) || _selected.Any(e => !ctx.Em.Exists(e))))
@@ -122,7 +121,8 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
-            if (_selected.Count == 0 || ctx.HoverIsNode || !ctx.HasHit)
+            // Without a fresh hit (cursor over the UI) MousePosition keeps its last value, so the preview stays in place.
+            if (_selected.Count == 0 || ctx.HoverIsNode)
                 return;
 
             var sourcePos = net.NodePosition(_source);
@@ -135,6 +135,14 @@ namespace NetworkMultitool.Modes
             }
 
             _state = State.ClickToSplit;
+            // The preview built from last frame's definitions becomes permanent; nothing is emitted this frame.
+            if (ctx.ApplyPressed || ctx.Pressed(ToolAction.Apply))
+            {
+                ctx.ApplyMode = ApplyMode.Apply;
+                Reset();
+                return;
+            }
+
             foreach (var edge in _selected)
             {
                 var other = net.OtherNode(edge, _source);
@@ -144,13 +152,6 @@ namespace NetworkMultitool.Modes
                 // Relink wants the curve oriented from the edge's start side to its end side.
                 var curve = net.IsStart(edge, other) ? NetUtils.FitCurve(otherPos, dirOther, dirTarget, _target) : NetUtils.FitCurve(_target, -dirTarget, -dirOther, otherPos);
                 ctx.Emitter(net.Prefab(edge)).Relink(edge, other, _target, curve);
-            }
-
-            ctx.ApplyMode = ApplyMode.Clear;
-            if (ctx.ApplyPressed || ctx.Pressed(ToolAction.Apply))
-            {
-                ctx.ApplyMode = ApplyMode.Apply;
-                Reset();
             }
         }
 

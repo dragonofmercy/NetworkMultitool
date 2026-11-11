@@ -45,7 +45,6 @@ namespace NetworkMultitool.Modes
         public void Update(ToolContext ctx)
         {
             _state = State.None;
-            ctx.ApplyMode = ApplyMode.None;
             if (!ctx.HoverIsEdge || !ctx.Em.Exists(ctx.Hover))
                 return;
 
@@ -69,8 +68,14 @@ namespace NetworkMultitool.Modes
             }
 
             _state = State.Possible;
+            // The preview built from last frame's definitions becomes permanent; nothing is emitted this frame.
+            if (ctx.ApplyPressed || ctx.Pressed(ToolAction.Apply))
+            {
+                ctx.ApplyMode = ApplyMode.Apply;
+                return;
+            }
+
             ctx.Emitter(net.Prefab(_edge)).Split(_edge, t, _position);
-            ctx.ApplyMode = ctx.ApplyPressed || ctx.Pressed(ToolAction.Apply) ? ApplyMode.Apply : ApplyMode.Clear;
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
