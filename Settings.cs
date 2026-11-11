@@ -112,7 +112,7 @@ namespace NetworkMultitool
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Enter, ToolActions.Apply)]
         [SettingsUISection(KeybindingsGroup)]
-        public new ProxyBinding Apply { get; set; } // hides Setting.Apply(); the action name must stay "Apply"
+        public ProxyBinding ApplyKey { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.UpArrow, ToolActions.RadiusUp)]
         [SettingsUISection(KeybindingsGroup)]
