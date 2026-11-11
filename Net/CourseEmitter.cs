@@ -137,7 +137,7 @@ namespace NetworkMultitool.Net
         private static float2 Lerp(float2 from, float2 to, int index, int count) => count > 0 ? math.lerp(from, to, (float)index / count) : from;
 
         /// <summary>Leaves p0 along d0 and reaches p1 along d1 (FitCurve's end tangent is the forward one at the end).</summary>
-        private static Bezier4x3 Fit(Point p0, Point p1)
+        internal static Bezier4x3 Fit(Point p0, Point p1)
         {
             var d0 = p0.Direction;
             var d1 = p1.Direction;

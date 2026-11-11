@@ -3,6 +3,7 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using NetworkMultitool.Tool;
 
 namespace NetworkMultitool
 {
@@ -22,6 +23,8 @@ namespace NetworkMultitool
             Settings.RegisterInOptionsUI();
             GameManager.instance.localizationManager.AddSource("en-US", new Locale(Settings));
             AssetDatabase.global.LoadSettings(nameof(NetworkMultitool), Settings, new Settings(this));
+
+            updateSystem.UpdateAt<NetworkMultitoolSystem>(SystemUpdatePhase.ToolUpdate);
         }
 
         public void OnDispose()

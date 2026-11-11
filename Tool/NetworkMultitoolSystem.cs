@@ -1,0 +1,234 @@
+using System;
+using System.Collections.Generic;
+using Game.Common;
+using Game.Input;
+using Game.Net;
+using Game.Prefabs;
+using Game.Rendering;
+using Game.Tools;
+using NetworkMultitool.Modes;
+using NetworkMultitool.Net;
+using Unity.Entities;
+using Unity.Jobs;
+using UnityEngine.InputSystem;
+
+namespace NetworkMultitool.Tool
+{
+    /// <summary>The single game tool; delegates per-frame work to the current <see cref="IToolMode"/>.</summary>
+    public partial class NetworkMultitoolSystem : ToolBaseSystem
+    {
+        private readonly Dictionary<ToolModeId, IToolMode> m_Modes = new Dictionary<ToolModeId, IToolMode>();
+        private readonly Dictionary<ToolAction, ProxyAction> m_Actions = new Dictionary<ToolAction, ProxyAction>();
+
+        private ToolOutputBarrier m_Barrier;
+        private OverlayRenderSystem m_Overlay;
+        private EntityQuery m_DefinitionQuery;
+        private NetQuery m_Net;
+        private ToolContext m_Context;
+        private IToolMode m_Mode;
+        private bool m_Running;
+        private string m_LastInfo;
+
+        public override string toolID => "NetworkMultitool";
+
+        public ToolModeId Mode => m_Mode.Id;
+
+        public bool IsActive => m_ToolSystem.activeTool == this;
+
+        public string Info => m_Mode.Info;
+
+        /// <summary>Raised when <see cref="Mode"/>, <see cref="IsActive"/> or <see cref="Info"/> changes.</summary>
+        public event Action Changed;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            Enabled = false;
+            m_Barrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            m_Overlay = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
+            m_DefinitionQuery = GetDefinitionQuery();
+            m_Net = new NetQuery(EntityManager);
+            m_Context = new ToolContext(this, m_Barrier, m_Actions) { Em = EntityManager, Net = m_Net };
+
+            // One line per mode; later modes register here.
+            RegisterMode(new IdleMode());
+            m_Mode = m_Modes[ToolModeId.None];
+
+            BindActions();
+        }
+
+        /// <summary>Adds or replaces the mode for its <see cref="IToolMode.Id"/>.</summary>
+        public void RegisterMode(IToolMode mode) => m_Modes[mode.Id] = mode;
+
+        public override PrefabBase GetPrefab() => null;
+
+        public override bool TrySetPrefab(PrefabBase prefab) => false;
+
+        public override void InitializeRaycast()
+        {
+            base.InitializeRaycast();
+            m_ToolRaycastSystem.typeMask = TypeMask.Net | TypeMask.Terrain;
+            m_ToolRaycastSystem.netLayerMask = Layer.Road | Layer.TrainTrack | Layer.TramTrack | Layer.SubwayTrack | Layer.Pathway;
+            m_ToolRaycastSystem.collisionMask = CollisionMask.OnGround | CollisionMask.Overground | CollisionMask.Underground;
+            m_ToolRaycastSystem.raycastFlags |= RaycastFlags.SubElements;
+        }
+
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            applyAction.shouldBeEnabled = true;
+            secondaryApplyAction.shouldBeEnabled = true;
+            SetToolActionsEnabled(true);
+            m_Running = true;
+            m_Mode.Enter(m_Context);
+            NotifyChanged();
+        }
+
+        // Also reached when the game switches to another tool.
+        protected override void OnStopRunning()
+        {
+            m_Mode.Exit(m_Context);
+            m_Running = false;
+            SetToolActionsEnabled(false);
+            base.OnStopRunning();
+            NotifyChanged();
+        }
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            inputDeps = DestroyDefinitions(m_DefinitionQuery, m_Barrier, inputDeps);
+            if (m_FocusChanged || (m_ToolRaycastSystem.raycastFlags & (RaycastFlags.DebugDisable | RaycastFlags.UIDisable)) != 0)
+            {
+                applyMode = ApplyMode.Clear;
+                return inputDeps;
+            }
+
+            FillContext();
+            m_Mode.Update(m_Context);
+            applyMode = m_Context.ApplyMode;
+
+            var buffer = m_Overlay.GetBuffer(out var overlayDeps);
+            overlayDeps.Complete();
+            m_Mode.Render(m_Context, new Overlay(buffer, m_Net));
+            m_Overlay.AddBufferWriter(default);
+
+            if (!string.Equals(Info, m_LastInfo))
+                NotifyChanged();
+            return inputDeps;
+        }
+
+        /// <summary>Activates the tool, or returns to the default tool when already active.</summary>
+        public void Toggle()
+        {
+            if (IsActive)
+                m_ToolSystem.activeTool = m_DefaultToolSystem;
+            else
+                Activate();
+        }
+
+        /// <summary>Switches to the mode and activates the tool. Safe to call between frames.</summary>
+        public void SetMode(ToolModeId id)
+        {
+            if (!m_Modes.TryGetValue(id, out var next))
+            {
+                Mod.Log.Warn($"{nameof(NetworkMultitoolSystem)}: mode {id} is not registered");
+                return;
+            }
+
+            if (next != m_Mode)
+            {
+                // When not running, OnStartRunning enters the new mode.
+                if (m_Running)
+                    m_Mode.Exit(m_Context);
+                m_Mode = next;
+                if (m_Running)
+                    m_Mode.Enter(m_Context);
+            }
+
+            if (!IsActive)
+                Activate();
+            NotifyChanged();
+        }
+
+        private void Activate()
+        {
+            m_ToolSystem.selected = Entity.Null;
+            m_ToolSystem.activeTool = this;
+        }
+
+        private void FillContext()
+        {
+            m_Context.BeginFrame();
+            var hasHit = GetRaycastResult(out Entity entity, out RaycastHit hit);
+            m_Context.HasHit = hasHit;
+            m_Context.Hover = entity;
+            m_Context.Hit = hit;
+            m_Context.HoverIsNode = hasHit && m_Net.IsNode(entity);
+            m_Context.HoverIsEdge = hasHit && m_Net.IsEdge(entity);
+            if (hasHit)
+                m_Context.MousePosition = hit.m_HitPosition;
+            m_Context.ApplyPressed = applyAction.WasPressedThisFrame();
+            m_Context.ApplyHeld = applyAction.IsPressed();
+            m_Context.SecondaryPressed = secondaryApplyAction.WasPressedThisFrame();
+            m_Context.ApplyMode = ApplyMode.None;
+        }
+
+        private void NotifyChanged()
+        {
+            m_LastInfo = Info;
+            Changed?.Invoke();
+        }
+
+        private void SetToolActionsEnabled(bool enabled)
+        {
+            foreach (var action in m_Actions.Values)
+                action.shouldBeEnabled = enabled;
+        }
+
+        // ToolAction names and "Mode" + ToolModeId names match the ToolActions constants.
+        private void BindActions()
+        {
+            var settings = Mod.Settings;
+            if (settings == null)
+            {
+                Mod.Log.Error($"{nameof(NetworkMultitoolSystem)}: settings not loaded, key bindings are disabled");
+                return;
+            }
+
+            foreach (ToolAction action in Enum.GetValues(typeof(ToolAction)))
+            {
+                var proxy = FindAction(settings, action.ToString());
+                if (proxy != null)
+                    m_Actions[action] = proxy;
+            }
+
+            BindPermanent(settings, ToolActions.Toggle, Toggle);
+            foreach (ToolModeId id in Enum.GetValues(typeof(ToolModeId)))
+            {
+                if (id != ToolModeId.None)
+                    BindPermanent(settings, "Mode" + id, () => SetMode(id));
+            }
+        }
+
+        private static void BindPermanent(Settings settings, string name, Action onPerformed)
+        {
+            var proxy = FindAction(settings, name);
+            if (proxy == null)
+                return;
+            proxy.shouldBeEnabled = true;
+            proxy.onInteraction += (_, phase) =>
+            {
+                if (phase == InputActionPhase.Performed)
+                    onPerformed();
+            };
+        }
+
+        private static ProxyAction FindAction(Settings settings, string name)
+        {
+            var proxy = settings.GetAction(name);
+            if (proxy == null)
+                Mod.Log.Error($"{nameof(NetworkMultitoolSystem)}: key binding {name} not found");
+            return proxy;
+        }
+    }
+}
