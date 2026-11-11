@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Game;
 using Game.Common;
 using Game.Input;
 using Game.Net;
 using Game.Prefabs;
 using Game.Rendering;
+using Game.SceneFlow;
 using Game.Tools;
 using NetworkMultitool.Modes;
 using NetworkMultitool.Net;
@@ -27,6 +29,7 @@ namespace NetworkMultitool.Tool
         private ToolContext m_Context;
         private IToolMode m_Mode;
         private bool m_Running;
+        private readonly List<(ProxyAction Proxy, Action<ProxyAction, InputActionPhase> Handler)> m_Bindings = new List<(ProxyAction, Action<ProxyAction, InputActionPhase>)>();
         private string m_LastInfo;
 
         public override string toolID => "NetworkMultitool";
@@ -76,6 +79,7 @@ namespace NetworkMultitool.Tool
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
+            m_Context.ResetEcb();
             applyAction.shouldBeEnabled = true;
             secondaryApplyAction.shouldBeEnabled = true;
             SetToolActionsEnabled(true);
@@ -91,10 +95,32 @@ namespace NetworkMultitool.Tool
             m_Running = false;
             SetToolActionsEnabled(false);
             base.OnStopRunning();
+            m_Context.ResetEcb();
             NotifyChanged();
         }
 
+        protected override void OnDestroy()
+        {
+            foreach (var (proxy, handler) in m_Bindings)
+                proxy.onInteraction -= handler;
+            m_Bindings.Clear();
+            base.OnDestroy();
+        }
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            try
+            {
+                return UpdateFrame(inputDeps);
+            }
+            finally
+            {
+                // The barrier plays the buffer back after this update; out-of-frame calls must not reuse it.
+                m_Context.ResetEcb();
+            }
+        }
+
+        private JobHandle UpdateFrame(JobHandle inputDeps)
         {
             inputDeps = DestroyDefinitions(m_DefinitionQuery, m_Barrier, inputDeps);
             if (m_FocusChanged || (m_ToolRaycastSystem.raycastFlags & (RaycastFlags.DebugDisable | RaycastFlags.UIDisable)) != 0)
@@ -120,6 +146,8 @@ namespace NetworkMultitool.Tool
         /// <summary>Activates the tool, or returns to the default tool when already active.</summary>
         public void Toggle()
         {
+            if (!InGame)
+                return;
             if (IsActive)
                 m_ToolSystem.activeTool = m_DefaultToolSystem;
             else
@@ -129,6 +157,8 @@ namespace NetworkMultitool.Tool
         /// <summary>Switches to the mode and activates the tool. Safe to call between frames.</summary>
         public void SetMode(ToolModeId id)
         {
+            if (!InGame)
+                return;
             if (!m_Modes.TryGetValue(id, out var next))
             {
                 Mod.Log.Warn($"{nameof(NetworkMultitoolSystem)}: mode {id} is not registered");
@@ -150,6 +180,9 @@ namespace NetworkMultitool.Tool
             NotifyChanged();
         }
 
+        // Bindings stay enabled in the main menu and editor; the tool only runs in a loaded game.
+        private static bool InGame => GameManager.instance != null && GameManager.instance.gameMode.IsGame();
+
         private void Activate()
         {
             m_ToolSystem.selected = Entity.Null;
@@ -158,7 +191,6 @@ namespace NetworkMultitool.Tool
 
         private void FillContext()
         {
-            m_Context.BeginFrame();
             var hasHit = GetRaycastResult(out Entity entity, out RaycastHit hit);
             m_Context.HasHit = hasHit;
             m_Context.Hover = entity;
@@ -210,17 +242,27 @@ namespace NetworkMultitool.Tool
             }
         }
 
-        private static void BindPermanent(Settings settings, string name, Action onPerformed)
+        private void BindPermanent(Settings settings, string name, Action onPerformed)
         {
             var proxy = FindAction(settings, name);
             if (proxy == null)
                 return;
             proxy.shouldBeEnabled = true;
-            proxy.onInteraction += (_, phase) =>
+            Action<ProxyAction, InputActionPhase> handler = (_, phase) =>
             {
-                if (phase == InputActionPhase.Performed)
+                if (phase != InputActionPhase.Performed)
+                    return;
+                try
+                {
                     onPerformed();
+                }
+                catch (Exception e)
+                {
+                    Mod.Log.Error(e, $"{nameof(NetworkMultitoolSystem)}: key binding {name} failed");
+                }
             };
+            proxy.onInteraction += handler;
+            m_Bindings.Add((proxy, handler));
         }
 
         private static ProxyAction FindAction(Settings settings, string name)

@@ -95,6 +95,7 @@ namespace NetworkMultitool.Tool
 
         public void SetMode(ToolModeId id) => _system.SetMode(id);
 
-        internal void BeginFrame() => _hasEcb = false;
+        /// <summary>Drops the cached buffer once the barrier may have played it back, so the next use gets a fresh one.</summary>
+        internal void ResetEcb() => _hasEcb = false;
     }
 }
