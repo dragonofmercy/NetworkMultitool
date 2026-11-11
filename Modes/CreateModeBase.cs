@@ -61,6 +61,9 @@ namespace NetworkMultitool.Modes
         {
         }
 
+        /// <summary>Called on a left click before the base selection logic; return true when the mode handled the click itself.</summary>
+        protected virtual bool ConsumeClick(ToolContext ctx) => false;
+
         protected void MarkDirty() => _dirty = true;
 
         public virtual void Enter(ToolContext ctx) => Reset();
@@ -167,7 +170,7 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
-            if (!ctx.ApplyPressed)
+            if (!ctx.ApplyPressed || ConsumeClick(ctx))
                 return;
 
             if (IsSelectable(ctx, ctx.Hover))
