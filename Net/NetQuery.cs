@@ -25,10 +25,15 @@ namespace NetworkMultitool.Net
 
         public quaternion NodeRotation(Entity node) => _em.GetComponentData<Node>(node).m_Rotation;
 
-        public int Degree(Entity node) => _em.HasBuffer<ConnectedEdge>(node) ? _em.GetBuffer<ConnectedEdge>(node, true).Length : 0;
+        public int Degree(Entity node) => EdgeList(node).Count;
 
-        /// <summary>Connected edges, copied so callers may make structural changes while iterating.</summary>
-        public IEnumerable<Entity> Edges(Entity node)
+        /// <summary>
+        /// Edges starting or ending at the node, copied so callers may make structural changes while iterating.
+        /// The ConnectedEdge buffer also lists edges where the node is only a middle node; those are skipped, as vanilla does.
+        /// </summary>
+        public IEnumerable<Entity> Edges(Entity node) => EdgeList(node);
+
+        private List<Entity> EdgeList(Entity node)
         {
             var result = new List<Entity>();
             if (!_em.HasBuffer<ConnectedEdge>(node))
@@ -36,7 +41,12 @@ namespace NetworkMultitool.Net
 
             var buffer = _em.GetBuffer<ConnectedEdge>(node, true);
             for (var i = 0; i < buffer.Length; i += 1)
-                result.Add(buffer[i].m_Edge);
+            {
+                var edge = buffer[i].m_Edge;
+                var ends = Ends(edge);
+                if (ends.m_Start == node || ends.m_End == node)
+                    result.Add(edge);
+            }
             return result;
         }
 
@@ -59,6 +69,9 @@ namespace NetworkMultitool.Net
         public Edge Ends(Entity edge) => _em.GetComponentData<Edge>(edge);
 
         public bool IsStart(Entity edge, Entity node) => Ends(edge).m_Start == node;
+
+        /// <summary>Game.Net.Fixed.m_Index of the edge, -1 when absent (vanilla NetCourse.m_FixedIndex).</summary>
+        public int FixedIndex(Entity edge) => _em.HasComponent<Fixed>(edge) ? _em.GetComponentData<Fixed>(edge).m_Index : -1;
 
         public Bezier4x3 Curve(Entity edge) => _em.GetComponentData<Curve>(edge).m_Bezier;
 

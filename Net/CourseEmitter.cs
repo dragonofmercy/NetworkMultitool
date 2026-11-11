@@ -37,6 +37,12 @@ namespace NetworkMultitool.Net
                 var p0 = points[i];
                 var p1 = points[i + 1];
                 var curve = Fit(p0, p1);
+                if (freeHeight)
+                {
+                    // Flat directions leave b.y = a.y and c.y = d.y: restore a constant slope.
+                    curve.b.y = math.lerp(curve.a.y, curve.d.y, 1f / 3f);
+                    curve.c.y = math.lerp(curve.a.y, curve.d.y, 2f / 3f);
+                }
 
                 var common = CoursePosFlags.IsLeft | CoursePosFlags.IsRight | (freeHeight ? CoursePosFlags.FreeHeight : 0);
                 var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, Lerp(startElevation, endElevation, i, last), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
@@ -76,7 +82,9 @@ namespace NetworkMultitool.Net
         {
             var curve = _net.Curve(edge);
             var ends = _net.Ends(edge);
-            Emit(new CreationDefinition { m_Original = edge, m_Flags = CreationFlags.Delete }, Course(curve, ends.m_Start, curve.a, ends.m_End, curve.d));
+            var course = Course(curve, ends.m_Start, curve.a, ends.m_End, curve.d);
+            course.m_FixedIndex = _net.FixedIndex(edge);
+            Emit(new CreationDefinition { m_Original = edge, m_Flags = CreationFlags.Delete }, course);
         }
 
         /// <summary>
@@ -92,6 +100,7 @@ namespace NetworkMultitool.Net
                 : Course(curve, Entity.Null, newEndPosition, keptNode, keptPosition);
             course.m_StartPosition.m_Flags |= CoursePosFlags.IsFirst;
             course.m_EndPosition.m_Flags |= CoursePosFlags.IsLast;
+            course.m_FixedIndex = _net.FixedIndex(edge);
 
             Emit(new CreationDefinition { m_Original = edge, m_Prefab = _net.Prefab(edge), m_Flags = CreationFlags.Align | CreationFlags.SubElevation }, course);
         }
