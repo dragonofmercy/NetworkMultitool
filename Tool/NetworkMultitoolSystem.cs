@@ -63,6 +63,7 @@ namespace NetworkMultitool.Tool
             RegisterMode(new CurveMode());
             RegisterMode(new LoopMode());
             RegisterMode(new ConnectionMode());
+            RegisterMode(new SplitNodeMode());
             m_Mode = m_Modes[ToolModeId.None];
 
             BindActions();
