@@ -20,6 +20,8 @@ namespace NetworkMultitool.Tool
         public static readonly Color Yellow = new Color(1f, 1f, 0f, 0.6f);
         public static readonly Color Purple = new Color(0.6f, 0f, 1f, 0.6f);
         public static readonly Color Blue = new Color(0f, 0.4f, 1f, 0.6f);
+        public static readonly Color Gray = new Color(0.8f, 0.8f, 0.8f, 0.6f);
+        public static readonly Color Orange = new Color(1f, 0.5f, 0f, 0.6f);
 
         private readonly OverlayRenderSystem.Buffer _buffer;
         private readonly NetQuery _net;

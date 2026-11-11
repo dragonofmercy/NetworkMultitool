@@ -2,15 +2,12 @@ using System.Collections.Generic;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
-using UnityEngine;
 
 namespace NetworkMultitool.Modes
 {
     /// <summary>Connects two segments with two arcs joined by a straight (port of CS1 CreateConnectionMode).</summary>
     public sealed class ConnectionMode : CreateModeBase
     {
-        private static readonly Color Gray = new Color(0.8f, 0.8f, 0.8f, 0.6f);
-
         private ConnectionSolver _solver;
         private Point _start;
         private Point _end;
@@ -28,7 +25,7 @@ namespace NetworkMultitool.Modes
                 var old = _solver;
                 _start = StartPoint;
                 _end = EndPoint;
-                _solver = new ConnectionSolver(StartPoint, EndPoint, ctx.Net.Width(First) * 2f, 5000f);
+                _solver = new ConnectionSolver(StartPoint, EndPoint, ctx.Net.Width(First), 5000f);
                 if (old != null)
                 {
                     _solver.FirstRadius = old.FirstRadius;
@@ -108,7 +105,7 @@ namespace NetworkMultitool.Modes
         private void DrawArc(Overlay overlay, Arc arc, bool selected)
         {
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            overlay.CircleOutline(center, arc.Radius, selected ? Overlay.Yellow : Gray);
+            overlay.CircleOutline(center, arc.Radius, selected ? Overlay.Yellow : Overlay.Gray);
             overlay.Disc(center, 4f, Overlay.White);
         }
     }

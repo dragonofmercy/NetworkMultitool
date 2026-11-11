@@ -3,15 +3,12 @@ using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace NetworkMultitool.Modes
 {
     /// <summary>Connects two segments with a single arc, direct or looping (port of CS1 CreateLoopMode).</summary>
     public sealed class LoopMode : CreateModeBase
     {
-        private static readonly Color Gray = new Color(0.8f, 0.8f, 0.8f, 0.6f);
-
         private LoopSolver _solver;
         private Point _start;
         private Point _end;
@@ -28,7 +25,7 @@ namespace NetworkMultitool.Modes
                 var old = _solver;
                 _start = StartPoint;
                 _end = EndPoint;
-                _solver = new LoopSolver(StartPoint, EndPoint, ctx.Net.Width(First) * 2f, 5000f);
+                _solver = new LoopSolver(StartPoint, EndPoint, ctx.Net.Width(First), 5000f);
                 if (old != null)
                 {
                     // ForceLoop first: the radius clamp depends on it.
@@ -95,7 +92,7 @@ namespace NetworkMultitool.Modes
                 return;
             var arc = _solver.Arc;
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            overlay.CircleOutline(center, arc.Radius, Gray);
+            overlay.CircleOutline(center, arc.Radius, Overlay.Gray);
             overlay.Disc(center, 4f, Overlay.White);
         }
 

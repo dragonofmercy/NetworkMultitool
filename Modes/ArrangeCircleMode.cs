@@ -6,7 +6,6 @@ using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace NetworkMultitool.Modes
 {
@@ -16,8 +15,6 @@ namespace NetworkMultitool.Modes
         private const float MaxRadius = 5000f;
         private const float GrabDistance = 5f;
         private const float BigDelta = 50f;
-
-        private static readonly Color Orange = new Color(1f, 0.5f, 0f, 0.6f);
 
         private enum Drag
         {
@@ -133,7 +130,7 @@ namespace NetworkMultitool.Modes
             foreach (var node in Nodes)
                 overlay.Node(node, Overlay.White);
 
-            overlay.CircleOutline(_center, _radius, _wrongOrder ? Overlay.Red : _bigDelta ? Orange : Overlay.Green);
+            overlay.CircleOutline(_center, _radius, _wrongOrder ? Overlay.Red : _bigDelta ? Overlay.Orange : Overlay.Green);
             overlay.Disc(_center, GrabDistance, Overlay.White);
             foreach (var target in _targets)
                 overlay.Disc(target, _minRadius, Overlay.Yellow);
