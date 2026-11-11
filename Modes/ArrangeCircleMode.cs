@@ -56,7 +56,6 @@ namespace NetworkMultitool.Modes
 
         public override void Update(ToolContext ctx)
         {
-            _wrongShape = false;
             if (!_editing)
             {
                 base.Update(ctx);
@@ -102,17 +101,18 @@ namespace NetworkMultitool.Modes
             }
 
             var distance = math.distance(Vec.Flat(ctx.MousePosition), Vec.Flat(_center));
-            if (ctx.ApplyPressed)
+            if (ctx.ApplyPressed && ctx.HasHit)
                 _drag = distance < GrabDistance ? Drag.Center : math.abs(distance - _radius) < GrabDistance ? Drag.Radius : Drag.None;
             if (!ctx.ApplyHeld)
                 _drag = Drag.None;
 
-            if (_drag == Drag.Center)
+            // MousePosition is stale when nothing is hit: the circle then stays where it is.
+            if (ctx.HasHit && _drag == Drag.Center)
             {
                 _center = Vec.WithY(ctx.MousePosition, _center.y);
                 changed = true;
             }
-            else if (_drag == Drag.Radius)
+            else if (ctx.HasHit && _drag == Drag.Radius)
             {
                 _radius = ClampRadius(distance);
                 changed = true;
@@ -157,36 +157,25 @@ namespace NetworkMultitool.Modes
             for (var i = 0; i < Nodes.Count - 1; i++)
                 _minRadius = math.max(_minRadius, net.Width(ChainEdge(ctx, i)));
 
-            // Rotational direction and order check (CS1 States): the chain must turn monotonically one way around the center.
-            var angles = CircleArranger.Angles(_positions, _center);
-            var sweep = 0f;
-            var hasPositive = false;
-            var hasNegative = false;
-            for (var i = 1; i < angles.Length; i++)
-            {
-                var delta = angles[i] - angles[i - 1];
-                delta -= 2f * math.PI * math.round(delta / (2f * math.PI));
-                sweep += delta;
-                hasPositive |= delta > 0f;
-                hasNegative |= delta < 0f;
-            }
-
-            _clockwise = sweep < 0f;
-            _wrongOrder = _clockwise ? hasPositive : hasNegative;
+            _wrongShape = false;
             _evenly = false;
             _drag = Drag.None;
             _editing = true;
             UpdateTargets();
         }
 
-        protected override void OnChainChanged(ToolContext ctx) => StopEditing();
+        protected override void OnChainChanged(ToolContext ctx)
+        {
+            _wrongShape = false;
+            StopEditing();
+        }
 
         protected override void Apply(ToolContext ctx)
         {
             var em = ctx.Em;
             var net = ctx.Net;
             var count = Nodes.Count;
-            var tangents = new float3[count];
+            var points = new Point[count];
             var chainEdges = new HashSet<Entity>();
             for (var i = 0; i < count - 1; i++)
                 chainEdges.Add(ChainEdge(ctx, i));
@@ -195,30 +184,14 @@ namespace NetworkMultitool.Modes
             {
                 var oldPosition = net.NodePosition(Nodes[i]);
                 _targets[i] = Vec.WithY(_targets[i], oldPosition.y);
-                tangents[i] = Vec.Turn90(Vec.NormalizeXZ(_targets[i] - _center), _clockwise);
+                var tangent = Vec.Turn90(Vec.NormalizeXZ(_targets[i] - _center), _clockwise);
+                points[i] = new Point(_targets[i], tangent);
                 // Edges outside the chain (at the ends) keep following the moved node; chain edges are rebuilt below.
                 NodeMover.ShiftConnectedEdges(em, net, Nodes[i], _targets[i] - oldPosition, chainEdges);
-                NodeMover.MoveNode(em, Nodes[i], _targets[i], NetUtils.GetNodeRotation(tangents[i]));
+                NodeMover.MoveNode(em, Nodes[i], _targets[i], NetUtils.GetNodeRotation(tangent));
             }
 
-            for (var i = 0; i < count - 1; i++)
-            {
-                var edge = ChainEdge(ctx, i);
-                var p0 = new Point(_targets[i], tangents[i]);
-                var p1 = new Point(_targets[i + 1], tangents[i + 1]);
-                // The curve must start at the edge's m_Start node.
-                if (!net.IsStart(edge, Nodes[i]))
-                {
-                    p0 = new Point(_targets[i + 1], -tangents[i + 1]);
-                    p1 = new Point(_targets[i], -tangents[i]);
-                }
-
-                var bezier = NetUtils.FitCurve(p0.Position, p0.Direction, p1.Direction, p1.Position);
-                // Flat tangents keep b.y = a.y and c.y = d.y: restore a constant slope, as CourseEmitter does.
-                bezier.b.y = math.lerp(bezier.a.y, bezier.d.y, 1f / 3f);
-                bezier.c.y = math.lerp(bezier.a.y, bezier.d.y, 2f / 3f);
-                NodeMover.SetCurve(em, edge, bezier);
-            }
+            RebuildChainEdges(ctx, points);
 
             foreach (var node in Nodes)
                 NodeMover.MarkUpdated(em, node);
@@ -242,6 +215,23 @@ namespace NetworkMultitool.Modes
             _bigDelta = false;
             for (var i = 0; i < _targets.Length; i++)
                 _bigDelta |= math.distance(_targets[i], _positions[i]) > BigDelta;
+
+            // Rotational direction and order check (CS1 States): the chain must turn monotonically one way around the center.
+            var angles = CircleArranger.Angles(_positions, _center);
+            var sweep = 0f;
+            var hasPositive = false;
+            var hasNegative = false;
+            for (var i = 1; i < angles.Length; i++)
+            {
+                var delta = angles[i] - angles[i - 1];
+                delta -= 2f * math.PI * math.round(delta / (2f * math.PI));
+                sweep += delta;
+                hasPositive |= delta > 0f;
+                hasNegative |= delta < 0f;
+            }
+
+            _clockwise = sweep < 0f;
+            _wrongOrder = _clockwise ? hasPositive : hasNegative;
         }
     }
 }

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using Game.Net;
+using NetworkMultitool.Geometry;
 using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace NetworkMultitool.Modes
 {
@@ -133,6 +136,30 @@ namespace NetworkMultitool.Modes
         {
             ctx.Net.TryCommonEdge(Nodes[i], Nodes[i + 1], out var edge);
             return edge;
+        }
+
+        /// <summary>Rewrites every chain edge as <c>NetUtils.FitCurve</c> between consecutive points (one per chain node, forward direction in chain order) with a constant slope.</summary>
+        protected void RebuildChainEdges(ToolContext ctx, IReadOnlyList<Point> points)
+        {
+            var net = ctx.Net;
+            for (var i = 0; i < Nodes.Count - 1; i++)
+            {
+                var edge = ChainEdge(ctx, i);
+                var p0 = points[i];
+                var p1 = points[i + 1];
+                // The curve must start at the edge's m_Start node.
+                if (!net.IsStart(edge, Nodes[i]))
+                {
+                    p0 = new Point(points[i + 1].Position, -points[i + 1].Direction);
+                    p1 = new Point(points[i].Position, -points[i].Direction);
+                }
+
+                var bezier = NetUtils.FitCurve(p0.Position, p0.Direction, p1.Direction, p1.Position);
+                // Flat tangents keep b.y = a.y and c.y = d.y: restore a constant slope, as CourseEmitter does.
+                bezier.b.y = math.lerp(bezier.a.y, bezier.d.y, 1f / 3f);
+                bezier.c.y = math.lerp(bezier.a.y, bezier.d.y, 2f / 3f);
+                NodeMover.SetCurve(ctx.Em, edge, bezier);
+            }
         }
 
         private void UpdateState(ToolContext ctx)
