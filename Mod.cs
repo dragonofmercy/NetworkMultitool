@@ -4,6 +4,7 @@ using Game;
 using Game.Modding;
 using Game.SceneFlow;
 using NetworkMultitool.Tool;
+using NetworkMultitool.UI;
 
 namespace NetworkMultitool
 {
@@ -25,6 +26,7 @@ namespace NetworkMultitool
             AssetDatabase.global.LoadSettings(nameof(NetworkMultitool), Settings, new Settings(this));
 
             updateSystem.UpdateAt<NetworkMultitoolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<NetworkMultitoolUISystem>(SystemUpdatePhase.UIUpdate);
         }
 
         public void OnDispose()

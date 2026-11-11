@@ -51,6 +51,9 @@ namespace NetworkMultitool.Tool
 
         public bool SecondaryPressed { get; internal set; }
 
+        /// <summary>Set by the UI Apply button; consumed by the next <see cref="Pressed"/> of <see cref="ToolAction.Apply"/>.</summary>
+        public bool ApplyRequested { get; set; }
+
         /// <summary>What the game should do with the definitions emitted this frame; reset to None before each Update.</summary>
         public ApplyMode ApplyMode { get; set; }
 
@@ -89,7 +92,16 @@ namespace NetworkMultitool.Tool
             }
         }
 
-        public bool Pressed(ToolAction action) => _actions.TryGetValue(action, out var proxy) && proxy.WasPressedThisFrame();
+        public bool Pressed(ToolAction action)
+        {
+            if (action == ToolAction.Apply && ApplyRequested)
+            {
+                ApplyRequested = false;
+                return true;
+            }
+
+            return _actions.TryGetValue(action, out var proxy) && proxy.WasPressedThisFrame();
+        }
 
         public CourseEmitter Emitter(Entity prefab) => new CourseEmitter(Ecb, Net, prefab);
 

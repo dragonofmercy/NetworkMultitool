@@ -93,6 +93,7 @@ namespace NetworkMultitool.Tool
         {
             m_Mode.Exit(m_Context);
             m_Running = false;
+            m_Context.ApplyRequested = false;
             SetToolActionsEnabled(false);
             base.OnStopRunning();
             m_Context.ResetEcb();
@@ -131,6 +132,8 @@ namespace NetworkMultitool.Tool
 
             FillContext();
             m_Mode.Update(m_Context);
+            // A request the mode did not consume this frame must not fire later in another mode.
+            m_Context.ApplyRequested = false;
             applyMode = m_Context.ApplyMode;
 
             var buffer = m_Overlay.GetBuffer(out var overlayDeps);
@@ -178,6 +181,13 @@ namespace NetworkMultitool.Tool
             if (!IsActive)
                 Activate();
             NotifyChanged();
+        }
+
+        /// <summary>Same as pressing the Apply key on the next tool update; ignored while the tool is inactive.</summary>
+        public void RequestApply()
+        {
+            if (IsActive)
+                m_Context.ApplyRequested = true;
         }
 
         // Bindings stay enabled in the main menu and editor; the tool only runs in a loaded game.

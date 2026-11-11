@@ -1,0 +1,39 @@
+.panel {
+    position: fixed;
+    left: 16rem;
+    top: 180rem;
+    width: 260rem;
+    background-color: rgba(24, 33, 51, 0.85);
+    border-radius: 4rem;
+}
+
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.mode {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4rem 6rem;
+}
+
+.icon {
+    width: 20rem;
+    height: 20rem;
+    margin-right: 6rem;
+}
+
+.apply {
+    margin-top: 6rem;
+    padding: 6rem;
+    justify-content: center;
+}
+
+.info {
+    margin-top: 6rem;
+    padding: 4rem 6rem;
+    white-space: pre-line;
+}
