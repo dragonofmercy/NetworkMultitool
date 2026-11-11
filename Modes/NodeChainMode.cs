@@ -167,6 +167,7 @@ namespace NetworkMultitool.Modes
             State = ChainState.None;
             ToAdd.Clear();
             Prepend = false;
+            ctx.SnapHoverToNode();
             if (!ctx.HoverIsNode || !ctx.Em.Exists(ctx.Hover))
                 return;
 

@@ -3,6 +3,7 @@ using Game.Tools;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace NetworkMultitool.Modes
 {
@@ -90,8 +91,7 @@ namespace NetworkMultitool.Modes
                 Points.Clear();
                 // Both chosen ends on the same node would make a degenerate zero-length course.
                 Result = FirstNode == SecondNode ? SolveResult.WrongShape : Solve(ctx, Points);
-                for (var i = 0; i < Points.Count; i++)
-                    Points[i] = new Point(Vec.WithY(Points[i].Position, Points[i].Position.y + Height), Points[i].Direction);
+                ApplyHeights();
             }
 
             if (Result != SolveResult.Ok)
@@ -120,7 +120,11 @@ namespace NetworkMultitool.Modes
                 _emitted.AddRange(Points);
             }
 
-            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, net.Elevation(startNode), net.Elevation(endNode), ctx.Settings == null || !ctx.Settings.FollowTerrain || Height != 0f);
+            // Ground-level networks may follow the terrain; anything elevated, lowered or offset keeps the solved heights.
+            var startElevation = net.Elevation(startNode);
+            var endElevation = net.Elevation(endNode);
+            var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
+            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, startElevation, endElevation, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -149,9 +153,31 @@ namespace NetworkMultitool.Modes
             RenderShape(ctx, overlay);
         }
 
+        /// <summary>The solvers work at a flat mean height: spread the height difference of the two nodes along the path, plus the user offset on inner points.</summary>
+        private void ApplyHeights()
+        {
+            var last = Points.Count - 1;
+            if (last < 1)
+                return;
+            var total = 0f;
+            for (var i = 0; i < last; i++)
+                total += math.distance(Vec.Flat(Points[i].Position), Vec.Flat(Points[i + 1].Position));
+
+            var run = 0f;
+            for (var i = 0; i <= last; i++)
+            {
+                if (i > 0)
+                    run += math.distance(Vec.Flat(Points[i - 1].Position), Vec.Flat(Points[i].Position));
+                var y = math.lerp(StartPoint.Position.y, EndPoint.Position.y, total > 0f ? run / total : 0f) + (i == 0 || i == last ? 0f : Height);
+                Points[i] = new Point(Vec.WithY(Points[i].Position, y), Points[i].Direction);
+            }
+        }
+
         private void HandleSelection(ToolContext ctx)
         {
             var net = ctx.Net;
+            if (Second != Entity.Null)
+                ctx.SnapHoverToNode();
             _hoverEnd = Second != Entity.Null && ctx.HoverIsNode && ctx.Em.Exists(ctx.Hover) && (IsEnd(ctx, First, ctx.Hover) || IsEnd(ctx, Second, ctx.Hover));
 
             if (ctx.SecondaryPressed)

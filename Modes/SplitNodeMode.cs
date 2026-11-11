@@ -74,6 +74,8 @@ namespace NetworkMultitool.Modes
                     _source = Entity.Null;
             }
 
+            if (_source == Entity.Null)
+                ctx.SnapHoverToNode();
             var hoverExists = ctx.Hover != Entity.Null && ctx.Em.Exists(ctx.Hover);
             if (_source == Entity.Null)
             {

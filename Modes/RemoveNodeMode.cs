@@ -24,6 +24,7 @@ namespace NetworkMultitool.Modes
         {
             _node = Entity.Null;
             _correct = false;
+            ctx.SnapHoverToNode();
             if (!ctx.HoverIsNode || !ctx.Em.Exists(ctx.Hover))
                 return;
 

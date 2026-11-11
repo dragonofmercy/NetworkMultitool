@@ -29,7 +29,11 @@ namespace NetworkMultitool.Net
         }
 
         /// <summary>One course per pair of consecutive points (pattern NetToolSystem.CreateStraightLine).</summary>
-        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, float2 startElevation, float2 endElevation, bool freeHeight)
+        /// <remarks>
+        /// CoursePosFlags.FreeHeight lets the game overwrite the position height with terrain + m_Elevation (CourseSplitSystem.InitializeCoursePos).
+        /// Without it the heights are kept, and <paramref name="terrainHeight"/> gives inner points their real elevation so bridges and pillars match.
+        /// </remarks>
+        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, float2 startElevation, float2 endElevation, bool followTerrain, System.Func<float3, float> terrainHeight = null)
         {
             var last = points.Count - 1;
             for (var i = 0; i < last; i += 1)
@@ -37,16 +41,15 @@ namespace NetworkMultitool.Net
                 var p0 = points[i];
                 var p1 = points[i + 1];
                 var curve = Fit(p0, p1);
-                if (freeHeight)
-                {
-                    // Flat directions leave b.y = a.y and c.y = d.y: restore a constant slope.
-                    curve.b.y = math.lerp(curve.a.y, curve.d.y, 1f / 3f);
-                    curve.c.y = math.lerp(curve.a.y, curve.d.y, 2f / 3f);
-                }
+                // Flat directions leave b.y = a.y and c.y = d.y: restore a constant slope.
+                curve.b.y = math.lerp(curve.a.y, curve.d.y, 1f / 3f);
+                curve.c.y = math.lerp(curve.a.y, curve.d.y, 2f / 3f);
 
-                var common = CoursePosFlags.IsLeft | CoursePosFlags.IsRight | (freeHeight ? CoursePosFlags.FreeHeight : 0);
-                var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, Lerp(startElevation, endElevation, i, last), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
-                var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, Lerp(startElevation, endElevation, i + 1, last), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
+                float2 ElevationAt(int index, float3 position) => terrainHeight == null || index == 0 || index == last ? Lerp(startElevation, endElevation, index, last) : new float2(position.y - terrainHeight(position));
+
+                var common = CoursePosFlags.IsLeft | CoursePosFlags.IsRight | (followTerrain ? CoursePosFlags.FreeHeight : 0);
+                var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, ElevationAt(i, p0.Position), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
+                var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, ElevationAt(i + 1, p1.Position), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
 
                 Emit(new CreationDefinition { m_Prefab = _prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
                 {

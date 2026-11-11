@@ -24,6 +24,7 @@ namespace NetworkMultitool.Tool
 
         private ToolOutputBarrier m_Barrier;
         private OverlayRenderSystem m_Overlay;
+        private Game.Simulation.TerrainSystem m_Terrain;
         private EntityQuery m_DefinitionQuery;
         private NetQuery m_Net;
         private ToolContext m_Context;
@@ -39,12 +40,19 @@ namespace NetworkMultitool.Tool
 
         public string Info => m_Mode.Info;
 
+        internal float TerrainHeight(Unity.Mathematics.float3 position)
+        {
+            var data = m_Terrain.GetHeightData();
+            return Game.Simulation.TerrainUtils.SampleHeight(ref data, position);
+        }
+
         protected override void OnCreate()
         {
             base.OnCreate();
             Enabled = false;
             m_Barrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_Overlay = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
+            m_Terrain = World.GetOrCreateSystemManaged<Game.Simulation.TerrainSystem>();
             m_DefinitionQuery = GetDefinitionQuery();
             m_Net = new NetQuery(EntityManager);
             m_Context = new ToolContext(this, m_Barrier, m_Actions) { Em = EntityManager, Net = m_Net };

@@ -107,6 +107,30 @@ namespace NetworkMultitool.Tool
 
         public CourseEmitter Emitter(Entity prefab) => new CourseEmitter(Ecb, Net, prefab);
 
+        /// <summary>
+        /// Turns an edge hover into a node hover when the hit is close to one of the edge ends: plain nodes between two segments have almost no
+        /// geometry of their own to raycast. The radius is capped at a third of the edge so its middle always stays an edge hover.
+        /// </summary>
+        public void SnapHoverToNode()
+        {
+            if (!HasHit || !HoverIsEdge || !Em.Exists(Hover))
+                return;
+            var ends = Net.Ends(Hover);
+            var start = Net.NodePosition(ends.m_Start);
+            var end = Net.NodePosition(ends.m_End);
+            var radius = math.min(math.max(Net.Width(Hover) * 0.5f, 4f), math.distance(start, end) / 3f);
+            var toStart = math.distance(MousePosition, start);
+            var toEnd = math.distance(MousePosition, end);
+            if (math.min(toStart, toEnd) > radius)
+                return;
+            Hover = toStart <= toEnd ? ends.m_Start : ends.m_End;
+            HoverIsNode = true;
+            HoverIsEdge = false;
+        }
+
+        /// <summary>Terrain height (water ignored) under a world position.</summary>
+        public float TerrainHeight(float3 position) => _system.TerrainHeight(position);
+
         public void SetMode(ToolModeId id) => _system.SetMode(id);
 
         /// <summary>Drops the cached buffer once the barrier may have played it back, so the next use gets a fresh one.</summary>
