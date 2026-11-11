@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Colossal.Mathematics;
 using Game.Common;
 using Game.Net;
@@ -21,6 +22,30 @@ namespace NetworkMultitool.Net
         public static void SetCurve(EntityManager em, Entity edge, Bezier4x3 bezier)
         {
             em.SetComponentData(edge, new Curve { m_Bezier = bezier, m_Length = MathUtils.Length(bezier) });
+        }
+
+        /// <summary>Moves the node-side end (and its adjacent control point) of every edge of <paramref name="node"/> not in <paramref name="excludedEdges"/> by <paramref name="delta"/>.</summary>
+        public static void ShiftConnectedEdges(EntityManager em, NetQuery net, Entity node, float3 delta, ICollection<Entity> excludedEdges)
+        {
+            foreach (var edge in net.Edges(node))
+            {
+                if (excludedEdges.Contains(edge))
+                    continue;
+
+                var bezier = net.Curve(edge);
+                if (net.IsStart(edge, node))
+                {
+                    bezier.a += delta;
+                    bezier.b += delta;
+                }
+                else
+                {
+                    bezier.d += delta;
+                    bezier.c += delta;
+                }
+
+                SetCurve(em, edge, bezier);
+            }
         }
 
         /// <summary>Flags the node, its edges, their opposite nodes and their aggregates as updated. Safe to call repeatedly.</summary>

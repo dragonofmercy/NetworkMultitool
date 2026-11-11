@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Globalization;
 using Game.Net;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -185,10 +187,17 @@ namespace NetworkMultitool.Modes
             var net = ctx.Net;
             var count = Nodes.Count;
             var tangents = new float3[count];
+            var chainEdges = new HashSet<Entity>();
+            for (var i = 0; i < count - 1; i++)
+                chainEdges.Add(ChainEdge(ctx, i));
+
             for (var i = 0; i < count; i++)
             {
-                _targets[i] = Vec.WithY(_targets[i], net.NodePosition(Nodes[i]).y);
+                var oldPosition = net.NodePosition(Nodes[i]);
+                _targets[i] = Vec.WithY(_targets[i], oldPosition.y);
                 tangents[i] = Vec.Turn90(Vec.NormalizeXZ(_targets[i] - _center), _clockwise);
+                // Edges outside the chain (at the ends) keep following the moved node; chain edges are rebuilt below.
+                NodeMover.ShiftConnectedEdges(em, net, Nodes[i], _targets[i] - oldPosition, chainEdges);
                 NodeMover.MoveNode(em, Nodes[i], _targets[i], NetUtils.GetNodeRotation(tangents[i]));
             }
 
