@@ -32,7 +32,12 @@ namespace NetworkMultitool.Geometry
 
         public float3 Position(float t) => MathUtils.Position(Bezier, t);
 
-        public float3 Tangent(float t) => MathUtils.Tangent(Bezier, t);
+        public float3 Tangent(float t)
+        {
+            var v = MathUtils.Tangent(Bezier, t);
+            var len = math.length(v);
+            return len < 1e-6f ? float3.zero : v / len;
+        }
 
         public float Travel(float fromT, float distance)
         {

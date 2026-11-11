@@ -33,7 +33,8 @@ namespace NetworkMultitool.Tests
             var t = new BezierTrajectory(start, new float3(1, 0, 0), end, new float3(0, 0, 1));
             Assert.True(math.distance(start, t.Position(0f)) < 1e-4f);
             Assert.True(math.distance(end, t.Position(1f)) < 1e-4f);
-            var tan = math.normalize(t.Tangent(0f));
+            Assert.Equal(1f, math.length(t.Tangent(0f)), 4);
+            var tan = t.Tangent(0f);
             Assert.True(math.distance(tan, new float3(1, 0, 0)) < 1e-4f);
         }
     }
