@@ -55,6 +55,8 @@ namespace NetworkMultitool.Tool
 
             // One line per mode; later modes register here.
             RegisterMode(new IdleMode());
+            RegisterMode(new AddNodeMode());
+            RegisterMode(new RemoveNodeMode());
             m_Mode = m_Modes[ToolModeId.None];
 
             BindActions();
