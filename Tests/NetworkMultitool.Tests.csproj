@@ -9,7 +9,8 @@
 
     <ItemGroup>
         <Compile Include="..\Geometry\**\*.cs" />
-        <Compile Include="..\Net\NodeChain.cs" Condition="Exists('..\Net\NodeChain.cs')" />
+        <Compile Include="..\Net\INetGraph.cs" />
+        <Compile Include="..\Net\NodeChain.cs" />
     </ItemGroup>
 
     <ItemGroup>
