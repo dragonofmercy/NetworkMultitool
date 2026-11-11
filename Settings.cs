@@ -5,7 +5,7 @@ using Game.Settings;
 
 namespace NetworkMultitool
 {
-    // The action name doubles as the ProxyBinding property name (the locale uses nameof on the property).
+    // The action name doubles as the ProxyBinding property name (the locale uses nameof on the property), except Apply whose property is ApplyKey.
     public static class ToolActions
     {
         public const string Toggle = nameof(Toggle);
