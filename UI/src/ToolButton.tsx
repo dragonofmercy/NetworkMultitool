@@ -1,5 +1,5 @@
 import { useValue } from "cs2/api";
-import { FloatingButton } from "cs2/ui";
+import { FloatingButton, Tooltip } from "cs2/ui";
 import toolIcon from "images/tool.svg";
 import { active$, toggle, toggleKeys$ } from "bindings";
 import styles from "./panel.module.scss";
@@ -18,5 +18,12 @@ export const ToolButton = () => {
             )}
         </div>
     );
-    return <FloatingButton src={toolIcon} selected={active} onSelect={toggle} tooltipLabel={tooltip} />;
+    // The tooltip is anchored on a plain div: the floating button's own tooltipLabel shows nothing in the top-left strip.
+    return (
+        <Tooltip tooltip={tooltip} direction="down" delayTime={250}>
+            <div>
+                <FloatingButton src={toolIcon} selected={active} onSelect={toggle} />
+            </div>
+        </Tooltip>
+    );
 };
