@@ -53,7 +53,11 @@ namespace NetworkMultitool.Tool
                 _buffer.DrawCurve(color, CourseEmitter.Fit(points[i - 1], points[i]), width);
         }
 
-        public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, 0, new float2(0f, 1f), center, radius * 2f);
+        // The drag handles are projected on the ground: the cursor hits the terrain, so a shape floating at the arc height would not be where the click lands.
+        public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, OverlayRenderSystem.StyleFlags.Projected, new float2(0f, 1f), center, radius * 2f);
+
+        /// <summary>A disc projected on the ground.</summary>
+        public void Handle(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, color, 0f, OverlayRenderSystem.StyleFlags.Projected, new float2(0f, 1f), center, diameter);
 
         public void Disc(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, center, diameter);
     }

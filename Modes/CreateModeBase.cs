@@ -90,7 +90,7 @@ namespace NetworkMultitool.Modes
         {
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
             overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : idle, grab == Drag.Edge ? 2f : 1f);
-            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
+            overlay.Handle(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
         }
 
         protected void MarkDirty() => _dirty = true;
