@@ -22,7 +22,7 @@ namespace NetworkMultitool.Modes
 
         protected override string ExtraValues => _solver == null ? string.Empty : $"First radius: {_solver.FirstRadius:0.0} m\nFirst offset: {_solver.FirstOffset:0.0} m\nSecond radius: {_solver.SecondRadius:0.0} m\nSecond offset: {_solver.SecondOffset:0.0} m\n";
 
-        protected override string ExtraHints => "Drag edge: radius\nDrag center: offset\nUp/Down: radius (Shift: both)\nLeft/Right: offset\nTab: switch circle\nCtrl+S: switch side\n";
+        protected override string ExtraHints => $"Drag edge: radius\nDrag center: offset\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius (Shift: both)\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.SwitchOffset)}: switch circle\n{KeyNames.Of(ToolAction.Side)}: switch side\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

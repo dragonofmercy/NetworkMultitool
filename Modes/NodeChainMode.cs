@@ -43,7 +43,7 @@ namespace NetworkMultitool.Modes
                     case ChainState.CanAdd: return "Click to add nodes";
                     case ChainState.IsEnd: return "Click to unselect";
                     case ChainState.NotConnected: return "Not connected";
-                    default: return Nodes.Count >= 3 ? "Press Enter to apply" : "Select nodes in order";
+                    default: return Nodes.Count >= 3 ? $"Press {KeyNames.Of(ToolAction.Apply)} to apply" : "Select nodes in order";
                 }
             }
         }

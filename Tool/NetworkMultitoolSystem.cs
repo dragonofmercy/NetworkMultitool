@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Colossal.Collections;
+using Colossal.Mathematics;
 using Game;
 using Game.Common;
 using Game.Input;
@@ -31,7 +33,7 @@ namespace NetworkMultitool.Tool
         private OverlayRenderSystem m_Overlay;
         private Game.Simulation.TerrainSystem m_Terrain;
         private EntityQuery m_DefinitionQuery;
-        private EntityQuery m_NodeQuery;
+        private Game.Net.SearchSystem m_NetSearch;
         private NetQuery m_Net;
         private ToolContext m_Context;
         private IToolMode m_Mode;
@@ -60,7 +62,7 @@ namespace NetworkMultitool.Tool
             m_Overlay = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
             m_Terrain = World.GetOrCreateSystemManaged<Game.Simulation.TerrainSystem>();
             m_DefinitionQuery = GetDefinitionQuery();
-            m_NodeQuery = GetEntityQuery(ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<PrefabRef>(), ComponentType.Exclude<Temp>(), ComponentType.Exclude<Deleted>(), ComponentType.Exclude<Owner>());
+            m_NetSearch = World.GetOrCreateSystemManaged<Game.Net.SearchSystem>();
             m_Net = new NetQuery(EntityManager);
             m_Context = new ToolContext(this, m_Barrier, m_Actions) { Em = EntityManager, Net = m_Net };
 
@@ -181,14 +183,34 @@ namespace NetworkMultitool.Tool
         private void RenderNodeMarkers(Overlay overlay)
         {
             var mouse = m_Context.MousePosition.xz;
-            using (var entities = m_NodeQuery.ToEntityArray(Allocator.Temp))
-            using (var nodes = m_NodeQuery.ToComponentDataArray<Node>(Allocator.Temp))
+            var tree = m_NetSearch.GetNetSearchTree(true, out var dependencies);
+            dependencies.Complete();
+            var collector = new NetCollector { Bounds = new Bounds2(mouse - NodeMarkerRange, mouse + NodeMarkerRange), Hits = new NativeList<Entity>(Allocator.Temp) };
+            tree.Iterate(ref collector);
+            foreach (var entity in collector.Hits)
             {
-                for (var i = 0; i < entities.Length; i++)
-                {
-                    if (math.distancesq(nodes[i].m_Position.xz, mouse) < NodeMarkerRange * NodeMarkerRange && m_Net.OnLayer(entities[i], Layers))
-                        overlay.NodeMarker(entities[i], nodes[i].m_Position);
-                }
+                // The tree also holds edges, previews and the nets owned by buildings.
+                if (!m_Net.IsNode(entity) || m_Net.HasOwner(entity) || EntityManager.HasComponent<Temp>(entity) || !m_Net.OnLayer(entity, Layers))
+                    continue;
+                var position = m_Net.NodePosition(entity);
+                if (math.distancesq(position.xz, mouse) < NodeMarkerRange * NodeMarkerRange)
+                    overlay.NodeMarker(entity, position);
+            }
+
+            collector.Hits.Dispose();
+        }
+
+        private struct NetCollector : INativeQuadTreeIterator<Entity, QuadTreeBoundsXZ>
+        {
+            public Bounds2 Bounds;
+            public NativeList<Entity> Hits;
+
+            public bool Intersect(QuadTreeBoundsXZ bounds) => MathUtils.Intersect(bounds.m_Bounds.xz, Bounds);
+
+            public void Iterate(QuadTreeBoundsXZ bounds, Entity entity)
+            {
+                if (Intersect(bounds))
+                    Hits.Add(entity);
             }
         }
 

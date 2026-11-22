@@ -37,7 +37,7 @@ namespace NetworkMultitool.Modes
                     return "Select second segment";
                 if (_hoverEnd)
                     return "Click a node to change direction";
-                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}PageUp/PageDown: height\nCtrl+I: invert";
+                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height\n{KeyNames.Of(ToolAction.Invert)}: invert";
             }
         }
 
@@ -313,7 +313,7 @@ namespace NetworkMultitool.Modes
             {
                 case SolveResult.WrongShape: return "Wrong shape";
                 case SolveResult.NotIntersect: return "No intersection";
-                default: return "Press Enter to create";
+                default: return $"Press {KeyNames.Of(ToolAction.Apply)} to create";
             }
         }
 

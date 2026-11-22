@@ -17,7 +17,7 @@ namespace NetworkMultitool.Modes
 
         protected override string ExtraValues => _solver == null ? string.Empty : $"Radius: {_solver.Arc.Radius:0.0} m\nAngle: {math.degrees(_solver.Arc.Angle):0} deg\n";
 
-        protected override string ExtraHints => "Drag: center or circle edge\nUp/Down: radius\nCtrl+S: direct/loop\n";
+        protected override string ExtraHints => $"Drag: center or circle edge\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius\n{KeyNames.Of(ToolAction.Side)}: direct/loop\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

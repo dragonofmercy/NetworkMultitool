@@ -77,23 +77,23 @@ namespace NetworkMultitool
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeRemoveNode { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeSlope, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit3, ToolActions.ModeSlope, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeSlope { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeArrangeLine, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit4, ToolActions.ModeArrangeLine, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeArrangeLine { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeLoop, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeLoop, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeLoop { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit8, ToolActions.ModeConnection, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeConnection, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeConnection { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit3, ToolActions.ModeCurve, alt: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeCurve, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeCurve { get; set; }
 
