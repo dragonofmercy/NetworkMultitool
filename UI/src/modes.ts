@@ -1,6 +1,7 @@
 import addNode from "images/add-node.svg";
 import removeNode from "images/remove-node.svg";
 import slope from "images/slope.svg";
+import arrange from "images/arrange.svg";
 import loop from "images/loop.svg";
 import connection from "images/connection.svg";
 import curve from "images/curve.svg";
@@ -26,6 +27,7 @@ export const groups: ModeGroup[] = [
             { id: 1, label: "Add node", icon: addNode },
             { id: 2, label: "Remove node", icon: removeNode },
             { id: 3, label: "Slope", icon: slope, apply: true },
+            { id: 7, label: "Arrange", icon: arrange, apply: true },
         ],
     },
     {

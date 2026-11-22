@@ -10,5 +10,6 @@ namespace NetworkMultitool.Tool
         Loop,
         Connection,
         Curve,
+        ArrangeLine,
     }
 }

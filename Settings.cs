@@ -13,6 +13,7 @@ namespace NetworkMultitool
         public const string ModeAddNode = nameof(ModeAddNode);
         public const string ModeRemoveNode = nameof(ModeRemoveNode);
         public const string ModeSlope = nameof(ModeSlope);
+        public const string ModeArrangeLine = nameof(ModeArrangeLine);
         public const string ModeLoop = nameof(ModeLoop);
         public const string ModeConnection = nameof(ModeConnection);
         public const string ModeCurve = nameof(ModeCurve);
@@ -35,6 +36,7 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.ModeAddNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeRemoveNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeSlope, Usages.kDefaultUsage, Usages.kToolUsage)]
+    [SettingsUIKeyboardAction(ToolActions.ModeArrangeLine, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeLoop, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeConnection, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeCurve, Usages.kDefaultUsage, Usages.kToolUsage)]
@@ -78,6 +80,10 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeSlope, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeSlope { get; set; }
+
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeArrangeLine, ctrl: true)]
+        [SettingsUISection(KeybindingsGroup)]
+        public ProxyBinding ModeArrangeLine { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeLoop, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
