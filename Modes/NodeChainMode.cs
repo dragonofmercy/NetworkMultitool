@@ -96,7 +96,6 @@ namespace NetworkMultitool.Modes
 
         public virtual void Render(ToolContext ctx, Overlay overlay)
         {
-            overlay.NearbyNodes(ctx.Hover, Overlay.White);
             foreach (var node in Nodes)
                 overlay.Node(node, Overlay.White);
 

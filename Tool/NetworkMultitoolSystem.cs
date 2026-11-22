@@ -10,8 +10,10 @@ using Game.SceneFlow;
 using Game.Tools;
 using NetworkMultitool.Modes;
 using NetworkMultitool.Net;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine.InputSystem;
 
 namespace NetworkMultitool.Tool
@@ -22,10 +24,14 @@ namespace NetworkMultitool.Tool
         private readonly Dictionary<ToolModeId, IToolMode> m_Modes = new Dictionary<ToolModeId, IToolMode>();
         private readonly Dictionary<ToolAction, ProxyAction> m_Actions = new Dictionary<ToolAction, ProxyAction>();
 
+        private const Layer Layers = Layer.Road | Layer.TrainTrack | Layer.TramTrack | Layer.SubwayTrack | Layer.Pathway;
+        private const float NodeMarkerRange = 500f;
+
         private ToolOutputBarrier m_Barrier;
         private OverlayRenderSystem m_Overlay;
         private Game.Simulation.TerrainSystem m_Terrain;
         private EntityQuery m_DefinitionQuery;
+        private EntityQuery m_NodeQuery;
         private NetQuery m_Net;
         private ToolContext m_Context;
         private IToolMode m_Mode;
@@ -54,6 +60,7 @@ namespace NetworkMultitool.Tool
             m_Overlay = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
             m_Terrain = World.GetOrCreateSystemManaged<Game.Simulation.TerrainSystem>();
             m_DefinitionQuery = GetDefinitionQuery();
+            m_NodeQuery = GetEntityQuery(ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<PrefabRef>(), ComponentType.Exclude<Temp>(), ComponentType.Exclude<Deleted>(), ComponentType.Exclude<Owner>());
             m_Net = new NetQuery(EntityManager);
             m_Context = new ToolContext(this, m_Barrier, m_Actions) { Em = EntityManager, Net = m_Net };
 
@@ -82,7 +89,7 @@ namespace NetworkMultitool.Tool
         {
             base.InitializeRaycast();
             m_ToolRaycastSystem.typeMask = TypeMask.Net | TypeMask.Terrain;
-            m_ToolRaycastSystem.netLayerMask = Layer.Road | Layer.TrainTrack | Layer.TramTrack | Layer.SubwayTrack | Layer.Pathway;
+            m_ToolRaycastSystem.netLayerMask = Layers;
             m_ToolRaycastSystem.collisionMask = CollisionMask.OnGround | CollisionMask.Overground | CollisionMask.Underground;
             m_ToolRaycastSystem.raycastFlags |= RaycastFlags.SubElements;
         }
@@ -148,7 +155,10 @@ namespace NetworkMultitool.Tool
                 applyMode = m_Context.ApplyMode;
                 var buffer = m_Overlay.GetBuffer(out var overlayDeps);
                 overlayDeps.Complete();
-                mode.Render(m_Context, new Overlay(buffer, m_Net));
+                var overlay = new Overlay(buffer, m_Net);
+                if (mode.Id != ToolModeId.None)
+                    RenderNodeMarkers(overlay);
+                mode.Render(m_Context, overlay);
                 m_Overlay.AddBufferWriter(default);
             }
             catch (Exception e)
@@ -167,6 +177,21 @@ namespace NetworkMultitool.Tool
             }
 
             return inputDeps;
+        }
+
+        // Every node of the editable networks around the cursor, so the player sees where segments start and end in any mode.
+        private void RenderNodeMarkers(Overlay overlay)
+        {
+            var mouse = m_Context.MousePosition.xz;
+            using (var entities = m_NodeQuery.ToEntityArray(Allocator.Temp))
+            using (var nodes = m_NodeQuery.ToComponentDataArray<Node>(Allocator.Temp))
+            {
+                for (var i = 0; i < entities.Length; i++)
+                {
+                    if (math.distancesq(nodes[i].m_Position.xz, mouse) < NodeMarkerRange * NodeMarkerRange && m_Net.OnLayer(entities[i], Layers))
+                        overlay.NodeMarker(entities[i]);
+                }
+            }
         }
 
         /// <summary>Activates the tool, or returns to the default tool when already active.</summary>

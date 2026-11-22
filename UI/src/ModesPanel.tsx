@@ -1,5 +1,5 @@
 import { useValue } from "cs2/api";
-import { Button, Icon, Panel } from "cs2/ui";
+import { Button, Panel } from "cs2/ui";
 import { active$, apply, info$, mode$, setMode } from "bindings";
 import { groups, ModeEntry } from "modes";
 import styles from "./panel.module.scss";
@@ -40,7 +40,7 @@ export const ModesPanel = () => {
                     <div className={styles.modes}>
                         {group.modes.map((m) => (
                             <Button key={m.id} variant="flat" className={styles.mode} selected={mode === m.id} tooltipLabel={m.label} onSelect={() => setMode(m.id)}>
-                                <Icon src={m.icon} className={styles.icon} />
+                                <img src={m.icon} className={styles.icon} />
                             </Button>
                         ))}
                     </div>

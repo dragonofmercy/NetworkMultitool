@@ -14,7 +14,7 @@ namespace NetworkMultitool.Tool
     {
         private const float DefaultNodeWidth = 8f;
         private const float RingWidth = 1f;
-        private const int NearbyHops = 3;
+        private static readonly Color MarkerFill = new Color(1f, 1f, 1f, 0.15f);
 
         public static readonly Color White = new Color(1f, 1f, 1f, 0.6f);
         public static readonly Color Green = new Color(0f, 1f, 0f, 0.6f);
@@ -37,12 +37,8 @@ namespace NetworkMultitool.Tool
         /// <summary>A disc on the node, as wide as its first connected edge.</summary>
         public void Node(Entity node, Color color) => _buffer.DrawCircle(color, _net.NodePosition(node), NodeWidth(node));
 
-        /// <summary>Rings on the nodes around the hovered node or edge, so the pickable nodes show up before the cursor reaches them.</summary>
-        public void NearbyNodes(Entity hover, Color color)
-        {
-            foreach (var node in _net.Nearby(hover, NearbyHops))
-                _buffer.DrawCircle(color, Color.clear, RingWidth, 0, new float2(0f, 1f), _net.NodePosition(node), NodeWidth(node));
-        }
+        /// <summary>Faint disc with a ring: marks where a node is without hiding the mode's own highlights.</summary>
+        public void NodeMarker(Entity node) => _buffer.DrawCircle(White, MarkerFill, RingWidth, 0, new float2(0f, 1f), _net.NodePosition(node), NodeWidth(node));
 
         private float NodeWidth(Entity node)
         {

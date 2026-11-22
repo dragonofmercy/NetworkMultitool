@@ -59,42 +59,6 @@ namespace NetworkMultitool.Net
             return result;
         }
 
-        /// <summary>Nodes within <paramref name="hops"/> segments of a hovered node or edge; empty for anything else.</summary>
-        public HashSet<Entity> Nearby(Entity hover, int hops)
-        {
-            var found = new HashSet<Entity>();
-            if (hover == Entity.Null || !_em.Exists(hover))
-                return found;
-
-            var frontier = new List<Entity>();
-            if (IsEdge(hover))
-            {
-                var ends = Ends(hover);
-                frontier.Add(ends.m_Start);
-                frontier.Add(ends.m_End);
-            }
-            else if (IsNode(hover))
-                frontier.Add(hover);
-
-            found.UnionWith(frontier);
-            for (var i = 0; i < hops; i++)
-            {
-                var next = new List<Entity>();
-                foreach (var node in frontier)
-                {
-                    foreach (var neighbor in Neighbors(node))
-                    {
-                        if (found.Add(neighbor))
-                            next.Add(neighbor);
-                    }
-                }
-
-                frontier = next;
-            }
-
-            return found;
-        }
-
         public Entity OtherNode(Entity edge, Entity node)
         {
             var data = Ends(edge);
@@ -142,6 +106,13 @@ namespace NetworkMultitool.Net
         }
 
         public float2 Elevation(Entity entity) => _em.HasComponent<Elevation>(entity) ? _em.GetComponentData<Elevation>(entity).m_Elevation : float2.zero;
+
+        /// <summary>True when the entity's net prefab is on one of the layers.</summary>
+        public bool OnLayer(Entity entity, Layer layers)
+        {
+            var prefab = Prefab(entity);
+            return prefab != Entity.Null && _em.HasComponent<NetData>(prefab) && (_em.GetComponentData<NetData>(prefab).m_RequiredLayers & layers) != 0;
+        }
 
         public bool HasOwner(Entity entity) => _em.HasComponent<Owner>(entity);
 
