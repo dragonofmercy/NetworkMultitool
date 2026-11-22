@@ -7,6 +7,9 @@ export const mode$ = bindValue<number>(GROUP, "mode", 0);
 export const info$ = bindValue<string>(GROUP, "info", "");
 export const toggleKeys$ = bindValue<string>(GROUP, "toggleKeys", "");
 
+export const followTerrain$ = bindValue<boolean>(GROUP, "followTerrain", true);
+
 export const toggle = () => trigger(GROUP, "toggle");
 export const setMode = (id: number) => trigger(GROUP, "setMode", id);
 export const apply = () => trigger(GROUP, "apply");
+export const toggleFollowTerrain = () => trigger(GROUP, "toggleFollowTerrain");

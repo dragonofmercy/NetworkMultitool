@@ -1,6 +1,6 @@
 import { useValue } from "cs2/api";
 import { Button, Panel } from "cs2/ui";
-import { active$, apply, info$, mode$, setMode } from "bindings";
+import { active$, apply, followTerrain$, info$, mode$, setMode, toggleFollowTerrain } from "bindings";
 import { groups, ModeEntry } from "modes";
 import styles from "./panel.module.scss";
 
@@ -23,6 +23,7 @@ export const ModesPanel = () => {
     const active = useValue(active$);
     const mode = useValue(mode$);
     const info = useValue(info$);
+    const followTerrain = useValue(followTerrain$);
     if (!active)
         return null;
 
@@ -50,6 +51,12 @@ export const ModesPanel = () => {
             {current && <div className={styles.title}>{current.label}</div>}
             {status && <div className={styles.status}>{status}</div>}
             {values && <Rows text={values} className={styles.values} />}
+            {current?.terrain && (
+                <Button variant="flat" className={styles.toggle} onSelect={toggleFollowTerrain}>
+                    <div className={followTerrain ? `${styles.check} ${styles.checked}` : styles.check} />
+                    Follow terrain
+                </Button>
+            )}
             {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>Apply</Button>}
             {hints && <Rows text={hints} className={styles.hints} />}
         </Panel>

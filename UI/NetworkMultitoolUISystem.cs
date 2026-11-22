@@ -20,9 +20,22 @@ namespace NetworkMultitool.UI
             AddUpdateBinding(new GetterValueBinding<string>(Group, "info", () => tool.Info ?? ""));
             AddUpdateBinding(new GetterValueBinding<string>(Group, "toggleKeys", () => KeyNames.Of(ToolActions.Toggle)));
 
+            AddUpdateBinding(new GetterValueBinding<bool>(Group, "followTerrain", () => Mod.Settings != null && Mod.Settings.FollowTerrain));
+
             AddBinding(new TriggerBinding(Group, "toggle", tool.Toggle));
+            AddBinding(new TriggerBinding(Group, "toggleFollowTerrain", ToggleFollowTerrain));
             AddBinding(new TriggerBinding<int>(Group, "setMode", id => tool.SetMode((ToolModeId)id)));
             AddBinding(new TriggerBinding(Group, "apply", tool.RequestApply));
+        }
+
+        // Same setting as the options screen; the creation modes read it every frame.
+        private static void ToggleFollowTerrain()
+        {
+            var settings = Mod.Settings;
+            if (settings == null)
+                return;
+            settings.FollowTerrain = !settings.FollowTerrain;
+            settings.ApplyAndSave();
         }
     }
 }

@@ -12,6 +12,8 @@ export interface ModeEntry {
     icon: string;
     /** The mode is validated with the Apply key, so the panel shows an Apply button. */
     apply?: boolean;
+    /** The mode builds roads, so the panel shows the Follow terrain toggle. */
+    terrain?: boolean;
 }
 
 export interface ModeGroup {
@@ -33,9 +35,9 @@ export const groups: ModeGroup[] = [
     {
         label: "Connect segments",
         modes: [
-            { id: 5, label: "Connection", icon: connection, apply: true },
-            { id: 4, label: "Loop", icon: loop, apply: true },
-            { id: 6, label: "Curve", icon: curve, apply: true },
+            { id: 5, label: "Connection", icon: connection, apply: true, terrain: true },
+            { id: 4, label: "Loop", icon: loop, apply: true, terrain: true },
+            { id: 6, label: "Curve", icon: curve, apply: true, terrain: true },
         ],
     },
 ];
