@@ -244,6 +244,7 @@ namespace NetworkMultitool.Modes
                     SecondNode = SmallerEnd(ctx, Second);
                     if (SecondNode == FirstNode)
                         SecondNode = ctx.Net.OtherNode(Second, SecondNode);
+                    ChooseEnds(ctx);
                 }
 
                 _dirty = true;
@@ -305,6 +306,35 @@ namespace NetworkMultitool.Modes
         {
             var ends = ctx.Net.Ends(edge);
             return ctx.Net.Degree(ends.m_Start) <= ctx.Net.Degree(ends.m_End) ? ends.m_Start : ends.m_End;
+        }
+
+        /// <summary>Refines the default ends once both segments are known. A dead end still wins (CS1 rule); when both ends of a segment are equally connected,
+        /// the pair whose guides run forward to their crossing is taken, then the closest pair. Without it one side often started from the far end.</summary>
+        private void ChooseEnds(ToolContext ctx)
+        {
+            var net = ctx.Net;
+            var first = net.Ends(First);
+            var second = net.Ends(Second);
+            var best = float.MaxValue;
+            for (var i = 0; i < 4; i++)
+            {
+                var a = i < 2 ? first.m_Start : first.m_End;
+                var b = i % 2 == 0 ? second.m_Start : second.m_End;
+                if (a == b || net.Degree(a) > net.Degree(net.OtherNode(First, a)) || net.Degree(b) > net.Degree(net.OtherNode(Second, b)))
+                    continue;
+
+                var pa = net.NodePosition(a);
+                var pb = net.NodePosition(b);
+                var score = math.distance(pa, pb);
+                if (!Vec.IntersectXZ(pa, -net.DirectionAt(First, a), pb, -net.DirectionAt(Second, b), out var ta, out var tb) || ta < 0f || tb < 0f)
+                    score += 1e6f;
+                if (score < best)
+                {
+                    best = score;
+                    FirstNode = a;
+                    SecondNode = b;
+                }
+            }
         }
 
         private static string Status(SolveResult result)

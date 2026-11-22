@@ -77,6 +77,40 @@ namespace NetworkMultitool.Tests
             Assert.Equal(new float3(0, 0, 1), pts[pts.Count - 1].Direction);
         }
 
+        [Theory]
+        // start x, z, dx, dz, end x, z, dx, dz, force loop
+        [InlineData(0, 0, 1, 0, 100, 100, 0, -1, false)]
+        [InlineData(0, 0, 1, 0, 100, 100, 0, -1, true)]
+        [InlineData(0, 0, 1, 0, 100, -100, 0, 1, false)]
+        [InlineData(0, 0, 1, 0, 100, -100, 0, 1, true)]
+        [InlineData(0, 0, 1, 0, 150, 80, -0.5f, -0.866f, false)]
+        [InlineData(0, 0, 1, 0, 150, 80, -0.5f, -0.866f, true)]
+        [InlineData(0, 0, 1, 0, 150, -80, -0.5f, 0.866f, true)]
+        // Guides crossing behind the start node: only a loop is possible.
+        [InlineData(0, 0, 1, 0, -100, 100, 0, -1, false)]
+        [InlineData(0, 0, 1, 0, -100, -100, 0, 1, false)]
+        // Guides crossing behind both nodes.
+        [InlineData(0, 0, 1, 0, -100, -100, 0, -1, false)]
+        [InlineData(0, 0, 1, 0, -100, 100, 0, 1, false)]
+        public void Loop_ArcIsTangentToBothGuides(float sx, float sz, float sdx, float sdz, float ex, float ez, float edx, float edz, bool forceLoop)
+        {
+            var start = P(sx, 0, sz, sdx, sdz);
+            var end = P(ex, 0, ez, edx, edz);
+            var solver = new LoopSolver(start, end, MinRadius, MaxRadius) { ForceLoop = forceLoop };
+            solver.Radius = 30f;
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            var arc = solver.Arc;
+            // The arc leaves the start guide along it and joins the end guide heading to the end node.
+            Assert.True(math.abs(Vec.CrossXZ(arc.StartPos - start.Position, start.Direction)) < 1e-2f, $"start pos {arc.StartPos} off guide");
+            Assert.True(math.abs(Vec.CrossXZ(arc.EndPos - end.Position, end.Direction)) < 1e-2f, $"end pos {arc.EndPos} off guide");
+            Assert.True(Vec.DotXZ(arc.StartDir, Vec.NormalizeXZ(start.Direction)) > 0.999f, $"start dir {arc.StartDir}");
+            Assert.True(Vec.DotXZ(arc.EndDir, -Vec.NormalizeXZ(end.Direction)) > 0.999f, $"end dir {arc.EndDir}");
+            // Straights run forward: away from the start node, toward the end node.
+            Assert.True(Vec.DotXZ(arc.StartPos - start.Position, start.Direction) > -1e-2f, $"start straight goes backward ({arc.StartPos})");
+            Assert.True(Vec.DotXZ(arc.EndPos - end.Position, end.Direction) > -1e-2f, $"end straight goes backward ({arc.EndPos})");
+        }
+
         [Fact]
         public void Connection_Default_Ok()
         {
