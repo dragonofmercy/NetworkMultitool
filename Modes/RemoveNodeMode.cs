@@ -51,7 +51,7 @@ namespace NetworkMultitool.Modes
             var emitter = ctx.Emitter(net.Prefab(edgeA));
             emitter.Delete(edgeA);
             emitter.Delete(edgeB);
-            emitter.Chain(a, b, points, net.Elevation(a), net.Elevation(b), false);
+            emitter.Chain(a, b, points, net.Elevation(a), net.Elevation(b), false, null, edgeA, !net.IsStart(edgeA, a));
         }
 
         private static bool HasSubObjects(ToolContext ctx, Entity node) => ctx.Em.HasBuffer<Game.Objects.SubObject>(node) && ctx.Em.GetBuffer<Game.Objects.SubObject>(node, true).Length > 0;

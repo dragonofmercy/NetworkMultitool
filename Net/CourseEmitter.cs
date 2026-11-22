@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Colossal.Mathematics;
 using Game.Common;
 using Game.Net;
+using Game.Prefabs;
 using Game.Tools;
 using NetworkMultitool.Geometry;
 using Unity.Entities;
@@ -28,13 +29,19 @@ namespace NetworkMultitool.Net
             _prefab = prefab;
         }
 
-        /// <summary>One course per pair of consecutive points (pattern NetToolSystem.CreateStraightLine).</summary>
+        /// <summary>One course per pair of consecutive points (pattern NetToolSystem.CreateStraightLine). The new edges take the upgrades of <paramref name="template"/>; <paramref name="invertTemplate"/> swaps left and right when the path runs against the template edge's direction.</summary>
         /// <remarks>
         /// CoursePosFlags.FreeHeight lets the game overwrite the position height with terrain + m_Elevation (CourseSplitSystem.InitializeCoursePos).
         /// Without it the heights are kept, and <paramref name="terrainHeight"/> gives inner points their real elevation so bridges and pillars match.
         /// </remarks>
-        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, float2 startElevation, float2 endElevation, bool followTerrain, System.Func<float3, float> terrainHeight = null)
+        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, float2 startElevation, float2 endElevation, bool followTerrain, System.Func<float3, float> terrainHeight = null, Entity template = default, bool invertTemplate = false)
         {
+            // GenerateEdgesSystem copies Upgraded and SubReplacement from the definition entity to the new edge.
+            var upgrades = template != Entity.Null ? _net.Upgrades(template) : default;
+            if (invertTemplate)
+                upgrades = NetCompositionHelpers.InvertCompositionFlags(upgrades);
+            var replacements = template != Entity.Null ? _net.SubReplacements(template) : null;
+
             var last = points.Count - 1;
             for (var i = 0; i < last; i += 1)
             {
@@ -51,7 +58,7 @@ namespace NetworkMultitool.Net
                 var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, ElevationAt(i, p0.Position), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
                 var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, ElevationAt(i + 1, p1.Position), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
 
-                Emit(new CreationDefinition { m_Prefab = _prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
+                var definition = Emit(new CreationDefinition { m_Prefab = _prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
                 {
                     m_Curve = curve,
                     m_Length = MathUtils.Length(curve),
@@ -60,6 +67,21 @@ namespace NetworkMultitool.Net
                     m_StartPosition = start,
                     m_EndPosition = end,
                 });
+
+                if (upgrades != default(CompositionFlags))
+                    _ecb.AddComponent(definition, new Upgraded { m_Flags = upgrades });
+                if (replacements != null && replacements.Count > 0)
+                {
+                    var buffer = _ecb.AddBuffer<SubReplacement>(definition);
+                    foreach (var replacement in replacements)
+                    {
+                        var copy = replacement;
+                        // Same side swap as the game's own inverted replacement.
+                        if (invertTemplate)
+                            copy.m_Side = (SubReplacementSide)(-(int)copy.m_Side);
+                        buffer.Add(copy);
+                    }
+                }
             }
         }
 
@@ -90,12 +112,13 @@ namespace NetworkMultitool.Net
             Emit(new CreationDefinition { m_Original = edge, m_Flags = CreationFlags.Delete }, course);
         }
 
-        private void Emit(CreationDefinition definition, NetCourse course)
+        private Entity Emit(CreationDefinition definition, NetCourse course)
         {
             var entity = _ecb.CreateEntity();
             _ecb.AddComponent(entity, definition);
             _ecb.AddComponent(entity, default(Updated));
             _ecb.AddComponent(entity, course);
+            return entity;
         }
 
         private static NetCourse Course(Bezier4x3 curve, Entity startEntity, float3 startPosition, Entity endEntity, float3 endPosition) => new NetCourse

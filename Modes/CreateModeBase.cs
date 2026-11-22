@@ -130,7 +130,7 @@ namespace NetworkMultitool.Modes
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, startElevation, endElevation, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
+            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, startElevation, endElevation, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, First, net.IsStart(First, FirstNode) != Invert);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)

@@ -114,6 +114,21 @@ namespace NetworkMultitool.Net
             return prefab != Entity.Null && _em.HasComponent<NetData>(prefab) && (_em.GetComponentData<NetData>(prefab).m_RequiredLayers & layers) != 0;
         }
 
+        /// <summary>Upgrade flags of an edge (bike lanes, wide sidewalks, sound barriers...); default when it has none.</summary>
+        public CompositionFlags Upgrades(Entity edge) => _em.HasComponent<Upgraded>(edge) ? _em.GetComponentData<Upgraded>(edge).m_Flags : default;
+
+        /// <summary>Copy of the edge's replaced sub-objects (trees, grass...).</summary>
+        public List<SubReplacement> SubReplacements(Entity edge)
+        {
+            var result = new List<SubReplacement>();
+            if (!_em.HasBuffer<SubReplacement>(edge))
+                return result;
+            var buffer = _em.GetBuffer<SubReplacement>(edge, true);
+            for (var i = 0; i < buffer.Length; i++)
+                result.Add(buffer[i]);
+            return result;
+        }
+
         public bool HasOwner(Entity entity) => _em.HasComponent<Owner>(entity);
 
         public bool IsNode(Entity e) => _em.HasComponent<Node>(e);
