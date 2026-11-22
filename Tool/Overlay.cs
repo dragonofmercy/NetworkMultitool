@@ -60,7 +60,7 @@ namespace NetworkMultitool.Tool
 
         public void Line(float3 a, float3 b, float width, Color color) => _buffer.DrawLine(color, new Line3.Segment(a, b), width);
 
-        public void CircleOutline(float3 center, float radius, Color color) => _buffer.DrawCircle(color, Color.clear, 1f, 0, new float2(0f, 1f), center, radius * 2f);
+        public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, 0, new float2(0f, 1f), center, radius * 2f);
 
         public void Disc(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, center, diameter);
     }

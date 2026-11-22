@@ -60,8 +60,18 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
+            _drag = Grab(ctx, out var first);
+            if (_drag != Drag.None)
+                _selectFirst = first;
+            return _drag != Drag.None;
+        }
+
+        /// <summary>What a click at the cursor would grab, and on which circle.</summary>
+        private Drag Grab(ToolContext ctx, out bool first)
+        {
+            first = _selectFirst;
             if (!HasArcs || !ctx.HasHit)
-                return false;
+                return Drag.None;
 
             var mouse = Vec.Flat(ctx.MousePosition);
             var toFirst = math.distance(mouse, Vec.Flat(_solver.First.Center));
@@ -69,21 +79,19 @@ namespace NetworkMultitool.Modes
             // Centers first: one circle's edge can pass over the other's center.
             if (math.min(toFirst, toSecond) < GrabDistance)
             {
-                _selectFirst = toFirst <= toSecond;
-                _drag = Drag.Center;
-                return true;
+                first = toFirst <= toSecond;
+                return Drag.Center;
             }
 
             // Each circle touches its guide near a node: a click on an end node keeps changing the direction.
             if (HoverEnd)
-                return false;
+                return Drag.None;
             var firstEdge = math.abs(toFirst - _solver.First.Radius);
             var secondEdge = math.abs(toSecond - _solver.Second.Radius);
             if (math.min(firstEdge, secondEdge) >= GrabDistance)
-                return false;
-            _selectFirst = firstEdge <= secondEdge;
-            _drag = Drag.Edge;
-            return true;
+                return Drag.None;
+            first = firstEdge <= secondEdge;
+            return Drag.Edge;
         }
 
         protected override void OnKeys(ToolContext ctx)
@@ -137,8 +145,11 @@ namespace NetworkMultitool.Modes
         {
             if (!HasArcs)
                 return;
-            DrawArc(overlay, _solver.First, _selectFirst);
-            DrawArc(overlay, _solver.Second, !_selectFirst);
+            // The part under the cursor that can be dragged, or the one being dragged, is highlighted.
+            var first = _selectFirst;
+            var grab = _drag != Drag.None ? _drag : Grab(ctx, out first);
+            DrawArc(overlay, _solver.First, _selectFirst, first ? grab : Drag.None);
+            DrawArc(overlay, _solver.Second, !_selectFirst, first ? Drag.None : grab);
         }
 
         protected override void OnReset()
@@ -167,11 +178,11 @@ namespace NetworkMultitool.Modes
             MarkDirty();
         }
 
-        private void DrawArc(Overlay overlay, Arc arc, bool selected)
+        private void DrawArc(Overlay overlay, Arc arc, bool selected, Drag grab)
         {
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            overlay.CircleOutline(center, arc.Radius, Result != SolveResult.Ok ? Overlay.Red : selected ? Overlay.Yellow : Overlay.Gray);
-            overlay.Disc(center, 4f, Overlay.White);
+            overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : Result != SolveResult.Ok ? Overlay.Red : selected ? Overlay.Yellow : Overlay.Gray, grab == Drag.Edge ? 2f : 1f);
+            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
         }
     }
 }

@@ -50,17 +50,20 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
+            _drag = Grab(ctx);
+            return _drag != Drag.None;
+        }
+
+        /// <summary>What a click at the cursor would grab.</summary>
+        private Drag Grab(ToolContext ctx)
+        {
             if (Second == Entity.Null || _solver == null || Result != SolveResult.Ok || !ctx.HasHit)
-                return false;
+                return Drag.None;
             var distance = math.distance(Vec.Flat(ctx.MousePosition), Vec.Flat(_solver.Arc.Center));
             if (distance < GrabDistance)
-                _drag = Drag.Center;
+                return Drag.Center;
             // The circle touches both guides near their nodes: a click on an end node keeps changing the direction.
-            else if (!HoverEnd && math.abs(distance - _solver.Arc.Radius) < GrabDistance)
-                _drag = Drag.Edge;
-            else
-                return false;
-            return true;
+            return !HoverEnd && math.abs(distance - _solver.Arc.Radius) < GrabDistance ? Drag.Edge : Drag.None;
         }
 
         protected override void OnKeys(ToolContext ctx)
@@ -113,8 +116,10 @@ namespace NetworkMultitool.Modes
                 return;
             var arc = _solver.Arc;
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            overlay.CircleOutline(center, arc.Radius, Overlay.Gray);
-            overlay.Disc(center, 4f, Overlay.White);
+            // The part under the cursor that can be dragged, or the one being dragged, is highlighted.
+            var grab = _drag != Drag.None ? _drag : Grab(ctx);
+            overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : Overlay.Gray, grab == Drag.Edge ? 2f : 1f);
+            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
         }
 
         protected override void OnReset()
