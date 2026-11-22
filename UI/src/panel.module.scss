@@ -90,3 +90,30 @@
     font-size: 12rem;
     opacity: 0.8;
 }
+
+.tooltip {
+    max-width: 340rem;
+}
+
+.tooltip-title {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.tooltip-text {
+    margin-top: 6rem;
+}
+
+.tooltip-keys {
+    margin-top: 8rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.tooltip-key {
+    margin-right: 4rem;
+    padding: 1rem 6rem;
+    font-size: 12rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3rem;
+}
