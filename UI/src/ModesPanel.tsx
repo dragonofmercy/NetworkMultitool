@@ -39,7 +39,7 @@ export const ModesPanel = () => {
                     <div className={styles.groupLabel}>{group.label}</div>
                     <div className={styles.modes}>
                         {group.modes.map((m) => (
-                            <Button key={m.id} variant="flat" className={styles.mode} selected={mode === m.id} tooltipLabel={m.label} onSelect={() => setMode(m.id)}>
+                            <Button key={m.id} variant="flat" className={mode === m.id ? `${styles.mode} ${styles.selected}` : styles.mode} selected={mode === m.id} tooltipLabel={m.label} onSelect={() => setMode(m.id)}>
                                 <img src={m.icon} className={styles.icon} />
                             </Button>
                         ))}

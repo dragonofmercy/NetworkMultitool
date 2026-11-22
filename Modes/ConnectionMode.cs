@@ -13,7 +13,8 @@ namespace NetworkMultitool.Modes
         private Point _start;
         private Point _end;
         private bool _selectFirst = true;
-        private bool _switched;
+        private bool _firstSwitched;
+        private bool _secondSwitched;
 
         /// <summary>Both arcs are placed, even when they overlap: the circles stay visible and draggable so the shape can be fixed.</summary>
         private bool HasArcs => _solver != null && Second != Entity.Null && FirstNode != SecondNode && (Result == SolveResult.Ok || Result == SolveResult.WrongShape);
@@ -22,7 +23,7 @@ namespace NetworkMultitool.Modes
 
         protected override string ExtraValues => _solver == null ? string.Empty : $"First radius: {_solver.FirstRadius:0.0} m\nFirst offset: {_solver.FirstOffset:0.0} m\nSecond radius: {_solver.SecondRadius:0.0} m\nSecond offset: {_solver.SecondOffset:0.0} m\n";
 
-        protected override string ExtraHints => $"Drag edge: radius\nDrag center: offset\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius (Shift: both)\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.SwitchOffset)}: switch circle\n{KeyNames.Of(ToolAction.Side)}: switch side\n";
+        protected override string ExtraHints => $"Drag edge: radius\nDrag center: offset\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius (Shift: both)\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.SwitchOffset)}: switch circle\n{KeyNames.Of(ToolAction.Side)}: switch circle side\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
@@ -41,8 +42,10 @@ namespace NetworkMultitool.Modes
                 }
 
                 // The side is kept relative to the geometric default the new solver computed.
-                if (_switched)
-                    _solver.SwitchSide();
+                if (_firstSwitched)
+                    _solver.SwitchSide(true);
+                if (_secondSwitched)
+                    _solver.SwitchSide(false);
             }
 
             return _solver.Solve(ctx.MaxSegmentLength, points);
@@ -105,8 +108,11 @@ namespace NetworkMultitool.Modes
 
             if (ctx.Pressed(ToolAction.Side))
             {
-                _switched = !_switched;
-                _solver.SwitchSide();
+                if (_selectFirst)
+                    _firstSwitched = !_firstSwitched;
+                else
+                    _secondSwitched = !_secondSwitched;
+                _solver.SwitchSide(_selectFirst);
                 MarkDirty();
             }
         }
@@ -133,7 +139,8 @@ namespace NetworkMultitool.Modes
         {
             _solver = null;
             _selectFirst = true;
-            _switched = false;
+            _firstSwitched = false;
+            _secondSwitched = false;
         }
 
         private void ChangeRadius(float delta, bool both)

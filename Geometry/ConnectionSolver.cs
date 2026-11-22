@@ -64,11 +64,11 @@ namespace NetworkMultitool.Geometry
             set => secondOffset = math.clamp(value, 0f, MaxOffset);
         }
 
-        /// <summary>Flips both arcs to the other turning sense.</summary>
-        public void SwitchSide()
+        /// <summary>Flips one arc to the other turning sense.</summary>
+        public void SwitchSide(bool first)
         {
-            First.Turn = First.Turn == Turn.Right ? Turn.Left : Turn.Right;
-            Second.Turn = Second.Turn == Turn.Right ? Turn.Left : Turn.Right;
+            var arc = first ? First : Second;
+            arc.Turn = arc.Turn == Turn.Right ? Turn.Left : Turn.Right;
         }
 
         /// <summary>Slides the arc along its guide so its center follows a dragged position; the radius is kept.</summary>

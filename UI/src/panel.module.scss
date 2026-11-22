@@ -1,9 +1,17 @@
+// Palette: slate panel, lighter slate cards, sky blue accent.
+$card: rgba(47, 61, 79, 1);
+$accent: rgba(61, 174, 233, 1);
+$accent-dark: rgba(38, 139, 199, 1);
+$muted: rgba(150, 166, 184, 1);
+$text: rgba(255, 255, 255, 1);
+
 .panel {
     position: fixed;
     left: 16rem;
     top: 180rem;
     width: 240rem;
-    background-color: rgba(24, 33, 51, 0.9);
+    background-color: rgba(30, 40, 54, 0.95);
+    color: $text;
     border-radius: 4rem;
 }
 
@@ -19,7 +27,7 @@
     margin-bottom: 4rem;
     font-size: 12rem;
     text-transform: uppercase;
-    opacity: 0.6;
+    color: $muted;
 }
 
 .modes {
@@ -34,6 +42,12 @@
     padding: 0;
     position: relative;
     border-radius: 4rem;
+    background-color: $card;
+}
+
+.mode.selected {
+    background-image: linear-gradient(to bottom, $accent, $accent-dark);
+    border: 1rem solid $accent;
 }
 
 .icon {
@@ -68,7 +82,7 @@
 }
 
 .label {
-    opacity: 0.7;
+    color: $muted;
 }
 
 .values {
@@ -79,7 +93,9 @@
     margin-top: 10rem;
     padding: 6rem;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.12);
+    font-weight: bold;
+    color: $text;
+    background-image: linear-gradient(to bottom, $accent, $accent-dark);
     border-radius: 4rem;
 }
 
@@ -88,7 +104,6 @@
     padding-top: 8rem;
     border-top: 1rem solid rgba(255, 255, 255, 0.15);
     font-size: 12rem;
-    opacity: 0.8;
 }
 
 .tooltip {
@@ -114,6 +129,6 @@
     margin-right: 4rem;
     padding: 1rem 6rem;
     font-size: 12rem;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: $card;
     border-radius: 3rem;
 }

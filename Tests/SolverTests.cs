@@ -142,13 +142,29 @@ namespace NetworkMultitool.Tests
             var start = P(0, 0, 0, 1, 0);
             var end = P(300, 0, 120, -1, 0);
             var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
-            solver.SwitchSide();
+            solver.SwitchSide(true);
+            solver.SwitchSide(false);
             var pts = new List<Point>();
             Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
             AssertContinuous(pts, start, end, 40f);
             Assert.Equal(Turn.Right, solver.First.Turn);
             Assert.Equal(Turn.Left, solver.Second.Turn);
             Assert.True(math.distance(new float3(0, 0, -50), solver.First.Center) < 1e-3f, $"first center {solver.First.Center}");
+        }
+
+        [Fact]
+        public void Connection_SwitchOneSide_OnlyThatArcFlips()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(300, 0, 120, -1, 0);
+            var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
+            var second = solver.Second.Turn;
+            solver.SwitchSide(true);
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            AssertContinuous(pts, start, end, 40f);
+            Assert.Equal(Turn.Right, solver.First.Turn);
+            Assert.Equal(second, solver.Second.Turn);
         }
     }
 }

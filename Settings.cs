@@ -65,35 +65,35 @@ namespace NetworkMultitool
         [SettingsUISection(GeneralGroup)]
         public bool FollowTerrain { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.T, ToolActions.Toggle, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.T, ToolActions.Toggle, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding Toggle { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit1, ToolActions.ModeAddNode, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit1, ToolActions.ModeAddNode, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeAddNode { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit2, ToolActions.ModeRemoveNode, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit2, ToolActions.ModeRemoveNode, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeRemoveNode { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit3, ToolActions.ModeSlope, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit3, ToolActions.ModeSlope, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeSlope { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit4, ToolActions.ModeArrangeLine, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit4, ToolActions.ModeArrangeLine, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeArrangeLine { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeLoop, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeLoop, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeLoop { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeConnection, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeConnection, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeConnection { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeCurve, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeCurve, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeCurve { get; set; }
 
@@ -125,11 +125,11 @@ namespace NetworkMultitool
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding HeightDown { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.I, ToolActions.Invert, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.I, ToolActions.Invert, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding Invert { get; set; }
 
-        [SettingsUIKeyboardBinding(BindingKeyboard.S, ToolActions.Side, ctrl: true)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.S, ToolActions.Side, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding Side { get; set; }
 
