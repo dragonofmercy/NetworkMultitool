@@ -62,8 +62,6 @@ namespace NetworkMultitool.Tool
             RegisterMode(new AddNodeMode());
             RegisterMode(new RemoveNodeMode());
             RegisterMode(new SlopeMode());
-            RegisterMode(new ArrangeLineMode());
-            RegisterMode(new ArrangeCircleMode());
             RegisterMode(new CurveMode());
             RegisterMode(new LoopMode());
             RegisterMode(new ConnectionMode());

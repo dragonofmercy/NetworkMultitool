@@ -14,8 +14,6 @@ namespace NetworkMultitool
         public const string ModeRemoveNode = nameof(ModeRemoveNode);
         public const string ModeSplitNode = nameof(ModeSplitNode);
         public const string ModeSlope = nameof(ModeSlope);
-        public const string ModeArrangeLine = nameof(ModeArrangeLine);
-        public const string ModeArrangeCircle = nameof(ModeArrangeCircle);
         public const string ModeLoop = nameof(ModeLoop);
         public const string ModeConnection = nameof(ModeConnection);
         public const string ModeCurve = nameof(ModeCurve);
@@ -28,7 +26,6 @@ namespace NetworkMultitool
         public const string HeightDown = nameof(HeightDown);
         public const string Invert = nameof(Invert);
         public const string Side = nameof(Side);
-        public const string Distribute = nameof(Distribute);
         public const string SwitchOffset = nameof(SwitchOffset);
     }
 
@@ -40,8 +37,6 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.ModeRemoveNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeSplitNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeSlope, Usages.kDefaultUsage, Usages.kToolUsage)]
-    [SettingsUIKeyboardAction(ToolActions.ModeArrangeLine, Usages.kDefaultUsage, Usages.kToolUsage)]
-    [SettingsUIKeyboardAction(ToolActions.ModeArrangeCircle, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeLoop, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeConnection, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeCurve, Usages.kDefaultUsage, Usages.kToolUsage)]
@@ -54,7 +49,6 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.HeightDown, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.Invert, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.Side, Usages.kToolUsage)]
-    [SettingsUIKeyboardAction(ToolActions.Distribute, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.SwitchOffset, Usages.kToolUsage)]
     public class Settings : ModSetting
     {
@@ -90,14 +84,6 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeSlope, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeSlope { get; set; }
-
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, ToolActions.ModeArrangeLine, ctrl: true)]
-        [SettingsUISection(KeybindingsGroup)]
-        public ProxyBinding ModeArrangeLine { get; set; }
-
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit4, ToolActions.ModeArrangeCircle, alt: true)]
-        [SettingsUISection(KeybindingsGroup)]
-        public ProxyBinding ModeArrangeCircle { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeLoop, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
@@ -146,10 +132,6 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.S, ToolActions.Side, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding Side { get; set; }
-
-        [SettingsUIKeyboardBinding(BindingKeyboard.D, ToolActions.Distribute, ctrl: true)]
-        [SettingsUISection(KeybindingsGroup)]
-        public ProxyBinding Distribute { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Tab, ToolActions.SwitchOffset)]
         [SettingsUISection(KeybindingsGroup)]

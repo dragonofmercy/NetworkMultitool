@@ -25,7 +25,9 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Loop;
 
-        protected override string ExtraInfo => _solver == null ? string.Empty : $"\nRadius: {_solver.Arc.Radius:0.0} m, angle: {math.degrees(_solver.Arc.Angle):0} deg\nDrag center or circle edge, Up/Down: radius, Ctrl+S: direct/loop";
+        protected override string ExtraValues => _solver == null ? string.Empty : $"Radius: {_solver.Arc.Radius:0.0} m\nAngle: {math.degrees(_solver.Arc.Angle):0} deg\n";
+
+        protected override string ExtraHints => "Drag: center or circle edge\nUp/Down: radius\nCtrl+S: direct/loop\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

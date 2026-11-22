@@ -161,6 +161,7 @@ namespace NetworkMultitool.Modes
         {
             if (_source == Entity.Null)
             {
+                overlay.NearbyNodes(ctx.Hover, Overlay.White);
                 if (_hover != Entity.Null)
                     overlay.Node(_hover, _state == State.ClickSource ? Overlay.Green : Overlay.Red);
                 return;

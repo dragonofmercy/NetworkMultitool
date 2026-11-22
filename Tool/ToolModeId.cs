@@ -8,8 +8,6 @@ namespace NetworkMultitool.Tool
         RemoveNode,
         SplitNode,
         Slope,
-        ArrangeLine,
-        ArrangeCircle,
         Loop,
         Connection,
         Curve,

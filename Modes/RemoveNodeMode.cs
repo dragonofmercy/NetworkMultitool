@@ -58,6 +58,7 @@ namespace NetworkMultitool.Modes
 
         public void Render(ToolContext ctx, Overlay overlay)
         {
+            overlay.NearbyNodes(ctx.Hover, Overlay.White);
             if (_node != Entity.Null)
                 overlay.Node(_node, _correct ? Overlay.Green : Overlay.Red);
         }

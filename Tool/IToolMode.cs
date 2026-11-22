@@ -5,7 +5,7 @@ namespace NetworkMultitool.Tool
     {
         ToolModeId Id { get; }
 
-        /// <summary>Status text shown in the UI (polled by the UI system).</summary>
+        /// <summary>Text shown in the UI panel (polled by the UI system): a status line, then optionally a block of "Label: value" lines and a block of key hints, blocks separated by a blank line.</summary>
         string Info { get; }
 
         void Enter(ToolContext ctx);

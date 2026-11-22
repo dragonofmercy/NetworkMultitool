@@ -15,7 +15,7 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Slope;
 
-        public override string Info => base.Info + _slopes;
+        public override string Info => _slopes.Length > 0 ? base.Info + "\n" + _slopes : base.Info;
 
         public override void Update(ToolContext ctx)
         {

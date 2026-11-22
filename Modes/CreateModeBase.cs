@@ -37,12 +37,15 @@ namespace NetworkMultitool.Modes
                     return "Select second segment";
                 if (_hoverEnd)
                     return "Click a node to change direction";
-                return $"{Status(Result)}\nPageUp/PageDown: height ({Height:0.0} m)\nCtrl+I: invert{ExtraInfo}";
+                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}PageUp/PageDown: height\nCtrl+I: invert";
             }
         }
 
-        /// <summary>Appended to the status text once both segments are selected; start it with a newline.</summary>
-        protected virtual string ExtraInfo => string.Empty;
+        /// <summary>"Label: value" lines shown once both segments are selected; end each line with a newline.</summary>
+        protected virtual string ExtraValues => string.Empty;
+
+        /// <summary>"Key: action" lines shown once both segments are selected; end each line with a newline.</summary>
+        protected virtual string ExtraHints => string.Empty;
 
         /// <summary>Fills <paramref name="points"/> (already cleared) from <see cref="StartPoint"/> to <see cref="EndPoint"/>.</summary>
         protected abstract SolveResult Solve(ToolContext ctx, List<Point> points);

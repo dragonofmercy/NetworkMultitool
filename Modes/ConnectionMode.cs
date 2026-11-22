@@ -30,7 +30,9 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Connection;
 
-        protected override string ExtraInfo => _solver == null ? string.Empty : $"\nFirst radius: {_solver.FirstRadius:0.0} m, second radius: {_solver.SecondRadius:0.0} m\nOffsets: {_solver.FirstOffset:0.0} m / {_solver.SecondOffset:0.0} m (Tab: switch, Left/Right: change)\nDrag a center (offset) or a circle edge (radius)\nUp/Down: radius (Shift: both), Ctrl+S: switch side";
+        protected override string ExtraValues => _solver == null ? string.Empty : $"First radius: {_solver.FirstRadius:0.0} m\nFirst offset: {_solver.FirstOffset:0.0} m\nSecond radius: {_solver.SecondRadius:0.0} m\nSecond offset: {_solver.SecondOffset:0.0} m\n";
+
+        protected override string ExtraHints => "Drag edge: radius\nDrag center: offset\nUp/Down: radius (Shift: both)\nLeft/Right: offset\nTab: switch circle\nCtrl+S: switch side\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

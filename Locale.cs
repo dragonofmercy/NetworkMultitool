@@ -41,8 +41,6 @@ namespace NetworkMultitool
             Bind(nameof(Settings.ModeRemoveNode), "Mode: remove node");
             Bind(nameof(Settings.ModeSplitNode), "Mode: split node");
             Bind(nameof(Settings.ModeSlope), "Mode: slope");
-            Bind(nameof(Settings.ModeArrangeLine), "Mode: arrange in line");
-            Bind(nameof(Settings.ModeArrangeCircle), "Mode: arrange in circle");
             Bind(nameof(Settings.ModeLoop), "Mode: loop");
             Bind(nameof(Settings.ModeConnection), "Mode: connection");
             Bind(nameof(Settings.ModeCurve), "Mode: curve");
@@ -55,7 +53,6 @@ namespace NetworkMultitool
             Bind(nameof(Settings.HeightDown), "Lower height");
             Bind(nameof(Settings.Invert), "Invert");
             Bind(nameof(Settings.Side), "Switch side");
-            Bind(nameof(Settings.Distribute), "Distribute evenly");
             Bind(nameof(Settings.SwitchOffset), "Switch offset");
 
             return entries;
