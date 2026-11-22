@@ -84,7 +84,8 @@ namespace NetworkMultitool.Modes
             }
             else if (Nodes.Count >= 3 && ctx.Pressed(ToolAction.Apply))
             {
-                OnApplyRequested(ctx);
+                Apply(ctx);
+                Clear(ctx);
             }
             else
             {
@@ -114,13 +115,6 @@ namespace NetworkMultitool.Modes
             }
 
             RenderPreview(ctx, overlay);
-        }
-
-        /// <summary>Validation key pressed with at least 3 nodes in the chain. Default: <see cref="Apply"/> then clear the chain.</summary>
-        protected virtual void OnApplyRequested(ToolContext ctx)
-        {
-            Apply(ctx);
-            Clear(ctx);
         }
 
         /// <summary>Called after <see cref="Nodes"/> changed through a click or a reset.</summary>
@@ -154,11 +148,7 @@ namespace NetworkMultitool.Modes
                     p1 = new Point(points[i].Position, -points[i].Direction);
                 }
 
-                var bezier = NetUtils.FitCurve(p0.Position, p0.Direction, p1.Direction, p1.Position);
-                // Flat tangents keep b.y = a.y and c.y = d.y: restore a constant slope, as CourseEmitter does.
-                bezier.b.y = math.lerp(bezier.a.y, bezier.d.y, 1f / 3f);
-                bezier.c.y = math.lerp(bezier.a.y, bezier.d.y, 2f / 3f);
-                NodeMover.SetCurve(ctx.Em, edge, bezier);
+                NodeMover.SetCurve(ctx.Em, edge, Vec.ConstantSlope(NetUtils.FitCurve(p0.Position, p0.Direction, p1.Direction, p1.Position)));
             }
         }
 

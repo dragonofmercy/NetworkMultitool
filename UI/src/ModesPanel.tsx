@@ -12,7 +12,7 @@ const Rows = ({ text, className }: { text: string; className: string }) => (
             return (
                 <div key={i} className={styles.row}>
                     <span className={styles.label}>{cut < 0 ? line : line.slice(0, cut)}</span>
-                    {cut >= 0 && <span className={styles.value}>{line.slice(cut + 2)}</span>}
+                    {cut >= 0 && <span>{line.slice(cut + 2)}</span>}
                 </div>
             );
         })}

@@ -14,16 +14,6 @@ namespace NetworkMultitool.Modes
         private Point _end;
         private bool _selectFirst = true;
         private bool _switched;
-        private Drag _drag;
-
-        private const float GrabDistance = 5f;
-
-        private enum Drag
-        {
-            None,
-            Center,
-            Edge,
-        }
 
         /// <summary>Both arcs are placed, even when they overlap: the circles stay visible and draggable so the shape can be fixed.</summary>
         private bool HasArcs => _solver != null && Second != Entity.Null && FirstNode != SecondNode && (Result == SolveResult.Ok || Result == SolveResult.WrongShape);
@@ -60,10 +50,10 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
-            _drag = Grab(ctx, out var first);
-            if (_drag != Drag.None)
+            Dragging = Grab(ctx, out var first);
+            if (Dragging != Drag.None)
                 _selectFirst = first;
-            return _drag != Drag.None;
+            return Dragging != Drag.None;
         }
 
         /// <summary>What a click at the cursor would grab, and on which circle.</summary>
@@ -99,10 +89,7 @@ namespace NetworkMultitool.Modes
             if (ctx.Pressed(ToolAction.SwitchOffset))
                 _selectFirst = !_selectFirst;
             if (_solver == null || Second == Entity.Null)
-            {
-                _drag = Drag.None;
                 return;
-            }
 
             // Shift is the only modifier giving StepMultiplier 10, so it doubles as the "both radii" signal.
             var both = ctx.StepMultiplier == 10f;
@@ -122,34 +109,24 @@ namespace NetworkMultitool.Modes
                 _solver.SwitchSide();
                 MarkDirty();
             }
+        }
 
-            if (_drag == Drag.None)
-                return;
-            if (!ctx.ApplyHeld)
-            {
-                _drag = Drag.None;
-                return;
-            }
-
-            if (ctx.HasHit)
-            {
-                if (_drag == Drag.Center)
-                    _solver.DragCenter(_selectFirst, ctx.MousePosition);
-                else
-                    _solver.DragEdge(_selectFirst, ctx.MousePosition);
-                MarkDirty();
-            }
+        protected override void OnDrag(ToolContext ctx)
+        {
+            if (Dragging == Drag.Center)
+                _solver.DragCenter(_selectFirst, ctx.MousePosition);
+            else
+                _solver.DragEdge(_selectFirst, ctx.MousePosition);
         }
 
         protected override void RenderShape(ToolContext ctx, Overlay overlay)
         {
             if (!HasArcs)
                 return;
-            // The part under the cursor that can be dragged, or the one being dragged, is highlighted.
             var first = _selectFirst;
-            var grab = _drag != Drag.None ? _drag : Grab(ctx, out first);
-            DrawArc(overlay, _solver.First, _selectFirst, first ? grab : Drag.None);
-            DrawArc(overlay, _solver.Second, !_selectFirst, first ? Drag.None : grab);
+            var grab = Dragging != Drag.None ? Dragging : Grab(ctx, out first);
+            DrawHandles(overlay, _solver.First, IdleColor(_selectFirst), first ? grab : Drag.None);
+            DrawHandles(overlay, _solver.Second, IdleColor(!_selectFirst), first ? Drag.None : grab);
         }
 
         protected override void OnReset()
@@ -157,7 +134,6 @@ namespace NetworkMultitool.Modes
             _solver = null;
             _selectFirst = true;
             _switched = false;
-            _drag = Drag.None;
         }
 
         private void ChangeRadius(float delta, bool both)
@@ -178,11 +154,6 @@ namespace NetworkMultitool.Modes
             MarkDirty();
         }
 
-        private void DrawArc(Overlay overlay, Arc arc, bool selected, Drag grab)
-        {
-            var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : Result != SolveResult.Ok ? Overlay.Red : selected ? Overlay.Yellow : Overlay.Gray, grab == Drag.Edge ? 2f : 1f);
-            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
-        }
+        private UnityEngine.Color IdleColor(bool selected) => Result != SolveResult.Ok ? Overlay.Red : selected ? Overlay.Yellow : Overlay.Gray;
     }
 }

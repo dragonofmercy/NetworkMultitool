@@ -1,3 +1,4 @@
+using Colossal.Mathematics;
 using Unity.Mathematics;
 
 namespace NetworkMultitool.Geometry
@@ -48,6 +49,14 @@ namespace NetworkMultitool.Geometry
             t1 = CrossXZ(diff, d2) / cross;
             t2 = CrossXZ(diff, d1) / cross;
             return true;
+        }
+
+        /// <summary>Curves fitted from flat tangents keep b.y = a.y and c.y = d.y: spread the height evenly between the ends instead.</summary>
+        public static Bezier4x3 ConstantSlope(Bezier4x3 curve)
+        {
+            curve.b.y = math.lerp(curve.a.y, curve.d.y, 1f / 3f);
+            curve.c.y = math.lerp(curve.a.y, curve.d.y, 2f / 3f);
+            return curve;
         }
 
         public static float3 WithY(float3 v, float y) => new float3(v.x, y, v.z);

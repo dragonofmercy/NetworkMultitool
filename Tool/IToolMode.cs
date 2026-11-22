@@ -1,6 +1,6 @@
 namespace NetworkMultitool.Tool
 {
-    /// <summary>One behaviour of the tool. Register it in <c>NetworkMultitoolSystem.OnCreate</c> with <c>RegisterMode</c>.</summary>
+    /// <summary>One behaviour of the tool. Registered in <c>NetworkMultitoolSystem.OnCreate</c>.</summary>
     public interface IToolMode
     {
         ToolModeId Id { get; }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Colossal.Mathematics;
 using Game.Rendering;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Net;
@@ -23,7 +22,6 @@ namespace NetworkMultitool.Tool
         public static readonly Color Purple = new Color(0.6f, 0f, 1f, 0.6f);
         public static readonly Color Blue = new Color(0f, 0.4f, 1f, 0.6f);
         public static readonly Color Gray = new Color(0.8f, 0.8f, 0.8f, 0.6f);
-        public static readonly Color Orange = new Color(1f, 0.5f, 0f, 0.6f);
 
         private readonly OverlayRenderSystem.Buffer _buffer;
         private readonly NetQuery _net;
@@ -38,13 +36,12 @@ namespace NetworkMultitool.Tool
         public void Node(Entity node, Color color) => _buffer.DrawCircle(color, _net.NodePosition(node), NodeWidth(node));
 
         /// <summary>Faint disc with a ring: marks where a node is without hiding the mode's own highlights.</summary>
-        public void NodeMarker(Entity node) => _buffer.DrawCircle(White, MarkerFill, RingWidth, 0, new float2(0f, 1f), _net.NodePosition(node), NodeWidth(node));
+        public void NodeMarker(Entity node, float3 position) => _buffer.DrawCircle(White, MarkerFill, RingWidth, 0, new float2(0f, 1f), position, NodeWidth(node));
 
         private float NodeWidth(Entity node)
         {
-            foreach (var edge in _net.Edges(node))
-                return _net.Width(edge);
-            return DefaultNodeWidth;
+            var edge = _net.FirstEdge(node);
+            return edge != Entity.Null ? _net.Width(edge) : DefaultNodeWidth;
         }
 
         public void Edge(Entity edge, Color color) => _buffer.DrawCurve(color, _net.Curve(edge), _net.Width(edge));
@@ -55,10 +52,6 @@ namespace NetworkMultitool.Tool
             for (var i = 1; i < points.Count; i++)
                 _buffer.DrawCurve(color, CourseEmitter.Fit(points[i - 1], points[i]), width);
         }
-
-        public void Curve(Bezier4x3 bezier, float width, Color color) => _buffer.DrawCurve(color, bezier, width);
-
-        public void Line(float3 a, float3 b, float width, Color color) => _buffer.DrawLine(color, new Line3.Segment(a, b), width);
 
         public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, 0, new float2(0f, 1f), center, radius * 2f);
 

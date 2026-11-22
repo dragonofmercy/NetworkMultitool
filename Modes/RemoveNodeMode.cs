@@ -48,10 +48,10 @@ namespace NetworkMultitool.Modes
             var b = net.OtherNode(edgeB, _node);
             var points = new[] { new Point(net.NodePosition(a), net.DirectionAt(edgeA, a)), new Point(net.NodePosition(b), -net.DirectionAt(edgeB, b)) };
 
-            var emitter = ctx.Emitter(net.Prefab(edgeA));
+            var emitter = ctx.Emitter();
             emitter.Delete(edgeA);
             emitter.Delete(edgeB);
-            emitter.Chain(a, b, points, net.Elevation(a), net.Elevation(b), false, null, edgeA, !net.IsStart(edgeA, a));
+            emitter.Chain(a, b, points, edgeA, !net.IsStart(edgeA, a), false, null);
         }
 
         private static bool HasSubObjects(ToolContext ctx, Entity node) => ctx.Em.HasBuffer<Game.Objects.SubObject>(node) && ctx.Em.GetBuffer<Game.Objects.SubObject>(node, true).Length > 0;

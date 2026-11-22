@@ -75,7 +75,7 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
-            ctx.Emitter(net.Prefab(_edge)).Split(_edge, t, _position);
+            ctx.Emitter().Split(_edge, t, _position);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)

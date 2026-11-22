@@ -68,6 +68,31 @@ namespace NetworkMultitool.Modes
         /// <summary>Called on a left click before the base selection logic; return true when the mode handled the click itself.</summary>
         protected virtual bool ConsumeClick(ToolContext ctx) => false;
 
+        protected const float GrabDistance = 5f;
+
+        protected enum Drag
+        {
+            None,
+            Center,
+            Edge,
+        }
+
+        /// <summary>Handle being dragged: a mode sets it in <see cref="ConsumeClick"/>, then <see cref="OnDrag"/> runs every frame until the button is released.</summary>
+        protected Drag Dragging;
+
+        /// <summary>Moves the dragged handle to the cursor; the path is recomputed afterwards.</summary>
+        protected virtual void OnDrag(ToolContext ctx)
+        {
+        }
+
+        /// <summary>Circle and center handle of an arc; the part that is grabbed, or would be by a click, is highlighted.</summary>
+        protected void DrawHandles(Overlay overlay, Arc arc, UnityEngine.Color idle, Drag grab)
+        {
+            var center = Vec.WithY(arc.Center, arc.Center.y + Height);
+            overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : idle, grab == Drag.Edge ? 2f : 1f);
+            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
+        }
+
         protected void MarkDirty() => _dirty = true;
 
         /// <summary>True when a click would change the direction on a hovered end node.</summary>
@@ -130,7 +155,7 @@ namespace NetworkMultitool.Modes
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter(net.Prefab(First)).Chain(startNode, endNode, _emitted, startElevation, endElevation, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, First, net.IsStart(First, FirstNode) != Invert);
+            ctx.Emitter().Chain(startNode, endNode, _emitted, First, net.IsStart(First, FirstNode) != Invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -254,16 +279,26 @@ namespace NetworkMultitool.Modes
             }
 
             OnKeys(ctx);
+
+            if (Dragging == Drag.None)
+                return;
+            if (Second == Entity.Null || !ctx.ApplyHeld)
+            {
+                Dragging = Drag.None;
+                return;
+            }
+
+            if (ctx.HasHit)
+            {
+                OnDrag(ctx);
+                _dirty = true;
+            }
         }
 
         /// <summary>An ownerless edge that can become First or Second.</summary>
         private bool IsSelectable(ToolContext ctx, Entity edge) => Second == Entity.Null && ctx.HoverIsEdge && edge == ctx.Hover && edge != First && ctx.Em.Exists(edge) && !ctx.Net.HasOwner(edge);
 
-        private static bool IsEnd(ToolContext ctx, Entity edge, Entity node)
-        {
-            var ends = ctx.Net.Ends(edge);
-            return ends.m_Start == node || ends.m_End == node;
-        }
+        private static bool IsEnd(ToolContext ctx, Entity edge, Entity node) => ctx.Net.IsEnd(edge, node);
 
         /// <summary>CS1 GetIsStart: the end with fewer segments, the start on ties.</summary>
         private static Entity SmallerEnd(ToolContext ctx, Entity edge)
@@ -278,8 +313,6 @@ namespace NetworkMultitool.Modes
             {
                 case SolveResult.WrongShape: return "Wrong shape";
                 case SolveResult.NotIntersect: return "No intersection";
-                case SolveResult.BigRadius: return "Radius too big";
-                case SolveResult.SmallRadius: return "Radius too small";
                 default: return "Press Enter to create";
             }
         }
@@ -296,6 +329,7 @@ namespace NetworkMultitool.Modes
             Invert = false;
             _hoverEnd = false;
             _dirty = true;
+            Dragging = Drag.None;
             OnReset();
         }
     }

@@ -20,13 +20,11 @@ namespace NetworkMultitool.Net
 
         private readonly EntityCommandBuffer _ecb;
         private readonly NetQuery _net;
-        private readonly Entity _prefab;
 
-        public CourseEmitter(EntityCommandBuffer ecb, NetQuery net, Entity prefab)
+        public CourseEmitter(EntityCommandBuffer ecb, NetQuery net)
         {
             _ecb = ecb;
             _net = net;
-            _prefab = prefab;
         }
 
         /// <summary>One course per pair of consecutive points (pattern NetToolSystem.CreateStraightLine). The new edges take the upgrades of <paramref name="template"/>; <paramref name="invertTemplate"/> swaps left and right when the path runs against the template edge's direction.</summary>
@@ -34,23 +32,23 @@ namespace NetworkMultitool.Net
         /// CoursePosFlags.FreeHeight lets the game overwrite the position height with terrain + m_Elevation (CourseSplitSystem.InitializeCoursePos).
         /// Without it the heights are kept, and <paramref name="terrainHeight"/> gives inner points their real elevation so bridges and pillars match.
         /// </remarks>
-        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, float2 startElevation, float2 endElevation, bool followTerrain, System.Func<float3, float> terrainHeight = null, Entity template = default, bool invertTemplate = false)
+        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, Entity template, bool invertTemplate, bool followTerrain, System.Func<float3, float> terrainHeight)
         {
+            var prefab = _net.Prefab(template);
+            var startElevation = _net.Elevation(startNode);
+            var endElevation = _net.Elevation(endNode);
             // GenerateEdgesSystem copies Upgraded and SubReplacement from the definition entity to the new edge.
-            var upgrades = template != Entity.Null ? _net.Upgrades(template) : default;
+            var upgrades = _net.Upgrades(template);
             if (invertTemplate)
                 upgrades = NetCompositionHelpers.InvertCompositionFlags(upgrades);
-            var replacements = template != Entity.Null ? _net.SubReplacements(template) : null;
+            var replacements = _net.SubReplacements(template);
 
             var last = points.Count - 1;
             for (var i = 0; i < last; i += 1)
             {
                 var p0 = points[i];
                 var p1 = points[i + 1];
-                var curve = Fit(p0, p1);
-                // Flat directions leave b.y = a.y and c.y = d.y: restore a constant slope.
-                curve.b.y = math.lerp(curve.a.y, curve.d.y, 1f / 3f);
-                curve.c.y = math.lerp(curve.a.y, curve.d.y, 2f / 3f);
+                var curve = Vec.ConstantSlope(Fit(p0, p1));
 
                 float2 ElevationAt(int index, float3 position) => terrainHeight == null || index == 0 || index == last ? Lerp(startElevation, endElevation, index, last) : new float2(position.y - terrainHeight(position));
 
@@ -58,7 +56,7 @@ namespace NetworkMultitool.Net
                 var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, ElevationAt(i, p0.Position), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
                 var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, ElevationAt(i + 1, p1.Position), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
 
-                var definition = Emit(new CreationDefinition { m_Prefab = _prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
+                var definition = Emit(new CreationDefinition { m_Prefab = prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
                 {
                     m_Curve = curve,
                     m_Length = MathUtils.Length(curve),
@@ -70,7 +68,7 @@ namespace NetworkMultitool.Net
 
                 if (upgrades != default(CompositionFlags))
                     _ecb.AddComponent(definition, new Upgraded { m_Flags = upgrades });
-                if (replacements != null && replacements.Count > 0)
+                if (replacements.Count > 0)
                 {
                     var buffer = _ecb.AddBuffer<SubReplacement>(definition);
                     foreach (var replacement in replacements)

@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace NetworkMultitool.Geometry
 {
-    public sealed class BezierTrajectory : ITrajectory
+    public sealed class BezierTrajectory
     {
         private const int Samples = 64;
 
@@ -39,6 +39,7 @@ namespace NetworkMultitool.Geometry
             return len < 1e-6f ? float3.zero : v / len;
         }
 
+        /// <summary>Returns the t reached after walking <paramref name="distance"/> meters of arc from <paramref name="fromT"/>, clamped to [0, 1].</summary>
         public float Travel(float fromT, float distance)
         {
             var total = cumulative[Samples];

@@ -121,11 +121,10 @@ namespace NetworkMultitool.Modes
                 return Entity.Null;
 
             var net = ctx.Net;
-            var ends = net.Ends(ctx.Hover);
             var first = Nodes[0];
             var last = Nodes[Nodes.Count - 1];
-            var touchesFirst = (ends.m_Start == first || ends.m_End == first) && net.OtherNode(ctx.Hover, first) != Nodes[1];
-            var touchesLast = (ends.m_Start == last || ends.m_End == last) && net.OtherNode(ctx.Hover, last) != Nodes[Nodes.Count - 2];
+            var touchesFirst = net.IsEnd(ctx.Hover, first) && net.OtherNode(ctx.Hover, first) != Nodes[1];
+            var touchesLast = net.IsEnd(ctx.Hover, last) && net.OtherNode(ctx.Hover, last) != Nodes[Nodes.Count - 2];
             _hoverGuideIsFirst = touchesFirst;
             return touchesFirst || touchesLast ? ctx.Hover : Entity.Null;
         }

@@ -43,8 +43,7 @@ namespace NetworkMultitool.Net
             for (var i = 0; i < buffer.Length; i += 1)
             {
                 var edge = buffer[i].m_Edge;
-                var ends = Ends(edge);
-                if (ends.m_Start == node || ends.m_End == node)
+                if (IsEnd(edge, node))
                     result.Add(edge);
             }
             return result;
@@ -69,6 +68,28 @@ namespace NetworkMultitool.Net
         public Edge Ends(Entity edge) => _em.GetComponentData<Edge>(edge);
 
         public bool IsStart(Entity edge, Entity node) => Ends(edge).m_Start == node;
+
+        public bool IsEnd(Entity edge, Entity node)
+        {
+            var ends = Ends(edge);
+            return ends.m_Start == node || ends.m_End == node;
+        }
+
+        /// <summary>First edge starting or ending at the node, Entity.Null when none. Unlike <see cref="Edges"/> it allocates nothing, for per-frame drawing.</summary>
+        public Entity FirstEdge(Entity node)
+        {
+            if (!_em.HasBuffer<ConnectedEdge>(node))
+                return Entity.Null;
+
+            var buffer = _em.GetBuffer<ConnectedEdge>(node, true);
+            for (var i = 0; i < buffer.Length; i += 1)
+            {
+                if (IsEnd(buffer[i].m_Edge, node))
+                    return buffer[i].m_Edge;
+            }
+
+            return Entity.Null;
+        }
 
         /// <summary>Game.Net.Fixed.m_Index of the edge, -1 when absent (vanilla NetCourse.m_FixedIndex).</summary>
         public int FixedIndex(Entity edge) => _em.HasComponent<Fixed>(edge) ? _em.GetComponentData<Fixed>(edge).m_Index : -1;

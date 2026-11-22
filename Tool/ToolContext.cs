@@ -105,7 +105,7 @@ namespace NetworkMultitool.Tool
             return _actions.TryGetValue(action, out var proxy) && proxy.WasPressedThisFrame();
         }
 
-        public CourseEmitter Emitter(Entity prefab) => new CourseEmitter(Ecb, Net, prefab);
+        public CourseEmitter Emitter() => new CourseEmitter(Ecb, Net);
 
         /// <summary>
         /// Turns an edge hover into a node hover when the hit is close to one of the edge ends: plain nodes between two segments have almost no
@@ -130,8 +130,6 @@ namespace NetworkMultitool.Tool
 
         /// <summary>Terrain height (water ignored) under a world position.</summary>
         public float TerrainHeight(float3 position) => _system.TerrainHeight(position);
-
-        public void SetMode(ToolModeId id) => _system.SetMode(id);
 
         /// <summary>Drops the cached buffer once the barrier may have played it back, so the next use gets a fresh one.</summary>
         internal void ResetEcb() => _hasEcb = false;

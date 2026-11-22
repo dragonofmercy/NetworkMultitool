@@ -6,7 +6,5 @@ namespace NetworkMultitool.Geometry
         Ok,
         NotIntersect,
         WrongShape,
-        BigRadius,
-        SmallRadius,
     }
 }

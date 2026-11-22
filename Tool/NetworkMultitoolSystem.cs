@@ -46,7 +46,7 @@ namespace NetworkMultitool.Tool
 
         public string Info => m_Mode.Info;
 
-        internal float TerrainHeight(Unity.Mathematics.float3 position)
+        internal float TerrainHeight(float3 position)
         {
             var data = m_Terrain.GetHeightData();
             return Game.Simulation.TerrainUtils.SampleHeight(ref data, position);
@@ -64,7 +64,6 @@ namespace NetworkMultitool.Tool
             m_Net = new NetQuery(EntityManager);
             m_Context = new ToolContext(this, m_Barrier, m_Actions) { Em = EntityManager, Net = m_Net };
 
-            // One line per mode; later modes register here.
             RegisterMode(new IdleMode());
             RegisterMode(new AddNodeMode());
             RegisterMode(new RemoveNodeMode());
@@ -78,8 +77,7 @@ namespace NetworkMultitool.Tool
             BindActions();
         }
 
-        /// <summary>Adds or replaces the mode for its <see cref="IToolMode.Id"/>.</summary>
-        public void RegisterMode(IToolMode mode) => m_Modes[mode.Id] = mode;
+        private void RegisterMode(IToolMode mode) => m_Modes[mode.Id] = mode;
 
         public override PrefabBase GetPrefab() => null;
 
@@ -189,7 +187,7 @@ namespace NetworkMultitool.Tool
                 for (var i = 0; i < entities.Length; i++)
                 {
                     if (math.distancesq(nodes[i].m_Position.xz, mouse) < NodeMarkerRange * NodeMarkerRange && m_Net.OnLayer(entities[i], Layers))
-                        overlay.NodeMarker(entities[i]);
+                        overlay.NodeMarker(entities[i], nodes[i].m_Position);
                 }
             }
         }

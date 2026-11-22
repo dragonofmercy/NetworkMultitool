@@ -17,15 +17,7 @@ namespace NetworkMultitool.Modes
 
         public override string Info => _slopes.Length > 0 ? base.Info + "\n" + _slopes : base.Info;
 
-        public override void Update(ToolContext ctx)
-        {
-            base.Update(ctx);
-            _slopes = Nodes.Count >= 2 ? Slopes(ctx) : string.Empty;
-        }
-
-        protected override void OnChainChanged(ToolContext ctx)
-        {
-        }
+        protected override void OnChainChanged(ToolContext ctx) => _slopes = Nodes.Count >= 2 ? Slopes(ctx) : string.Empty;
 
         protected override void Apply(ToolContext ctx)
         {
@@ -47,9 +39,7 @@ namespace NetworkMultitool.Modes
                 var forward = net.IsStart(edge, Nodes[i]);
                 bezier.a.y = forward ? heights[i] : heights[i + 1];
                 bezier.d.y = forward ? heights[i + 1] : heights[i];
-                bezier.b.y = bezier.a.y + (bezier.d.y - bezier.a.y) / 3f;
-                bezier.c.y = bezier.a.y + 2f * (bezier.d.y - bezier.a.y) / 3f;
-                NodeMover.SetCurve(em, edge, bezier);
+                NodeMover.SetCurve(em, edge, Vec.ConstantSlope(bezier));
             }
 
             foreach (var node in Nodes)

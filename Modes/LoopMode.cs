@@ -12,16 +12,6 @@ namespace NetworkMultitool.Modes
         private LoopSolver _solver;
         private Point _start;
         private Point _end;
-        private const float GrabDistance = 5f;
-
-        private enum Drag
-        {
-            None,
-            Center,
-            Edge,
-        }
-
-        private Drag _drag;
 
         public override ToolModeId Id => ToolModeId.Loop;
 
@@ -50,8 +40,8 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
-            _drag = Grab(ctx);
-            return _drag != Drag.None;
+            Dragging = Grab(ctx);
+            return Dragging != Drag.None;
         }
 
         /// <summary>What a click at the cursor would grab.</summary>
@@ -69,10 +59,7 @@ namespace NetworkMultitool.Modes
         protected override void OnKeys(ToolContext ctx)
         {
             if (_solver == null || Second == Entity.Null)
-            {
-                _drag = Drag.None;
                 return;
-            }
 
             if (ctx.Pressed(ToolAction.RadiusUp))
             {
@@ -91,41 +78,23 @@ namespace NetworkMultitool.Modes
                 _solver.ForceLoop = !_solver.ForceLoop;
                 MarkDirty();
             }
+        }
 
-            if (_drag == Drag.None)
-                return;
-            if (!ctx.ApplyHeld)
-            {
-                _drag = Drag.None;
-                return;
-            }
-
-            if (ctx.HasHit)
-            {
-                if (_drag == Drag.Center)
-                    _solver.SetCenter(ctx.MousePosition);
-                else
-                    _solver.SetEdge(ctx.MousePosition);
-                MarkDirty();
-            }
+        protected override void OnDrag(ToolContext ctx)
+        {
+            if (Dragging == Drag.Center)
+                _solver.SetCenter(ctx.MousePosition);
+            else
+                _solver.SetEdge(ctx.MousePosition);
         }
 
         protected override void RenderShape(ToolContext ctx, Overlay overlay)
         {
             if (_solver == null || Second == Entity.Null || Result != SolveResult.Ok)
                 return;
-            var arc = _solver.Arc;
-            var center = Vec.WithY(arc.Center, arc.Center.y + Height);
-            // The part under the cursor that can be dragged, or the one being dragged, is highlighted.
-            var grab = _drag != Drag.None ? _drag : Grab(ctx);
-            overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : Overlay.Gray, grab == Drag.Edge ? 2f : 1f);
-            overlay.Disc(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
+            DrawHandles(overlay, _solver.Arc, Overlay.Gray, Dragging != Drag.None ? Dragging : Grab(ctx));
         }
 
-        protected override void OnReset()
-        {
-            _solver = null;
-            _drag = Drag.None;
-        }
+        protected override void OnReset() => _solver = null;
     }
 }
