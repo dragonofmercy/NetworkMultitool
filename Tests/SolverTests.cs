@@ -93,6 +93,43 @@ namespace NetworkMultitool.Tests
         }
 
         [Fact]
+        public void Loop_SetEdge_CircleReachesDraggedPoint()
+        {
+            var solver = new LoopSolver(P(0, 0, 0, 1, 0), P(100, 0, 100, 0, -1), MinRadius, MaxRadius) { Radius = 45f };
+            // On the radius 30 circle centered at (70, 30).
+            solver.SetEdge(new float3(70, 0, 60));
+            Assert.Equal(30f, solver.Radius, 3);
+            Assert.True(solver.IsDirect);
+        }
+
+        [Fact]
+        public void Connection_DragEdge_CircleReachesDraggedPoint()
+        {
+            var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius) { FirstRadius = 80f, SecondRadius = 80f };
+            // Circles tangent to the guides at the nodes: radius 50 centered at (0, 50) and (300, 70).
+            solver.DragEdge(true, new float3(50, 0, 50));
+            solver.DragEdge(false, new float3(300, 0, 20));
+            Assert.Equal(50f, solver.FirstRadius, 3);
+            Assert.Equal(50f, solver.SecondRadius, 3);
+            // Behind the guide: ignored.
+            solver.DragEdge(true, new float3(10, 0, -40));
+            Assert.Equal(50f, solver.FirstRadius, 3);
+        }
+
+        [Fact]
+        public void Connection_DragCenter_SlidesAlongGuide()
+        {
+            var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius);
+            solver.DragCenter(true, new float3(30, 0, 77));
+            solver.DragCenter(false, new float3(250, 0, 0));
+            Assert.Equal(30f, solver.FirstOffset, 3);
+            Assert.Equal(50f, solver.SecondOffset, 3);
+            Assert.Equal(50f, solver.FirstRadius, 3);
+            solver.DragCenter(true, new float3(-20, 0, 0));
+            Assert.Equal(0f, solver.FirstOffset, 3);
+        }
+
+        [Fact]
         public void Connection_RadiusTooBig_WrongShape()
         {
             var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius) { FirstRadius = 400f, SecondRadius = 400f };

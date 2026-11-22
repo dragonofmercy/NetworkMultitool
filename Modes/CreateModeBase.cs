@@ -67,6 +67,9 @@ namespace NetworkMultitool.Modes
 
         protected void MarkDirty() => _dirty = true;
 
+        /// <summary>True when a click would change the direction on a hovered end node.</summary>
+        protected bool HoverEnd => _hoverEnd;
+
         public virtual void Enter(ToolContext ctx) => Reset();
 
         public virtual void Exit(ToolContext ctx) => Reset();

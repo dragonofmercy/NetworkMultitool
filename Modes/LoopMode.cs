@@ -12,11 +12,20 @@ namespace NetworkMultitool.Modes
         private LoopSolver _solver;
         private Point _start;
         private Point _end;
-        private bool _dragging;
+        private const float GrabDistance = 5f;
+
+        private enum Drag
+        {
+            None,
+            Center,
+            Edge,
+        }
+
+        private Drag _drag;
 
         public override ToolModeId Id => ToolModeId.Loop;
 
-        protected override string ExtraInfo => _solver == null ? string.Empty : $"\nRadius: {_solver.Arc.Radius:0.0} m, angle: {math.degrees(_solver.Arc.Angle):0} deg\nUp/Down: radius, Ctrl+S: direct/loop, drag center to move";
+        protected override string ExtraInfo => _solver == null ? string.Empty : $"\nRadius: {_solver.Arc.Radius:0.0} m, angle: {math.degrees(_solver.Arc.Angle):0} deg\nDrag center or circle edge, Up/Down: radius, Ctrl+S: direct/loop";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
@@ -39,9 +48,16 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
-            if (Second == Entity.Null || _solver == null || Result != SolveResult.Ok || !ctx.HasHit || math.distance(Vec.Flat(ctx.MousePosition), Vec.Flat(_solver.Arc.Center)) >= 5f)
+            if (Second == Entity.Null || _solver == null || Result != SolveResult.Ok || !ctx.HasHit)
                 return false;
-            _dragging = true;
+            var distance = math.distance(Vec.Flat(ctx.MousePosition), Vec.Flat(_solver.Arc.Center));
+            if (distance < GrabDistance)
+                _drag = Drag.Center;
+            // The circle touches both guides near their nodes: a click on an end node keeps changing the direction.
+            else if (!HoverEnd && math.abs(distance - _solver.Arc.Radius) < GrabDistance)
+                _drag = Drag.Edge;
+            else
+                return false;
             return true;
         }
 
@@ -49,7 +65,7 @@ namespace NetworkMultitool.Modes
         {
             if (_solver == null || Second == Entity.Null)
             {
-                _dragging = false;
+                _drag = Drag.None;
                 return;
             }
 
@@ -71,17 +87,20 @@ namespace NetworkMultitool.Modes
                 MarkDirty();
             }
 
-            if (!_dragging)
+            if (_drag == Drag.None)
                 return;
             if (!ctx.ApplyHeld)
             {
-                _dragging = false;
+                _drag = Drag.None;
                 return;
             }
 
             if (ctx.HasHit)
             {
-                _solver.SetCenter(ctx.MousePosition);
+                if (_drag == Drag.Center)
+                    _solver.SetCenter(ctx.MousePosition);
+                else
+                    _solver.SetEdge(ctx.MousePosition);
                 MarkDirty();
             }
         }
@@ -99,7 +118,7 @@ namespace NetworkMultitool.Modes
         protected override void OnReset()
         {
             _solver = null;
-            _dragging = false;
+            _drag = Drag.None;
         }
     }
 }

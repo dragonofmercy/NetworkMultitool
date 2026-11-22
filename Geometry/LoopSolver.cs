@@ -83,6 +83,35 @@ namespace NetworkMultitool.Geometry
                 Radius = math.max(newRadius, 0f);
         }
 
+        /// <summary>Sets the radius so the circle passes through a dragged edge position, keeping the direct/loop choice.</summary>
+        public void SetEdge(float3 position)
+        {
+            if (!intersects)
+                return;
+
+            var sin = math.sin(HalfAbsGuideAngle);
+            var cos2 = 1f - sin * sin;
+            if (cos2 < 1e-6f)
+                return;
+
+            // The center is at s along the center line and the radius is |s| * sin: solve |q - dir * s| = |s| * sin for s.
+            var q = Vec.Flat(position - centerLinePos);
+            var along = Vec.DotXZ(q, centerLineDir);
+            var disc = along * along - cos2 * math.lengthsq(q);
+            if (disc < 0f)
+                return;
+
+            var root = math.sqrt(disc);
+            var sign = IsDirect ? -1f : 1f;
+            var current = radius / sin;
+            var near = sign * (along - root) / cos2;
+            var far = sign * (along + root) / cos2;
+            if (near <= 0f || (far > 0f && math.abs(far - current) < math.abs(near - current)))
+                near = far;
+            if (near > 0f)
+                Radius = near * sin;
+        }
+
         public SolveResult Solve(float maxSegmentLength, List<Point> points)
         {
             points.Clear();

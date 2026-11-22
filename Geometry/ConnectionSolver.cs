@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace NetworkMultitool.Geometry
 {
-    /// <summary>Two arcs, each tangent to one guide ray, joined by a common tangent; port of CS1 BaseCreateConnectionMode with its two EdgeCircles (no snapping, no drag sub-modes).</summary>
+    /// <summary>Two arcs, each tangent to one guide ray, joined by a common tangent; port of CS1 BaseCreateConnectionMode with its two EdgeCircles (no snapping).</summary>
     public sealed class ConnectionSolver
     {
         private const float MaxOffset = 5000f;
@@ -69,6 +69,36 @@ namespace NetworkMultitool.Geometry
         {
             First.Turn = First.Turn == Turn.Right ? Turn.Left : Turn.Right;
             Second.Turn = Second.Turn == Turn.Right ? Turn.Left : Turn.Right;
+        }
+
+        /// <summary>Slides the arc along its guide so its center follows a dragged position; the radius is kept.</summary>
+        public void DragCenter(bool first, float3 position)
+        {
+            var guide = first ? start : end;
+            var offset = Vec.DotXZ(position - guide.Position, guide.Direction);
+            if (first)
+                FirstOffset = offset;
+            else
+                SecondOffset = offset;
+        }
+
+        /// <summary>Sets the radius so the circle, still tangent to its guide at the current offset, passes through a dragged position.</summary>
+        public void DragEdge(bool first, float3 position)
+        {
+            var guide = first ? start : end;
+            // Same normal as the centers in Solve: guide point + normal * radius.
+            var normal = first ? Vec.Turn90(start.Direction, First.Turn == Turn.Right) : -Vec.Turn90(end.Direction, Second.Turn == Turn.Right);
+            var q = Vec.Flat(position - guide.Position - guide.Direction * (first ? firstOffset : secondOffset));
+            var side = Vec.DotXZ(q, normal);
+            // The mouse is on the other side of the guide: no circle on this side reaches it.
+            if (side <= 0f)
+                return;
+
+            var radius = math.lengthsq(q) / (2f * side);
+            if (first)
+                FirstRadius = radius;
+            else
+                SecondRadius = radius;
         }
 
         public SolveResult Solve(float maxSegmentLength, List<Point> points)
