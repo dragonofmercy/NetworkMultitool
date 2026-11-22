@@ -39,7 +39,6 @@ namespace NetworkMultitool
             Bind(nameof(Settings.Toggle), "Toggle tool");
             Bind(nameof(Settings.ModeAddNode), "Mode: add node");
             Bind(nameof(Settings.ModeRemoveNode), "Mode: remove node");
-            Bind(nameof(Settings.ModeSplitNode), "Mode: split node");
             Bind(nameof(Settings.ModeSlope), "Mode: slope");
             Bind(nameof(Settings.ModeLoop), "Mode: loop");
             Bind(nameof(Settings.ModeConnection), "Mode: connection");

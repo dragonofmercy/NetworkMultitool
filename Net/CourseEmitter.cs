@@ -90,24 +90,6 @@ namespace NetworkMultitool.Net
             Emit(new CreationDefinition { m_Original = edge, m_Flags = CreationFlags.Delete }, course);
         }
 
-        /// <summary>
-        /// Replaces an existing edge, keeping <paramref name="keptNode"/> and moving its other end to a new free position
-        /// (mirrors NetToolSystem.CreateReplacement(start, end, edge, ...)). <paramref name="curve"/> follows the edge's start to end orientation.
-        /// </summary>
-        public void Relink(Entity edge, Entity keptNode, float3 newEndPosition, Bezier4x3 curve)
-        {
-            var keptAtStart = _net.IsStart(edge, keptNode);
-            var keptPosition = _net.NodePosition(keptNode);
-            var course = keptAtStart
-                ? Course(curve, keptNode, keptPosition, Entity.Null, newEndPosition)
-                : Course(curve, Entity.Null, newEndPosition, keptNode, keptPosition);
-            course.m_StartPosition.m_Flags |= CoursePosFlags.IsFirst;
-            course.m_EndPosition.m_Flags |= CoursePosFlags.IsLast;
-            course.m_FixedIndex = _net.FixedIndex(edge);
-
-            Emit(new CreationDefinition { m_Original = edge, m_Prefab = _net.Prefab(edge), m_Flags = CreationFlags.Align | CreationFlags.SubElevation }, course);
-        }
-
         private void Emit(CreationDefinition definition, NetCourse course)
         {
             var entity = _ecb.CreateEntity();

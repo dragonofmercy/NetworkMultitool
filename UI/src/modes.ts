@@ -1,6 +1,5 @@
 import addNode from "images/add-node.svg";
 import removeNode from "images/remove-node.svg";
-import splitNode from "images/split-node.svg";
 import slope from "images/slope.svg";
 import loop from "images/loop.svg";
 import connection from "images/connection.svg";
@@ -26,16 +25,15 @@ export const groups: ModeGroup[] = [
         modes: [
             { id: 1, label: "Add node", icon: addNode },
             { id: 2, label: "Remove node", icon: removeNode },
-            { id: 3, label: "Split node", icon: splitNode },
-            { id: 4, label: "Slope", icon: slope, apply: true },
+            { id: 3, label: "Slope", icon: slope, apply: true },
         ],
     },
     {
         label: "Connect segments",
         modes: [
-            { id: 6, label: "Connection", icon: connection, apply: true },
-            { id: 5, label: "Loop", icon: loop, apply: true },
-            { id: 7, label: "Curve", icon: curve, apply: true },
+            { id: 5, label: "Connection", icon: connection, apply: true },
+            { id: 4, label: "Loop", icon: loop, apply: true },
+            { id: 6, label: "Curve", icon: curve, apply: true },
         ],
     },
 ];

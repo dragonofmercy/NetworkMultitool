@@ -7,11 +7,10 @@
 	<ShortDescription Value="Network editing tools: connections, curves, loops, slopes and node editing" />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<LongDescription>
-Port of the Network Multitool for Cities: Skylines. Seven modes to edit roads and rails:
+Port of the Network Multitool for Cities: Skylines. Six modes to edit roads and rails:
 
 * Add node: split a segment with a new node
 * Remove node: remove a node and merge its segments
-* Split node: split a node into several along its segments
 * Slope: give a chain of nodes a constant slope
 * Loop: build a loop or arc between two segments
 * Connection: connect two segments with two arcs

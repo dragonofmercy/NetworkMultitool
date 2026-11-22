@@ -12,7 +12,6 @@ namespace NetworkMultitool
         public const string Toggle = nameof(Toggle);
         public const string ModeAddNode = nameof(ModeAddNode);
         public const string ModeRemoveNode = nameof(ModeRemoveNode);
-        public const string ModeSplitNode = nameof(ModeSplitNode);
         public const string ModeSlope = nameof(ModeSlope);
         public const string ModeLoop = nameof(ModeLoop);
         public const string ModeConnection = nameof(ModeConnection);
@@ -35,7 +34,6 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.Toggle, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeAddNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeRemoveNode, Usages.kDefaultUsage, Usages.kToolUsage)]
-    [SettingsUIKeyboardAction(ToolActions.ModeSplitNode, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeSlope, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeLoop, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeConnection, Usages.kDefaultUsage, Usages.kToolUsage)]
@@ -76,10 +74,6 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit2, ToolActions.ModeRemoveNode, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeRemoveNode { get; set; }
-
-        [SettingsUIKeyboardBinding(BindingKeyboard.Digit0, ToolActions.ModeSplitNode, ctrl: true)]
-        [SettingsUISection(KeybindingsGroup)]
-        public ProxyBinding ModeSplitNode { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, ToolActions.ModeSlope, ctrl: true)]
         [SettingsUISection(KeybindingsGroup)]

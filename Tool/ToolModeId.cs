@@ -6,7 +6,6 @@ namespace NetworkMultitool.Tool
         None = 0,
         AddNode,
         RemoveNode,
-        SplitNode,
         Slope,
         Loop,
         Connection,
