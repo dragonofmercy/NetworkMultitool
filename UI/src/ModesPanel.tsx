@@ -52,10 +52,12 @@ export const ModesPanel = () => {
             {status && <div className={styles.status}>{status}</div>}
             {values && <Rows text={values} className={styles.values} />}
             {current?.terrain && (
-                <Button variant="flat" className={styles.toggle} onSelect={toggleFollowTerrain}>
-                    <div className={followTerrain ? `${styles.check} ${styles.checked}` : styles.check} />
+                <div className={styles.toggle} onClick={toggleFollowTerrain}>
+                    <div className={followTerrain ? `${styles.switch} ${styles.on}` : styles.switch}>
+                        <div className={styles.knob} />
+                    </div>
                     Follow terrain
-                </Button>
+                </div>
             )}
             {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>Apply</Button>}
             {hints && <Rows text={hints} className={styles.hints} />}

@@ -97,17 +97,31 @@ $text: rgba(255, 255, 255, 1);
     align-items: center;
 }
 
-.check {
-    width: 16rem;
-    height: 16rem;
+.switch {
+    width: 34rem;
+    height: 18rem;
     margin-right: 8rem;
-    border: 2rem solid $muted;
-    border-radius: 3rem;
+    position: relative;
+    border-radius: 9rem;
+    background-color: $card;
 }
 
-.check.checked {
-    border-color: $accent;
+.switch.on {
     background-color: $accent;
+}
+
+.knob {
+    position: absolute;
+    left: 2rem;
+    top: 2rem;
+    width: 14rem;
+    height: 14rem;
+    border-radius: 7rem;
+    background-color: $text;
+}
+
+.switch.on .knob {
+    left: 18rem;
 }
 
 .apply {
