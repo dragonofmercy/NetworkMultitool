@@ -1,9 +1,9 @@
-import addNode from "images/add-node.png";
-import removeNode from "images/remove-node.png";
-import slope from "images/slope.png";
-import loop from "images/loop.png";
-import connection from "images/connection.png";
-import curve from "images/curve.png";
+import addNode from "images/add-node.svg";
+import removeNode from "images/remove-node.svg";
+import slope from "images/slope.svg";
+import loop from "images/loop.svg";
+import connection from "images/connection.svg";
+import curve from "images/curve.svg";
 
 export interface ModeEntry {
     id: number;
