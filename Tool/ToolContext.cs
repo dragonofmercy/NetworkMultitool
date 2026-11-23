@@ -52,6 +52,9 @@ namespace NetworkMultitool.Tool
 
         public bool SecondaryPressed { get; internal set; }
 
+        /// <summary>Ctrl + left click this frame, outside the UI. Read from the mouse directly: the game blocks the Apply binding while a modifier it does not list is held.</summary>
+        public bool PickPressed { get; internal set; }
+
         /// <summary>Set by the UI Apply button; consumed by the next <see cref="Pressed"/> of <see cref="ToolAction.Apply"/>.</summary>
         public bool ApplyRequested { get; set; }
 

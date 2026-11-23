@@ -19,14 +19,13 @@ namespace NetworkMultitool.Modes
         private bool _shiftEdited;
         private bool _left = true;
         private float _height;
-        private bool _invert;
         private bool _picked;
         private Entity _pickHover;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
-        // Direction follows side, like CS1 (ResultInvert = Side ^ Invert): on the left the new path runs against the chain, as an opposite carriageway in right-hand traffic.
-        private bool Reversed => _left != _invert;
+        // Direction follows side, like CS1: on the left the new path runs against the chain, as an opposite carriageway in right-hand traffic.
+        private bool Reversed => _left;
 
         protected override int MinNodes => 2;
 
@@ -60,14 +59,13 @@ namespace NetworkMultitool.Modes
         {
             // Tested before base.Update, which snaps an edge hover near its ends to a node.
             _pickHover = ctx.CtrlHeld && ctx.HoverIsEdge && ctx.Em.Exists(ctx.Hover) && !ctx.Net.HasOwner(ctx.Hover) ? ctx.Hover : Entity.Null;
-            if (ctx.ApplyPressed && _pickHover != Entity.Null)
+            if (ctx.PickPressed && _pickHover != Entity.Null)
             {
                 _picked = true;
                 _prefab = ctx.Net.Prefab(_pickHover);
                 _prefabName = ctx.PrefabName(_prefab);
                 if (!_shiftEdited)
                     _shift = DefaultShift(ctx);
-                ctx.ApplyPressed = false;
             }
 
             base.Update(ctx);
@@ -105,7 +103,6 @@ namespace NetworkMultitool.Modes
                 _shiftEdited = false;
                 _left = true;
                 _height = 0f;
-                _invert = false;
                 _points.Clear();
                 return;
             }
@@ -153,8 +150,6 @@ namespace NetworkMultitool.Modes
                 _height -= ctx.StepMultiplier;
             if (ctx.Pressed(ToolAction.Side))
                 _left = !_left;
-            if (ctx.Pressed(ToolAction.Invert))
-                _invert = !_invert;
         }
 
         // CS1: mean half width of the chain edges plus half the new type's width.

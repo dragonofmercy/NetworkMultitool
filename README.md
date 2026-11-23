@@ -23,7 +23,7 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 | Loop | Select two segments, build a loop or direct arc between them: drag the center or the circle edge (or Up/Down) for the radius, `Ctrl+Alt+S` direct/loop. |
 | Connection | Select two segments, connect them with two arcs: drag a circle edge for its radius and its center for its offset. Keys for fine steps: Up/Down radius (Shift: both), Left/Right offsets, `Tab` switches circle, `Ctrl+Alt+S` switches the side of the selected circle. |
 | Curve | Select two segments, connect them with a smooth curve. |
-| Parallel | Select a chain, build a new network alongside it. Left/Right offset, PageUp/PageDown height, `Ctrl+Alt+S` side, `Ctrl+Alt+I` invert, Ctrl+click any segment to use its type, `Enter` to create. |
+| Parallel | Select a chain, build a new network alongside it. Left/Right offset, PageUp/PageDown height, `Ctrl+Alt+S` side (the left side runs the other way), Ctrl+click any segment to use its type, `Enter` to create. |
 
 Loop, Connection and Curve also use PageUp/PageDown (height), `Ctrl+Alt+I` (invert), click a node to change direction, and `Enter` to apply.
 

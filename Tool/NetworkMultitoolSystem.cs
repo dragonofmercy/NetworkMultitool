@@ -284,6 +284,7 @@ namespace NetworkMultitool.Tool
             m_Context.ApplyPressed = applyAction.WasPressedThisFrame();
             m_Context.ApplyHeld = applyAction.IsPressed();
             m_Context.SecondaryPressed = secondaryApplyAction.WasPressedThisFrame();
+            m_Context.PickPressed = m_Context.CtrlHeld && UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame;
             m_Context.ApplyMode = ApplyMode.Clear;
         }
 
@@ -294,6 +295,7 @@ namespace NetworkMultitool.Tool
             m_Context.ApplyPressed = false;
             m_Context.ApplyHeld = false;
             m_Context.SecondaryPressed = false;
+            m_Context.PickPressed = false;
             m_Context.ApplyMode = ApplyMode.Clear;
         }
 
