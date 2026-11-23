@@ -1,5 +1,7 @@
 # Network Multitool (Cities: Skylines II)
 
+[![Donate](https://img.shields.io/badge/Donate-Ko--fi-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/dragonofmercy)
+
 A tool panel with 7 modes for editing road and rail networks in Cities: Skylines II.
 
 This mod is a port of [Network Multitool](https://steamcommunity.com/sharedfiles/filedetails/?id=2560782729) for Cities: Skylines 1, by [MacSergey](https://github.com/MacSergey). The modes, their behavior and the geometry come from his mod; this version rewrites them for the Cities: Skylines II API.
@@ -56,3 +58,15 @@ Requirements: the CS2 modding toolchain (environment variables `CSII_TOOLPATH`, 
 
 - No undo.
 - Node moves bypass vanilla validation.
+
+## AI disclaimer
+
+This mod is developed with the help of [Claude Code](https://claude.com/claude-code),
+an AI coding assistant. I decide what gets built and review the changes, and every
+feature is tested by hand by me before it is released.
+
+## Support
+
+If this project helps to increase your productivity, you can give me a cup of coffee :)
+
+<a href="https://ko-fi.com/dragonofmercy"><img src="https://cdn.ko-fi.com/cdn/kofi2.png?v=3" alt="Donate" width="160"></a>
