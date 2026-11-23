@@ -23,6 +23,7 @@ namespace NetworkMultitool.Modes
         protected readonly List<Point> Points = new List<Point>();
         protected SolveResult Result;
         protected float Height;
+        private bool _followTerrain;
 
         public abstract ToolModeId Id { get; }
 
@@ -159,7 +160,7 @@ namespace NetworkMultitool.Modes
             // Ground-level networks may follow the terrain; anything elevated, lowered or offset keeps the solved heights.
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
-            var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
+            var followTerrain = _followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
             ctx.Emitter().Chain(startNode, endNode, Points, First, net.IsStart(First, FirstNode), followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
@@ -184,7 +185,7 @@ namespace NetworkMultitool.Modes
             }
 
             if (Points.Count >= 2)
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red);
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null);
 
             RenderShape(ctx, overlay);
         }

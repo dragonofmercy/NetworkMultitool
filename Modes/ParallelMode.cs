@@ -14,6 +14,7 @@ namespace NetworkMultitool.Modes
     {
         private readonly List<Bezier4x3> _edges = new List<Bezier4x3>();
         private List<Point> _points = new List<Point>();
+        private bool _followTerrain;
         private Entity _prefab;
         private string _prefabName;
         private float _shift;
@@ -85,6 +86,7 @@ namespace NetworkMultitool.Modes
             var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && _height == 0f;
             foreach (var node in Nodes)
                 followTerrain &= math.all(math.abs(net.Elevation(node)) < 1f);
+            _followTerrain = followTerrain;
 
             // A picked segment also gives its upgrades (bike lanes, trees...); its direction has no relation to the path, so they are not swapped.
             var chainEdge = ChainEdge(ctx, 0);
@@ -130,7 +132,7 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange);
+                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true);
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
         }
