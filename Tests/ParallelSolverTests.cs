@@ -66,6 +66,16 @@ namespace NetworkMultitool.Tests
         }
 
         [Fact]
+        public void Hairpin_SmallShift_MergesWithIncomingDirection()
+        {
+            var hairpin = new Bezier4x3(new float3(100, 0, 0), new float3(60, 0, 0), new float3(60, 0, -40), new float3(100, 0, -40));
+            var points = Solve(3f, true, 0f, Line(new float3(0, 0, 0), new float3(100, 0, 0)), hairpin);
+            Assert.Equal(3, points.Count);
+            AssertNear(new float3(100, 0, 0), points[1].Position);
+            AssertNear(new float3(1, 0, 0), points[1].Direction);
+        }
+
+        [Fact]
         public void Height_RaisesEveryPoint()
         {
             var points = Solve(10f, true, 5f, Line(new float3(0, 0, 0), new float3(100, 0, 0)));
