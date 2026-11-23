@@ -54,7 +54,6 @@ namespace NetworkMultitool
             Bind(nameof(Settings.OffsetDown), "Decrease offset");
             Bind(nameof(Settings.HeightUp), "Raise height");
             Bind(nameof(Settings.HeightDown), "Lower height");
-            Bind(nameof(Settings.Invert), "Invert");
             Bind(nameof(Settings.Side), "Switch side");
             Bind(nameof(Settings.SwitchOffset), "Switch offset");
 

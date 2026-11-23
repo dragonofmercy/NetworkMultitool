@@ -25,7 +25,6 @@ namespace NetworkMultitool
         public const string OffsetDown = nameof(OffsetDown);
         public const string HeightUp = nameof(HeightUp);
         public const string HeightDown = nameof(HeightDown);
-        public const string Invert = nameof(Invert);
         public const string Side = nameof(Side);
         public const string SwitchOffset = nameof(SwitchOffset);
     }
@@ -49,7 +48,6 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.OffsetDown, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.HeightUp, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.HeightDown, Usages.kToolUsage)]
-    [SettingsUIKeyboardAction(ToolActions.Invert, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.Side, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.SwitchOffset, Usages.kToolUsage)]
     public class Settings : ModSetting
@@ -133,10 +131,6 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.PageDown, ToolActions.HeightDown)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding HeightDown { get; set; }
-
-        [SettingsUIKeyboardBinding(BindingKeyboard.I, ToolActions.Invert, ctrl: true, alt: true)]
-        [SettingsUISection(KeybindingsGroup)]
-        public ProxyBinding Invert { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.S, ToolActions.Side, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]

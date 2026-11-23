@@ -25,7 +25,7 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 | Curve | Select two segments, connect them with a smooth curve. |
 | Parallel | Select a chain, build a new network alongside it. Left/Right offset, PageUp/PageDown height, `Ctrl+Alt+S` side (the left side runs the other way), Ctrl+click any segment to use its type, `Enter` to create. |
 
-Loop, Connection and Curve also use PageUp/PageDown (height), `Ctrl+Alt+I` (invert), click a node to change direction, and `Enter` to apply.
+Loop, Connection and Curve also use PageUp/PageDown (height), click a node to change direction, and `Enter` to apply.
 
 The creation modes hide the game's own road preview and show only the mod's overlay; turn off "Hide game preview" in the panel or the mod options to see it again.
 
@@ -42,7 +42,7 @@ All rebindable in the mod options.
 | Radius up / down | Up / Down |
 | Offset up / down | Right / Left |
 | Height up / down | PageUp / PageDown |
-| Invert / Side | Ctrl+Alt+I / Ctrl+Alt+S |
+| Side | Ctrl+Alt+S |
 | Switch offset | Tab |
 
 ## Build

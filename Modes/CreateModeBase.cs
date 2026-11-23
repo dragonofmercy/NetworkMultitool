@@ -10,7 +10,6 @@ namespace NetworkMultitool.Modes
     /// <summary>Two-segment creation flow (port of CS1 BaseCreateMode): select two edges, pick their ends, preview and create the solved path.</summary>
     public abstract class CreateModeBase : IToolMode
     {
-        private readonly List<Point> _emitted = new List<Point>();
         private bool _dirty = true;
         private bool _hoverEnd;
 
@@ -23,7 +22,6 @@ namespace NetworkMultitool.Modes
         protected readonly List<Point> Points = new List<Point>();
         protected SolveResult Result;
         protected float Height;
-        protected bool Invert;
 
         public abstract ToolModeId Id { get; }
 
@@ -37,7 +35,7 @@ namespace NetworkMultitool.Modes
                     return "Select second segment";
                 if (_hoverEnd)
                     return "Click a node to change direction";
-                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height\n{KeyNames.Of(ToolAction.Invert)}: invert";
+                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height";
             }
         }
 
@@ -156,24 +154,12 @@ namespace NetworkMultitool.Modes
 
             var startNode = FirstNode;
             var endNode = SecondNode;
-            _emitted.Clear();
-            if (Invert)
-            {
-                startNode = SecondNode;
-                endNode = FirstNode;
-                for (var i = Points.Count - 1; i >= 0; i--)
-                    _emitted.Add(new Point(Points[i].Position, -Points[i].InDirection, -Points[i].Direction));
-            }
-            else
-            {
-                _emitted.AddRange(Points);
-            }
 
             // Ground-level networks may follow the terrain; anything elevated, lowered or offset keeps the solved heights.
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter().Chain(startNode, endNode, _emitted, First, net.IsStart(First, FirstNode) != Invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
+            ctx.Emitter().Chain(startNode, endNode, Points, First, net.IsStart(First, FirstNode), followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -293,12 +279,6 @@ namespace NetworkMultitool.Modes
                 _dirty = true;
             }
 
-            if (ctx.Pressed(ToolAction.Invert))
-            {
-                Invert = !Invert;
-                _dirty = true;
-            }
-
             OnKeys(ctx);
 
             if (Dragging == Drag.None)
@@ -376,7 +356,6 @@ namespace NetworkMultitool.Modes
             Points.Clear();
             Result = SolveResult.Ok;
             Height = 0f;
-            Invert = false;
             _hoverEnd = false;
             _dirty = true;
             Dragging = Drag.None;
