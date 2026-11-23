@@ -34,6 +34,9 @@ namespace NetworkMultitool.Modes
 
         public abstract ToolModeId Id { get; }
 
+        /// <summary>Nodes needed before the chain can be applied.</summary>
+        protected virtual int MinNodes => 3;
+
         public virtual string Info
         {
             get
@@ -43,7 +46,7 @@ namespace NetworkMultitool.Modes
                     case ChainState.CanAdd: return "Click to add nodes";
                     case ChainState.IsEnd: return "Click to unselect";
                     case ChainState.NotConnected: return "Not connected";
-                    default: return Nodes.Count >= 3 ? $"Press {KeyNames.Of(ToolAction.Apply)} to apply" : "Select nodes in order";
+                    default: return Nodes.Count >= MinNodes ? $"Press {KeyNames.Of(ToolAction.Apply)} to apply" : "Select nodes in order";
                 }
             }
         }
@@ -82,7 +85,7 @@ namespace NetworkMultitool.Modes
                 Nodes.RemoveAt(ctx.Hover == Nodes[0] ? 0 : Nodes.Count - 1);
                 OnChainChanged(ctx);
             }
-            else if (Nodes.Count >= 3 && ctx.Pressed(ToolAction.Apply))
+            else if (Nodes.Count >= MinNodes && ctx.Pressed(ToolAction.Apply))
             {
                 Apply(ctx);
                 Clear(ctx);
@@ -120,7 +123,7 @@ namespace NetworkMultitool.Modes
         /// <summary>Called after <see cref="Nodes"/> changed through a click or a reset.</summary>
         protected abstract void OnChainChanged(ToolContext ctx);
 
-        /// <summary>Writes the result on the network; the chain holds at least 3 valid nodes. The chain is cleared afterwards.</summary>
+        /// <summary>Writes the result on the network; the chain holds at least <see cref="MinNodes"/> valid nodes. The chain is cleared afterwards.</summary>
         protected abstract void Apply(ToolContext ctx);
 
         protected abstract void RenderPreview(ToolContext ctx, Overlay overlay);

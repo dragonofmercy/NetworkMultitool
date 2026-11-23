@@ -120,11 +120,10 @@ namespace NetworkMultitool.Net
 
         public Entity Prefab(Entity entity) => _em.HasComponent<PrefabRef>(entity) ? _em.GetComponentData<PrefabRef>(entity).m_Prefab : Entity.Null;
 
-        public float Width(Entity edge)
-        {
-            var prefab = Prefab(edge);
-            return prefab != Entity.Null && _em.HasComponent<NetGeometryData>(prefab) ? _em.GetComponentData<NetGeometryData>(prefab).m_DefaultWidth : DefaultWidth;
-        }
+        public float Width(Entity edge) => PrefabWidth(Prefab(edge));
+
+        /// <summary>Default width of a net prefab, 8 m when unknown.</summary>
+        public float PrefabWidth(Entity prefab) => prefab != Entity.Null && _em.HasComponent<NetGeometryData>(prefab) ? _em.GetComponentData<NetGeometryData>(prefab).m_DefaultWidth : DefaultWidth;
 
         public float2 Elevation(Entity entity) => _em.HasComponent<Elevation>(entity) ? _em.GetComponentData<Elevation>(entity).m_Elevation : float2.zero;
 

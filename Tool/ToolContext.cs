@@ -79,6 +79,11 @@ namespace NetworkMultitool.Tool
             }
         }
 
+        public bool CtrlHeld => Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
+
+        /// <summary>Name of a prefab entity, "?" when unknown.</summary>
+        public string PrefabName(Entity prefab) => _system.PrefabName(prefab);
+
         /// <summary>Command buffer of the tool output barrier, created on first use each frame.</summary>
         public EntityCommandBuffer Ecb
         {

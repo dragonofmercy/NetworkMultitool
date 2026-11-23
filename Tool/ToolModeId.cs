@@ -11,5 +11,6 @@ namespace NetworkMultitool.Tool
         Connection,
         Curve,
         ArrangeLine,
+        Parallel,
     }
 }

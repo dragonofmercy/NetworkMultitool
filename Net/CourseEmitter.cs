@@ -31,19 +31,27 @@ namespace NetworkMultitool.Net
         /// <remarks>
         /// CoursePosFlags.FreeHeight lets the game overwrite the position height with terrain + m_Elevation (CourseSplitSystem.InitializeCoursePos).
         /// Without it the heights are kept, and <paramref name="terrainHeight"/> gives inner points their real elevation so bridges and pillars match.
+        /// <paramref name="prefab"/>, when set, replaces the template's type; the upgrades are then copied only when it is the template's type.
+        /// A free end (<c>Entity.Null</c> node) takes its elevation from <paramref name="terrainHeight"/> when given, else zero.
         /// </remarks>
-        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, Entity template, bool invertTemplate, bool followTerrain, System.Func<float3, float> terrainHeight)
+        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, Entity template, bool invertTemplate, bool followTerrain, System.Func<float3, float> terrainHeight, Entity prefab = default)
         {
-            var prefab = _net.Prefab(template);
-            var startElevation = _net.Elevation(startNode);
-            var endElevation = _net.Elevation(endNode);
+            var last = points.Count - 1;
+            if (last < 1)
+                return;
+
+            var templatePrefab = _net.Prefab(template);
+            if (prefab == Entity.Null)
+                prefab = templatePrefab;
+            var startElevation = EndElevation(startNode, points[0].Position, terrainHeight);
+            var endElevation = EndElevation(endNode, points[last].Position, terrainHeight);
             // GenerateEdgesSystem copies Upgraded and SubReplacement from the definition entity to the new edge.
-            var upgrades = _net.Upgrades(template);
+            var sameType = prefab == templatePrefab;
+            var upgrades = sameType ? _net.Upgrades(template) : default;
             if (invertTemplate)
                 upgrades = NetCompositionHelpers.InvertCompositionFlags(upgrades);
-            var replacements = _net.SubReplacements(template);
+            var replacements = sameType ? _net.SubReplacements(template) : new List<SubReplacement>();
 
-            var last = points.Count - 1;
             for (var i = 0; i < last; i += 1)
             {
                 var p0 = points[i];
@@ -139,6 +147,13 @@ namespace NetworkMultitool.Net
             m_Flags = flags,
             m_ParentMesh = -1,
         };
+
+        private float2 EndElevation(Entity node, float3 position, System.Func<float3, float> terrainHeight)
+        {
+            if (node != Entity.Null)
+                return _net.Elevation(node);
+            return terrainHeight != null ? new float2(position.y - terrainHeight(position)) : float2.zero;
+        }
 
         private static float2 Lerp(float2 from, float2 to, int index, int count) => count > 0 ? math.lerp(from, to, (float)index / count) : from;
 

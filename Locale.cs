@@ -44,6 +44,7 @@ namespace NetworkMultitool
             Bind(nameof(Settings.ModeLoop), "Mode: loop");
             Bind(nameof(Settings.ModeConnection), "Mode: connection");
             Bind(nameof(Settings.ModeCurve), "Mode: curve");
+            Bind(nameof(Settings.ModeParallel), "Mode: parallel");
             Bind(ToolActions.Apply, "Apply", nameof(Settings.ApplyKey));
             Bind(nameof(Settings.RadiusUp), "Increase radius");
             Bind(nameof(Settings.RadiusDown), "Decrease radius");

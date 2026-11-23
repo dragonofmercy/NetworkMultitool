@@ -54,6 +54,8 @@ namespace NetworkMultitool.Tool
             return Game.Simulation.TerrainUtils.SampleHeight(ref data, position);
         }
 
+        internal string PrefabName(Entity prefab) => prefab != Entity.Null && m_PrefabSystem.TryGetPrefab(prefab, out PrefabBase value) && value != null ? value.name : "?";
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -74,6 +76,7 @@ namespace NetworkMultitool.Tool
             RegisterMode(new CurveMode());
             RegisterMode(new LoopMode());
             RegisterMode(new ConnectionMode());
+            RegisterMode(new ParallelMode());
             m_Mode = m_Modes[ToolModeId.None];
 
             BindActions();

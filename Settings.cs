@@ -17,6 +17,7 @@ namespace NetworkMultitool
         public const string ModeLoop = nameof(ModeLoop);
         public const string ModeConnection = nameof(ModeConnection);
         public const string ModeCurve = nameof(ModeCurve);
+        public const string ModeParallel = nameof(ModeParallel);
         public const string Apply = nameof(Apply);
         public const string RadiusUp = nameof(RadiusUp);
         public const string RadiusDown = nameof(RadiusDown);
@@ -40,6 +41,7 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.ModeLoop, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeConnection, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.ModeCurve, Usages.kDefaultUsage, Usages.kToolUsage)]
+    [SettingsUIKeyboardAction(ToolActions.ModeParallel, Usages.kDefaultUsage, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.Apply, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.RadiusUp, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.RadiusDown, Usages.kToolUsage)]
@@ -96,6 +98,10 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, ToolActions.ModeCurve, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding ModeCurve { get; set; }
+
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit8, ToolActions.ModeParallel, ctrl: true, alt: true)]
+        [SettingsUISection(KeybindingsGroup)]
+        public ProxyBinding ModeParallel { get; set; }
 
         [SettingsUIKeyboardBinding(BindingKeyboard.Enter, ToolActions.Apply)]
         [SettingsUISection(KeybindingsGroup)]
