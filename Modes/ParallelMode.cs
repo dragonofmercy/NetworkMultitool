@@ -21,6 +21,7 @@ namespace NetworkMultitool.Modes
         private float _height;
         private bool _picked;
         private Entity _pickHover;
+        private Entity _pickedEdge;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
@@ -62,6 +63,7 @@ namespace NetworkMultitool.Modes
             if (ctx.PickPressed && _pickHover != Entity.Null)
             {
                 _picked = true;
+                _pickedEdge = _pickHover;
                 _prefab = ctx.Net.Prefab(_pickHover);
                 _prefabName = ctx.PrefabName(_prefab);
                 if (!_shiftEdited)
@@ -83,8 +85,10 @@ namespace NetworkMultitool.Modes
             foreach (var node in Nodes)
                 followTerrain &= math.all(math.abs(net.Elevation(node)) < 1f);
 
-            var template = ChainEdge(ctx, 0);
-            var invertTemplate = !net.IsStart(template, Nodes[0]) != Reversed;
+            // A picked segment also gives its upgrades (bike lanes, trees...); its direction has no relation to the path, so they are not swapped.
+            var chainEdge = ChainEdge(ctx, 0);
+            var template = _picked && ctx.Em.Exists(_pickedEdge) ? _pickedEdge : chainEdge;
+            var invertTemplate = template == chainEdge && !net.IsStart(chainEdge, Nodes[0]) != Reversed;
             ctx.Emitter().Chain(Entity.Null, Entity.Null, _points, template, invertTemplate, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, _prefab);
         }
 
