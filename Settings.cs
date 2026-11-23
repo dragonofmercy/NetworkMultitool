@@ -67,6 +67,9 @@ namespace NetworkMultitool
         [SettingsUISection(GeneralGroup)]
         public bool FollowTerrain { get; set; }
 
+        [SettingsUISection(GeneralGroup)]
+        public bool HideGamePreview { get; set; }
+
         [SettingsUIKeyboardBinding(BindingKeyboard.T, ToolActions.Toggle, ctrl: true, alt: true)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding Toggle { get; set; }
@@ -154,6 +157,7 @@ namespace NetworkMultitool
             SegmentLength = 80f;
             SlopeInDegrees = false;
             FollowTerrain = true;
+            HideGamePreview = true;
         }
     }
 }

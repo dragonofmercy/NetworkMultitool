@@ -27,6 +27,8 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 
 Loop, Connection and Curve also use PageUp/PageDown (height), `Ctrl+Alt+I` (invert), click a node to change direction, and `Enter` to apply.
 
+The creation modes hide the game's own road preview and show only the mod's overlay; turn off "Hide game preview" in the mod options to see it again.
+
 ## Default keybindings
 
 All rebindable in the mod options.

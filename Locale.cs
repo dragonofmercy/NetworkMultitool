@@ -27,6 +27,8 @@ namespace NetworkMultitool
                 { _settings.GetOptionDescLocaleID(nameof(Settings.SlopeInDegrees)), "Display slopes in degrees instead of percent." },
                 { _settings.GetOptionLabelLocaleID(nameof(Settings.FollowTerrain)), "Follow terrain" },
                 { _settings.GetOptionDescLocaleID(nameof(Settings.FollowTerrain)), "Let created roads follow the terrain height instead of staying flat." },
+                { _settings.GetOptionLabelLocaleID(nameof(Settings.HideGamePreview)), "Hide game preview" },
+                { _settings.GetOptionDescLocaleID(nameof(Settings.HideGamePreview)), "Hide the game's road preview in the creation modes and keep only the mod's overlay. Cost and validation still apply." },
             };
 
             // The options page labels each ProxyBinding property; the binding key label is shown in the key map.

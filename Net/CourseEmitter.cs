@@ -27,6 +27,9 @@ namespace NetworkMultitool.Net
             _net = net;
         }
 
+        /// <summary>CreationFlags.Hidden on the courses: the game still builds, prices, validates and applies the Temp entities but does not render them (TempFlags.Hidden, BatchInstanceSystem).</summary>
+        public bool HidePreview { get; set; }
+
         /// <summary>One course per pair of consecutive points (pattern NetToolSystem.CreateStraightLine). The new edges take the upgrades of <paramref name="template"/>; <paramref name="invertTemplate"/> swaps left and right when the path runs against the template edge's direction.</summary>
         /// <remarks>
         /// CoursePosFlags.FreeHeight lets the game overwrite the position height with terrain + m_Elevation (CourseSplitSystem.InitializeCoursePos).
@@ -64,7 +67,7 @@ namespace NetworkMultitool.Net
                 var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, ElevationAt(i, p0.Position), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
                 var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, ElevationAt(i + 1, p1.Position), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
 
-                var definition = Emit(new CreationDefinition { m_Prefab = prefab, m_Flags = CreationFlags.SubElevation, m_RandomSeed = i }, new NetCourse
+                var definition = Emit(new CreationDefinition { m_Prefab = prefab, m_Flags = CreationFlags.SubElevation | (HidePreview ? CreationFlags.Hidden : 0), m_RandomSeed = i }, new NetCourse
                 {
                     m_Curve = curve,
                     m_Length = MathUtils.Length(curve),
