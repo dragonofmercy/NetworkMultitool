@@ -1,0 +1,13 @@
+// Close to CS1 InfoLabel: white, larger text, 75% opacity, centered on the point.
+.label {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    color: rgba(255, 255, 255, 1);
+    opacity: 0.75;
+    font-size: 20rem;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 1rem 1rem 2rem rgba(0, 0, 0, 1);
+    white-space: nowrap;
+}

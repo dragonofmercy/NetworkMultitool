@@ -5,6 +5,7 @@ const GROUP = "NetworkMultitool";
 export const active$ = bindValue<boolean>(GROUP, "active", false);
 export const mode$ = bindValue<number>(GROUP, "mode", 0);
 export const info$ = bindValue<string>(GROUP, "info", "");
+export const labels$ = bindValue<string>(GROUP, "labels", "");
 export const toggleKeys$ = bindValue<string>(GROUP, "toggleKeys", "");
 
 export const followTerrain$ = bindValue<boolean>(GROUP, "followTerrain", true);

@@ -85,12 +85,26 @@ namespace NetworkMultitool.Modes
         {
         }
 
-        /// <summary>Circle and center handle of an arc; the part that is grabbed, or would be by a click, is highlighted.</summary>
-        protected void DrawHandles(Overlay overlay, Arc arc, UnityEngine.Color idle, Drag grab)
+        /// <summary>Circle and center handle of an arc; the part that is grabbed, or would be by a click, is highlighted.
+        /// Like CS1 Circle.Render/Update: radius lines to both arc ends and a radius/angle label beside the center.</summary>
+        protected void DrawHandles(ToolContext ctx, Overlay overlay, Arc arc, UnityEngine.Color idle, Drag grab)
         {
             var center = Vec.WithY(arc.Center, arc.Center.y + Height);
             overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : idle, grab == Drag.Edge ? 2f : 1f);
             overlay.Handle(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
+
+            // The radius lines stop at the road edge, as in CS1 RenderRadius.
+            var inner = math.max(arc.Radius - ctx.Net.Width(First) / 2f, 0f);
+            if (arc.IsCorrect)
+            {
+                overlay.GroundLine(center, center + arc.StartRadiusDir * inner, idle);
+                overlay.GroundLine(center, center + arc.EndRadiusDir * inner, idle);
+            }
+
+            var sum = Vec.Flat(arc.StartRadiusDir + arc.EndRadiusDir);
+            var labelDir = arc.IsCorrect && math.lengthsq(sum) > 1e-6f ? -math.normalize(sum) : new float3(0f, 0f, 1f);
+            var text = arc.IsCorrect ? $"{arc.Radius:0.0} m\n{math.degrees(arc.Angle):0}\u00b0" : $"{arc.Radius:0.0} m";
+            overlay.Label(center + labelDir * 5f, text);
         }
 
         protected void MarkDirty() => _dirty = true;

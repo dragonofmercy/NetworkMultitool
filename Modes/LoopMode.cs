@@ -92,7 +92,7 @@ namespace NetworkMultitool.Modes
         {
             if (_solver == null || Second == Entity.Null || Result != SolveResult.Ok)
                 return;
-            DrawHandles(overlay, _solver.Arc, Overlay.Gray, Dragging != Drag.None ? Dragging : Grab(ctx));
+            DrawHandles(ctx, overlay, _solver.Arc, Overlay.Gray, Dragging != Drag.None ? Dragging : Grab(ctx));
         }
 
         protected override void OnReset() => _solver = null;

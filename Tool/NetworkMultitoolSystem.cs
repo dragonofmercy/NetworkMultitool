@@ -48,6 +48,9 @@ namespace NetworkMultitool.Tool
 
         public string Info => m_Mode.Info;
 
+        /// <summary>World labels drawn by the mode last frame, positioned on screen by the UI system.</summary>
+        public List<(float3 Position, string Text)> Labels { get; } = new List<(float3, string)>();
+
         internal float TerrainHeight(float3 position)
         {
             var data = m_Terrain.GetHeightData();
@@ -152,13 +155,14 @@ namespace NetworkMultitool.Tool
             else
                 FillContext();
             var mode = m_Mode;
+            Labels.Clear();
             try
             {
                 mode.Update(m_Context);
                 applyMode = m_Context.ApplyMode;
                 var buffer = m_Overlay.GetBuffer(out var overlayDeps);
                 overlayDeps.Complete();
-                var overlay = new Overlay(buffer, m_Net);
+                var overlay = new Overlay(buffer, m_Net, Labels);
                 if (mode.Id != ToolModeId.None)
                     RenderNodeMarkers(overlay);
                 mode.Render(m_Context, overlay);

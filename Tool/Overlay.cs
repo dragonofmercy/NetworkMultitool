@@ -25,12 +25,20 @@ namespace NetworkMultitool.Tool
 
         private readonly OverlayRenderSystem.Buffer _buffer;
         private readonly NetQuery _net;
+        private readonly List<(float3 Position, string Text)> _labels;
 
-        public Overlay(OverlayRenderSystem.Buffer buffer, NetQuery net)
+        public Overlay(OverlayRenderSystem.Buffer buffer, NetQuery net, List<(float3, string)> labels)
         {
             _buffer = buffer;
             _net = net;
+            _labels = labels;
         }
+
+        /// <summary>Text shown by the UI at the screen position of a world point; lines are separated by '\n'.</summary>
+        public void Label(float3 position, string text) => _labels.Add((position, text));
+
+        /// <summary>A thin line projected on the ground.</summary>
+        public void GroundLine(float3 a, float3 b, Color color, float width = 1f) => _buffer.DrawLine(color, color, 0f, OverlayRenderSystem.StyleFlags.Projected, new Colossal.Mathematics.Line3.Segment(a, b), width, new float2(0f, 0f));
 
         /// <summary>A disc on the node, as wide as its first connected edge.</summary>
         public void Node(Entity node, Color color) => _buffer.DrawCircle(color, _net.NodePosition(node), NodeWidth(node));

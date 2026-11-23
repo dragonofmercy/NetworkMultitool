@@ -131,8 +131,8 @@ namespace NetworkMultitool.Modes
                 return;
             var first = _selectFirst;
             var grab = Dragging != Drag.None ? Dragging : Grab(ctx, out first);
-            DrawHandles(overlay, _solver.First, IdleColor(_selectFirst), first ? grab : Drag.None);
-            DrawHandles(overlay, _solver.Second, IdleColor(!_selectFirst), first ? Drag.None : grab);
+            DrawHandles(ctx, overlay, _solver.First, IdleColor(_selectFirst), first ? grab : Drag.None);
+            DrawHandles(ctx, overlay, _solver.Second, IdleColor(!_selectFirst), first ? Drag.None : grab);
         }
 
         protected override void OnReset()
