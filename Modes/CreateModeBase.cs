@@ -144,7 +144,7 @@ namespace NetworkMultitool.Modes
                 startNode = SecondNode;
                 endNode = FirstNode;
                 for (var i = Points.Count - 1; i >= 0; i--)
-                    _emitted.Add(new Point(Points[i].Position, -Points[i].Direction));
+                    _emitted.Add(new Point(Points[i].Position, -Points[i].InDirection, -Points[i].Direction));
             }
             else
             {

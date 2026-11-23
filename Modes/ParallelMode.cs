@@ -25,6 +25,9 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
+        // Direction follows side, like CS1 (ResultInvert = Side ^ Invert): on the left the new path runs against the chain, as an opposite carriageway in right-hand traffic.
+        private bool Reversed => _left != _invert;
+
         protected override int MinNodes => 2;
 
         public override string Info
@@ -83,20 +86,21 @@ namespace NetworkMultitool.Modes
                 followTerrain &= math.all(math.abs(net.Elevation(node)) < 1f);
 
             var template = ChainEdge(ctx, 0);
-            var invertTemplate = !net.IsStart(template, Nodes[0]) != _invert;
+            var invertTemplate = !net.IsStart(template, Nodes[0]) != Reversed;
             ctx.Emitter().Chain(Entity.Null, Entity.Null, _points, template, invertTemplate, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, _prefab);
         }
 
         protected override void OnChainChanged(ToolContext ctx)
         {
+            // Below 2 nodes the chain type is unknown: a re-extended chain takes its new edges' type.
+            if (Nodes.Count < 2 && !_picked)
+            {
+                _prefab = Entity.Null;
+                _prefabName = null;
+            }
+
             if (Nodes.Count == 0)
             {
-                if (!_picked)
-                {
-                    _prefab = Entity.Null;
-                    _prefabName = null;
-                }
-
                 _shift = 0f;
                 _shiftEdited = false;
                 _left = true;
@@ -177,11 +181,11 @@ namespace NetworkMultitool.Modes
             }
 
             var points = ParallelSolver.Solve(_edges, _shift, _left, _height);
-            if (_invert)
+            if (Reversed)
             {
                 points.Reverse();
                 for (var i = 0; i < points.Count; i++)
-                    points[i] = new Point(points[i].Position, -points[i].Direction);
+                    points[i] = new Point(points[i].Position, -points[i].InDirection, -points[i].Direction);
             }
 
             return points;

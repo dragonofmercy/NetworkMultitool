@@ -12,7 +12,7 @@ All credit for the original design and geometry goes to MacSergey, author of Net
 
 ## Modes
 
-Left click selects/applies, right click goes back/clears. Slope and Arrange select an ordered run of connected nodes (click to add, click an end node to unselect), then press `Enter` (3 nodes or more).
+Left click selects/applies, right click goes back/clears. Slope, Arrange and Parallel select an ordered run of connected nodes (click to add, click an end node to unselect), then press `Enter` (3 nodes or more for Slope and Arrange, 2 or more for Parallel).
 
 | Mode | Behavior |
 | --- | --- |

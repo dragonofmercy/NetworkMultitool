@@ -56,6 +56,14 @@ namespace NetworkMultitool.Tests
         }
 
         [Fact]
+        public void RightAngle_InnerCorner_KeepsSeparateTangents()
+        {
+            var points = Solve(10f, true, 0f, Line(new float3(0, 0, 0), new float3(100, 0, 0)), Line(new float3(100, 0, 0), new float3(100, 0, 100)));
+            AssertNear(new float3(0, 0, 1), points[1].Direction);
+            AssertNear(new float3(1, 0, 0), points[1].InDirection);
+        }
+
+        [Fact]
         public void Hairpin_KeepsTwoPoints()
         {
             var hairpin = new Bezier4x3(new float3(100, 0, 0), new float3(60, 0, 0), new float3(60, 0, -40), new float3(100, 0, -40));

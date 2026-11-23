@@ -28,17 +28,17 @@ namespace NetworkMultitool.Geometry
                 var df = Vec.NormalizeXZ(MathUtils.StartTangent(outgoing));
                 var b = Offset(incoming.d, db, shift, left, height);
                 var f = Offset(outgoing.a, df, shift, left, height);
-                var mergedDir = Vec.NormalizeXZ(db + df);
-                if (math.lengthsq(mergedDir) < 1e-6f)
-                    mergedDir = db; // antiparallel tangents (hairpin) sum to zero
-
-                if (Vec.IntersectXZ(b, db, f, df, out var t1, out var t2) && math.abs(t1) <= FlatChord(incoming) / 2f && math.abs(t2) <= FlatChord(outgoing) / 2f)
+                // CS1 accepts a hit anywhere on the offset segments.
+                if (Vec.IntersectXZ(b, db, f, df, out var t1, out var t2) && math.abs(t1) <= FlatChord(incoming) && math.abs(t2) <= FlatChord(outgoing))
                 {
                     var hit = (b + db * t1 + f + df * t2) / 2f;
-                    result.Add(new Point(Vec.WithY(hit, outgoing.a.y + height), mergedDir));
+                    result.Add(new Point(Vec.WithY(hit, outgoing.a.y + height), df, db)); // separate tangents, or the new road wiggles before the corner
                 }
                 else if (math.distance(Vec.Flat(b), Vec.Flat(f)) < MergeDistance)
                 {
+                    var mergedDir = Vec.NormalizeXZ(db + df);
+                    if (math.lengthsq(mergedDir) < 1e-6f)
+                        mergedDir = db; // antiparallel tangents (hairpin) sum to zero
                     result.Add(new Point((b + f) / 2f, mergedDir));
                 }
                 else
