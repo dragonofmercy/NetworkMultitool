@@ -20,6 +20,8 @@ namespace NetworkMultitool.Modes
         private bool _left = true;
         private float _height;
         private bool _invert;
+        private bool _picked;
+        private Entity _pickHover;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
@@ -31,18 +33,34 @@ namespace NetworkMultitool.Modes
             {
                 if (Nodes.Count < 2)
                     return base.Info + "\nCtrl+click a segment: pick its type";
-                return $"Press {KeyNames.Of(ToolAction.Apply)} to create\n\nType: {_prefabName ?? "?"}\nOffset: {_shift:0.0} m\nHeight: {_height:0.0} m\n\n" +
+                var status = State != ChainState.None ? base.Info : $"Press {KeyNames.Of(ToolAction.Apply)} to create";
+                return $"{status}\n\nType: {_prefabName ?? "?"}\nOffset: {_shift:0.0} m\nHeight: {_height:0.0} m\n\n" +
                        $"Ctrl+click segment: pick type\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height\n" +
                        $"{KeyNames.Of(ToolAction.Side)}: side\n{KeyNames.Of(ToolAction.Invert)}: invert";
             }
         }
 
+        // A picked type survives validation, so several parallels of that type can be built in a row; leaving the mode forgets it.
+        public override void Enter(ToolContext ctx)
+        {
+            _picked = false;
+            base.Enter(ctx);
+        }
+
+        public override void Exit(ToolContext ctx)
+        {
+            _picked = false;
+            base.Exit(ctx);
+        }
+
         public override void Update(ToolContext ctx)
         {
             // Tested before base.Update, which snaps an edge hover near its ends to a node.
-            if (ctx.ApplyPressed && ctx.CtrlHeld && ctx.HoverIsEdge && ctx.Em.Exists(ctx.Hover) && !ctx.Net.HasOwner(ctx.Hover))
+            _pickHover = ctx.CtrlHeld && ctx.HoverIsEdge && ctx.Em.Exists(ctx.Hover) && !ctx.Net.HasOwner(ctx.Hover) ? ctx.Hover : Entity.Null;
+            if (ctx.ApplyPressed && _pickHover != Entity.Null)
             {
-                _prefab = ctx.Net.Prefab(ctx.Hover);
+                _picked = true;
+                _prefab = ctx.Net.Prefab(_pickHover);
                 _prefabName = ctx.PrefabName(_prefab);
                 if (!_shiftEdited)
                     _shift = DefaultShift(ctx);
@@ -73,8 +91,12 @@ namespace NetworkMultitool.Modes
         {
             if (Nodes.Count == 0)
             {
-                _prefab = Entity.Null;
-                _prefabName = null;
+                if (!_picked)
+                {
+                    _prefab = Entity.Null;
+                    _prefabName = null;
+                }
+
                 _shift = 0f;
                 _shiftEdited = false;
                 _left = true;
@@ -103,8 +125,8 @@ namespace NetworkMultitool.Modes
         {
             if (_points.Count >= 2)
                 overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.White);
-            if (ctx.CtrlHeld && ctx.HoverIsEdge && ctx.Em.Exists(ctx.Hover))
-                overlay.Edge(ctx.Hover, Overlay.Blue);
+            if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
+                overlay.Edge(_pickHover, Overlay.Blue);
         }
 
         private void HandleKeys(ToolContext ctx)
