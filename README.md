@@ -1,5 +1,7 @@
 # Network Multitool (Cities: Skylines II)
 
+![Network Multitool preview](.github/preview.jpg)
+
 [![Donate](https://img.shields.io/badge/Donate-Ko--fi-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/dragonofmercy)
 
 A tool panel with 8 modes for editing road and rail networks in Cities: Skylines II.
