@@ -1,0 +1,53 @@
+# Network Multitool (Cities: Skylines II)
+
+Port of MacSergey's Network Multitool (Cities: Skylines 1) to Cities: Skylines II. A tool panel with 7 modes for editing road and rail networks. The mod lives in `build/`.
+
+## Modes
+
+Left click selects/applies, right click goes back/clears. Slope and Arrange select an ordered run of connected nodes (click to add, click an end node to unselect), then press `Enter` (3 nodes or more).
+
+| Mode | Behavior |
+| --- | --- |
+| Add node | Click a segment to split it with a new node. |
+| Remove node | Click a node to remove it and merge its two segments. |
+| Slope | Select a chain, `Enter` gives it a constant slope between its end nodes. |
+| Arrange | Select a chain, `Enter` spreads its nodes evenly along one smooth curve between its two ends. Click a segment outside the chain at an end to use it as the direction guide. |
+| Loop | Select two segments, build a loop or direct arc between them: drag the center or the circle edge (or Up/Down) for the radius, `Ctrl+Alt+S` direct/loop. |
+| Connection | Select two segments, connect them with two arcs: drag a circle edge for its radius and its center for its offset. Keys for fine steps: Up/Down radius (Shift: both), Left/Right offsets, `Tab` switches circle, `Ctrl+Alt+S` switches the side of the selected circle. |
+| Curve | Select two segments, connect them with a smooth curve. |
+
+Loop, Connection and Curve also use PageUp/PageDown (height), `Ctrl+Alt+I` (invert), click a node to change direction, and `Enter` to apply.
+
+## Default keybindings
+
+All rebindable in the mod options.
+
+| Action | Key |
+| --- | --- |
+| Toggle tool | Ctrl+Alt+T |
+| Add node / Remove node | Ctrl+Alt+1 / Ctrl+Alt+2 |
+| Slope / Arrange / Connection / Loop / Curve | Ctrl+Alt+3 / Ctrl+Alt+4 / Ctrl+Alt+5 / Ctrl+Alt+6 / Ctrl+Alt+7 |
+| Apply | Enter |
+| Radius up / down | Up / Down |
+| Offset up / down | Right / Left |
+| Height up / down | PageUp / PageDown |
+| Invert / Side | Ctrl+Alt+I / Ctrl+Alt+S |
+| Switch offset | Tab |
+
+## Build
+
+Run from `build/`. Build the UI first: the C# build copies `UI/dist` into the deployed mod (it warns when `UI/dist` is empty).
+
+```
+cd UI && npm install && npm run build && cd ..
+dotnet build NetworkMultitool.csproj -c Release
+dotnet test Tests/NetworkMultitool.Tests.csproj
+```
+
+Requirements: the CS2 modding toolchain (environment variables `CSII_TOOLPATH`, `CSII_USERDATAPATH`, `CSII_LOCALMODSPATH`), Node >= 18 and npm. Bun is not used.
+
+## Known limitations
+
+- No undo.
+- Node moves bypass vanilla validation.
+- Not yet tested in game as of this version.
