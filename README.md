@@ -56,4 +56,3 @@ Requirements: the CS2 modding toolchain (environment variables `CSII_TOOLPATH`, 
 
 - No undo.
 - Node moves bypass vanilla validation.
-- Not yet tested in game as of this version.
