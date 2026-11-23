@@ -17,6 +17,33 @@ namespace NetworkMultitool.Tests
 
         private static List<Point> Solve(float shift, bool left, float height, params Bezier4x3[] edges) => ParallelSolver.Solve(edges, shift, left, height);
 
+        private static Bezier4x3 Arc(float3 center, float radius, float from, float to)
+        {
+            var k = 4f / 3f * math.tan((to - from) / 4f) * radius;
+            var a = center + new float3(math.cos(from), 0, math.sin(from)) * radius;
+            var d = center + new float3(math.cos(to), 0, math.sin(to)) * radius;
+            return new Bezier4x3(a, a + new float3(-math.sin(from), 0, math.cos(from)) * k, d - new float3(-math.sin(to), 0, math.cos(to)) * k, d);
+        }
+
+        // Far from the origin, float noise makes the tangents of a smooth node almost but not exactly parallel; the line intersection must not slide the node along the curve.
+        [Fact]
+        public void SmoothArc_FarFromOrigin_KeepsNodesAcross()
+        {
+            var center = new float3(3000, 0, 3000);
+            var step = math.radians(15f);
+            var edges = new Bezier4x3[6];
+            for (var i = 0; i < edges.Length; i++)
+                edges[i] = Arc(center, 300f, -1f + i * step, -1f + (i + 1) * step);
+            var points = Solve(12f, true, 0f, edges);
+            Assert.Equal(7, points.Count);
+            for (var i = 0; i < points.Count; i++)
+            {
+                var angle = -1f + i * step;
+                var expected = center + new float3(math.cos(angle), 0, math.sin(angle)) * 288f;
+                Assert.True(math.distance(expected, points[i].Position) < 0.5f, $"point {i}: expected {expected} but got {points[i].Position}");
+            }
+        }
+
         [Fact]
         public void SingleEdge_LeftShift_OffsetsTowardsPlusZ()
         {

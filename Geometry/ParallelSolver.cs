@@ -9,6 +9,9 @@ namespace NetworkMultitool.Geometry
     {
         private const float MergeDistance = 8f;
 
+        // Below this turn the two offset lines are nearly parallel: their intersection is ill-conditioned (float noise far from the origin slides it tens of meters), and the mean is within centimeters.
+        private const float SmoothAngle = 0.05f;
+
         /// <summary>edges[i] runs from chain node i to chain node i + 1. Points come back in chain order.</summary>
         public static List<Point> Solve(IReadOnlyList<Bezier4x3> edges, float shift, bool left, float height)
         {
@@ -28,8 +31,9 @@ namespace NetworkMultitool.Geometry
                 var df = Vec.NormalizeXZ(MathUtils.StartTangent(outgoing));
                 var b = Offset(incoming.d, db, shift, left, height);
                 var f = Offset(outgoing.a, df, shift, left, height);
+                var smooth = math.abs(Vec.Angle(db, df)) < SmoothAngle;
                 // CS1 accepts a hit anywhere on the offset segments.
-                if (Vec.IntersectXZ(b, db, f, df, out var t1, out var t2) && math.abs(t1) <= FlatChord(incoming) && math.abs(t2) <= FlatChord(outgoing))
+                if (!smooth && Vec.IntersectXZ(b, db, f, df, out var t1, out var t2) && math.abs(t1) <= FlatChord(incoming) && math.abs(t2) <= FlatChord(outgoing))
                 {
                     var hit = (b + db * t1 + f + df * t2) / 2f;
                     result.Add(new Point(Vec.WithY(hit, outgoing.a.y + height), df, db)); // separate tangents, or the new road wiggles before the corner
