@@ -59,8 +59,8 @@ namespace NetworkMultitool.Localization
             ["Binding.OffsetDown"] = "Decrease offset",
             ["Binding.HeightUp"] = "Raise height",
             ["Binding.HeightDown"] = "Lower height",
-            ["Binding.Side"] = "Switch side",
-            ["Binding.SwitchOffset"] = "Switch offset",
+            ["Binding.Side"] = "Direct/loop",
+            ["Binding.SwitchOffset"] = "Switch circle or side",
 
             // UI panel and button
             ["UI.Tooltip"] = "Edit roads and rails: add or remove nodes, set slopes, arrange nodes and connect segments with curves.",
@@ -125,7 +125,6 @@ namespace NetworkMultitool.Localization
             ["ConnectionHintRemove"] = "Right double-click center: remove circle",
             ["ConnectionHintRadius"] = "{0}/{1}: radius (Shift: all)",
             ["ConnectionHintSwitch"] = "{0}: switch circle",
-            ["ConnectionHintSide"] = "{0}: switch circle side",
 
             // Parallel
             ["ParallelPickHover"] = "Ctrl+click a segment: pick its type",
@@ -163,8 +162,8 @@ namespace NetworkMultitool.Localization
             ["Binding.OffsetDown"] = "Diminuer le décalage",
             ["Binding.HeightUp"] = "Monter",
             ["Binding.HeightDown"] = "Descendre",
-            ["Binding.Side"] = "Changer de côté",
-            ["Binding.SwitchOffset"] = "Changer de cercle",
+            ["Binding.Side"] = "Direct/boucle",
+            ["Binding.SwitchOffset"] = "Changer de cercle ou de côté",
 
             ["UI.Tooltip"] = "Modifier les routes et les voies ferrées: ajouter ou supprimer des nœuds, régler les pentes, arranger les nœuds et relier des segments par des courbes.",
             ["UI.GroupEditNodes"] = "Modifier les nœuds",
@@ -224,7 +223,6 @@ namespace NetworkMultitool.Localization
             ["ConnectionHintRemove"] = "Double-clic droit au centre: retirer le cercle",
             ["ConnectionHintRadius"] = "{0}/{1}: rayon (Maj: tous)",
             ["ConnectionHintSwitch"] = "{0}: changer de cercle",
-            ["ConnectionHintSide"] = "{0}: changer le côté du cercle",
 
             ["ParallelPickHover"] = "Ctrl+clic sur un segment: prendre son type",
             ["ParallelType"] = "Type",

@@ -46,7 +46,7 @@ namespace NetworkMultitool.Modes
 
         protected override string ExtraHints => $"{T("ConnectionHintDragEdge")}\n{T("ConnectionHintDragCenter")}\n{T("ConnectionHintFlip")}\n{T("ConnectionHintAdd")}\n{T("ConnectionHintRemove")}\n" +
             $"{T("ConnectionHintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n" +
-            $"{T("ConnectionHintSwitch", KeyNames.Of(ToolAction.SwitchOffset))}\n{T("ConnectionHintSide", KeyNames.Of(ToolAction.Side))}\n";
+            $"{T("ConnectionHintSwitch", KeyNames.Of(ToolAction.SwitchOffset))}\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
@@ -178,9 +178,6 @@ namespace NetworkMultitool.Modes
                 ChangeOffset(ctx.StepMultiplier);
             if (ctx.Pressed(ToolAction.OffsetDown))
                 ChangeOffset(-ctx.StepMultiplier);
-
-            if (ctx.Pressed(ToolAction.Side))
-                SwitchSide(_selected);
         }
 
         protected override void OnDrag(ToolContext ctx)
