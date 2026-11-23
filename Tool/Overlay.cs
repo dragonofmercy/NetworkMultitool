@@ -13,6 +13,7 @@ namespace NetworkMultitool.Tool
     {
         private const float DefaultNodeWidth = 8f;
         private const float RingWidth = 1f;
+        private const float EdgePieceLength = 16f;
         private static readonly Color MarkerFill = new Color(1f, 1f, 1f, 0.15f);
 
         public static readonly Color White = new Color(1f, 1f, 1f, 0.6f);
@@ -55,7 +56,16 @@ namespace NetworkMultitool.Tool
             return edge != Entity.Null ? _net.Width(edge) : DefaultNodeWidth;
         }
 
-        public void Edge(Entity edge, Color color) => _buffer.DrawCurve(color, _net.Curve(edge), _net.Width(edge));
+        /// <summary>The edge in short pieces, each with a constant slope: an absolute overlay curve lies in the plane of its control points,
+        /// so a segment curved only vertically (over a crest) would be drawn as a band standing on its edge (OverlayRenderSystem.FitQuad).</summary>
+        public void Edge(Entity edge, Color color)
+        {
+            var curve = _net.Curve(edge);
+            var width = _net.Width(edge);
+            var count = math.max(1, (int)math.ceil(Colossal.Mathematics.MathUtils.Length(curve) / EdgePieceLength));
+            for (var i = 0; i < count; i++)
+                _buffer.DrawCurve(color, Vec.ConstantSlope(Colossal.Mathematics.MathUtils.Cut(curve, new float2(i, i + 1) / count)), width);
+        }
 
         /// <summary>One curve per consecutive pair, leaving each point along its forward direction: the color at 25% inside an opaque outline.</summary>
         public void Path(IReadOnlyList<Point> points, float width, Color color)
@@ -63,7 +73,7 @@ namespace NetworkMultitool.Tool
             var outline = new Color(color.r, color.g, color.b, 1f);
             var fill = new Color(color.r, color.g, color.b, 0.25f);
             for (var i = 1; i < points.Count; i++)
-                _buffer.DrawCurve(outline, fill, RingWidth, 0, CourseEmitter.Fit(points[i - 1], points[i]), width);
+                _buffer.DrawCurve(outline, fill, RingWidth, 0, Vec.ConstantSlope(CourseEmitter.Fit(points[i - 1], points[i])), width);
         }
 
         // Drawn at the given height, not projected: projected shapes are hidden under trees, absolute ones stay visible over them.
