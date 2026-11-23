@@ -5,6 +5,7 @@ import arrange from "images/arrange.svg";
 import loop from "images/loop.svg";
 import connection from "images/connection.svg";
 import curve from "images/curve.svg";
+import parallel from "images/parallel.svg";
 
 export interface ModeEntry {
     id: number;
@@ -38,6 +39,7 @@ export const groups: ModeGroup[] = [
             { id: 5, label: "Connection", icon: connection, apply: true, terrain: true },
             { id: 4, label: "Loop", icon: loop, apply: true, terrain: true },
             { id: 6, label: "Curve", icon: curve, apply: true, terrain: true },
+            { id: 8, label: "Parallel", icon: parallel, apply: true, terrain: true },
         ],
     },
 ];

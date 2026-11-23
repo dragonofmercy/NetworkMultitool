@@ -2,7 +2,7 @@
 
 [![Donate](https://img.shields.io/badge/Donate-Ko--fi-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/dragonofmercy)
 
-A tool panel with 7 modes for editing road and rail networks in Cities: Skylines II.
+A tool panel with 8 modes for editing road and rail networks in Cities: Skylines II.
 
 This mod is a port of [Network Multitool](https://steamcommunity.com/sharedfiles/filedetails/?id=2560782729) for Cities: Skylines 1, by [MacSergey](https://github.com/MacSergey). The modes, their behavior and the geometry come from his mod; this version rewrites them for the Cities: Skylines II API.
 
@@ -23,6 +23,7 @@ Left click selects/applies, right click goes back/clears. Slope and Arrange sele
 | Loop | Select two segments, build a loop or direct arc between them: drag the center or the circle edge (or Up/Down) for the radius, `Ctrl+Alt+S` direct/loop. |
 | Connection | Select two segments, connect them with two arcs: drag a circle edge for its radius and its center for its offset. Keys for fine steps: Up/Down radius (Shift: both), Left/Right offsets, `Tab` switches circle, `Ctrl+Alt+S` switches the side of the selected circle. |
 | Curve | Select two segments, connect them with a smooth curve. |
+| Parallel | Select a chain, build a new network alongside it. Left/Right offset, PageUp/PageDown height, `Ctrl+Alt+S` side, `Ctrl+Alt+I` invert, Ctrl+click any segment to use its type, `Enter` to create. |
 
 Loop, Connection and Curve also use PageUp/PageDown (height), `Ctrl+Alt+I` (invert), click a node to change direction, and `Enter` to apply.
 
@@ -34,7 +35,7 @@ All rebindable in the mod options.
 | --- | --- |
 | Toggle tool | Ctrl+Alt+T |
 | Add node / Remove node | Ctrl+Alt+1 / Ctrl+Alt+2 |
-| Slope / Arrange / Connection / Loop / Curve | Ctrl+Alt+3 / Ctrl+Alt+4 / Ctrl+Alt+5 / Ctrl+Alt+6 / Ctrl+Alt+7 |
+| Slope / Arrange / Connection / Loop / Curve / Parallel | Ctrl+Alt+3 / Ctrl+Alt+4 / Ctrl+Alt+5 / Ctrl+Alt+6 / Ctrl+Alt+7 / Ctrl+Alt+8 |
 | Apply | Enter |
 | Radius up / down | Up / Down |
 | Offset up / down | Right / Left |
