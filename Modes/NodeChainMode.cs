@@ -101,7 +101,7 @@ namespace NetworkMultitool.Modes
         public virtual void Render(ToolContext ctx, Overlay overlay)
         {
             foreach (var node in Nodes)
-                overlay.Node(node, Overlay.White);
+                overlay.Node(node, Overlay.Blue);
 
             switch (State)
             {

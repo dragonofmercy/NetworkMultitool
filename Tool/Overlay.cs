@@ -13,6 +13,7 @@ namespace NetworkMultitool.Tool
     {
         private const float DefaultNodeWidth = 8f;
         private const float RingWidth = 1f;
+        private const float SelectionRingWidth = 1.5f;
         private static readonly Color MarkerFill = new Color(1f, 1f, 1f, 0.15f);
 
         public static readonly Color White = new Color(1f, 1f, 1f, 0.6f);
@@ -32,8 +33,8 @@ namespace NetworkMultitool.Tool
             _net = net;
         }
 
-        /// <summary>A disc on the node, as wide as its first connected edge.</summary>
-        public void Node(Entity node, Color color) => _buffer.DrawCircle(color, _net.NodePosition(node), NodeWidth(node));
+        /// <summary>A disc on the node, as wide as its first connected edge: the color at 25% inside an opaque ring.</summary>
+        public void Node(Entity node, Color color) => _buffer.DrawCircle(new Color(color.r, color.g, color.b, 1f), new Color(color.r, color.g, color.b, 0.25f), SelectionRingWidth, 0, new float2(0f, 1f), _net.NodePosition(node), NodeWidth(node));
 
         /// <summary>Faint disc with a ring: marks where a node is without hiding the mode's own highlights.</summary>
         public void NodeMarker(Entity node, float3 position) => _buffer.DrawCircle(White, MarkerFill, RingWidth, 0, new float2(0f, 1f), position, NodeWidth(node));
