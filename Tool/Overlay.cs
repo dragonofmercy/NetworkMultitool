@@ -21,6 +21,8 @@ namespace NetworkMultitool.Tool
         public static readonly Color Yellow = new Color(1f, 1f, 0f, 0.6f);
         public static readonly Color Purple = new Color(0.6f, 0f, 1f, 0.6f);
         public static readonly Color Blue = new Color(0f, 0.4f, 1f, 0.6f);
+        /// <summary>CS1 CommonColors.Yellow, the color of its path preview.</summary>
+        public static readonly Color Orange = new Color(1f, 0.733f, 0.2f, 0.6f);
         public static readonly Color Gray = new Color(0.8f, 0.8f, 0.8f, 0.6f);
 
         private readonly OverlayRenderSystem.Buffer _buffer;
@@ -37,8 +39,8 @@ namespace NetworkMultitool.Tool
         /// <summary>Text shown by the UI at the screen position of a world point; lines are separated by '\n'.</summary>
         public void Label(float3 position, string text) => _labels.Add((position, text));
 
-        /// <summary>A thin line projected on the ground.</summary>
-        public void GroundLine(float3 a, float3 b, Color color, float width = 1f) => _buffer.DrawLine(color, color, 0f, OverlayRenderSystem.StyleFlags.Projected, new Colossal.Mathematics.Line3.Segment(a, b), width, new float2(0f, 0f));
+        /// <summary>A thin line at the given height.</summary>
+        public void GroundLine(float3 a, float3 b, Color color, float width = 1f) => _buffer.DrawLine(color, color, 0f, 0, new Colossal.Mathematics.Line3.Segment(a, b), width, new float2(0f, 0f));
 
         /// <summary>A disc on the node, as wide as its first connected edge.</summary>
         public void Node(Entity node, Color color) => _buffer.DrawCircle(color, _net.NodePosition(node), NodeWidth(node));
@@ -63,11 +65,11 @@ namespace NetworkMultitool.Tool
                 _buffer.DrawCurve(outline, fill, RingWidth, 0, CourseEmitter.Fit(points[i - 1], points[i]), width);
         }
 
-        // The drag handles are projected on the ground: the cursor hits the terrain, so a shape floating at the arc height would not be where the click lands.
-        public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, OverlayRenderSystem.StyleFlags.Projected, new float2(0f, 1f), center, radius * 2f);
+        // Drawn at the given height, not projected: projected shapes are hidden under trees, absolute ones stay visible over them.
+        public void CircleOutline(float3 center, float radius, Color color, float width = 1f) => _buffer.DrawCircle(color, Color.clear, width, 0, new float2(0f, 1f), center, radius * 2f);
 
-        /// <summary>A disc projected on the ground.</summary>
-        public void Handle(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, color, 0f, OverlayRenderSystem.StyleFlags.Projected, new float2(0f, 1f), center, diameter);
+        /// <summary>A disc at the given height.</summary>
+        public void Handle(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, color, 0f, 0, new float2(0f, 1f), center, diameter);
 
         public void Disc(float3 center, float diameter, Color color) => _buffer.DrawCircle(color, center, diameter);
     }

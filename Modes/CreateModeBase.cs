@@ -92,7 +92,8 @@ namespace NetworkMultitool.Modes
         /// Like CS1 Circle.Render/Update: radius lines to both arc ends and a radius/angle label beside the center.</summary>
         protected void DrawHandles(ToolContext ctx, Overlay overlay, Arc arc, UnityEngine.Color idle, Drag grab)
         {
-            var center = Vec.WithY(arc.Center, arc.Center.y + Height);
+            // On the ground under the center: the cursor hits the terrain, so a shape floating at the arc height would not be where the click lands.
+            var center = Vec.WithY(arc.Center, ctx.TerrainHeight(arc.Center));
             overlay.CircleOutline(center, arc.Radius, grab == Drag.Edge ? Overlay.Green : idle, grab == Drag.Edge ? 2f : 1f);
             overlay.Handle(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
 
@@ -196,7 +197,7 @@ namespace NetworkMultitool.Modes
             }
 
             if (Points.Count >= 2)
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Blue : Overlay.Red);
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red);
 
             RenderShape(ctx, overlay);
         }
