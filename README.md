@@ -8,7 +8,7 @@ This mod is a port of [Network Multitool](https://steamcommunity.com/sharedfiles
 
 ## Credits
 
-All credit for the original design and geometry goes to MacSergey, author of Network Multitool and of the `ModsCommon` library it is built on. This port is not affiliated with him.
+All credit for the original design and geometry goes to MacSergey, author of Network Multitool and of the `ModsCommon` library it is built on. This port is published with his permission.
 
 ## Modes
 
