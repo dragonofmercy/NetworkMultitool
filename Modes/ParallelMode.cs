@@ -38,7 +38,7 @@ namespace NetworkMultitool.Modes
                 var status = State != ChainState.None ? base.Info : $"Press {KeyNames.Of(ToolAction.Apply)} to create";
                 return $"{status}\n\nType: {_prefabName ?? "?"}\nOffset: {_shift:0.0} m\nHeight: {_height:0.0} m\n\n" +
                        $"Ctrl+click segment: pick type\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height\n" +
-                       $"{KeyNames.Of(ToolAction.Side)}: side\n{KeyNames.Of(ToolAction.Invert)}: invert";
+                       $"{KeyNames.Of(ToolAction.Side)}: side";
             }
         }
 
