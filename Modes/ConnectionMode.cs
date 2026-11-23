@@ -71,10 +71,7 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
-            var now = UnityEngine.Time.realtimeSinceStartup;
-            var isDouble = now - _lastClick < DoubleClickTime;
-            _lastClick = isDouble ? -1f : now;
-
+            var isDouble = IsDoubleClick(ref _lastClick);
             var grab = Grab(ctx, out var index);
             if (isDouble && HasArcs && grab == Drag.Center)
             {
@@ -87,7 +84,8 @@ namespace NetworkMultitool.Modes
                 var straight = _solver.StraightAt(ctx.MousePosition, ctx.Net.Width(First) / 2f);
                 if (straight >= 0)
                 {
-                    _selected = _solver.InsertArc(straight, ctx.MousePosition);
+                    _solver.InsertArc(straight, ctx.MousePosition);
+                    _selected = straight;
                     MarkDirty();
                     return true;
                 }
@@ -105,10 +103,7 @@ namespace NetworkMultitool.Modes
             if (Grab(ctx, out var index) != Drag.Center)
                 return false;
 
-            var now = UnityEngine.Time.realtimeSinceStartup;
-            var isDouble = now - _lastSecondaryClick < DoubleClickTime;
-            _lastSecondaryClick = isDouble ? -1f : now;
-            if (isDouble && _solver.IsMiddle(index))
+            if (IsDoubleClick(ref _lastSecondaryClick) && _solver.IsMiddle(index))
             {
                 _solver.RemoveArc(index);
                 if (_selected >= index)
@@ -127,36 +122,42 @@ namespace NetworkMultitool.Modes
                 return Drag.None;
 
             var mouse = Vec.Flat(ctx.MousePosition);
-            var arcs = _solver.Arcs;
             // Centers first: one circle's edge can pass over another's center.
-            var best = float.MaxValue;
-            for (var i = 0; i < arcs.Count; i++)
-            {
-                var distance = math.distance(mouse, Vec.Flat(arcs[i].Center));
-                if (distance < GrabDistance && distance < best)
-                {
-                    best = distance;
-                    index = i;
-                }
-            }
-
-            if (best < float.MaxValue)
+            if (Nearest(arc => math.distance(mouse, Vec.Flat(arc.Center)), ref index))
                 return Drag.Center;
 
             // The edge circles touch their guide near a node: a click on an end node keeps changing the direction.
             if (HoverEnd)
                 return Drag.None;
-            for (var i = 0; i < arcs.Count; i++)
+            return Nearest(arc => math.abs(math.distance(mouse, Vec.Flat(arc.Center)) - arc.Radius), ref index) ? Drag.Edge : Drag.None;
+        }
+
+        /// <summary>The arc closest by <paramref name="distance"/>, if one is within grab distance.</summary>
+        private bool Nearest(System.Func<Arc, float> distance, ref int index)
+        {
+            var best = GrabDistance;
+            var found = false;
+            for (var i = 0; i < _solver.Arcs.Count; i++)
             {
-                var distance = math.abs(math.distance(mouse, Vec.Flat(arcs[i].Center)) - arcs[i].Radius);
-                if (distance < GrabDistance && distance < best)
+                var d = distance(_solver.Arcs[i]);
+                if (d < best)
                 {
-                    best = distance;
+                    best = d;
                     index = i;
+                    found = true;
                 }
             }
 
-            return best < float.MaxValue ? Drag.Edge : Drag.None;
+            return found;
+        }
+
+        /// <summary>True on the second click within the double-click time; that click does not start a new pair.</summary>
+        private static bool IsDoubleClick(ref float last)
+        {
+            var now = UnityEngine.Time.realtimeSinceStartup;
+            var isDouble = now - last < DoubleClickTime;
+            last = isDouble ? -1f : now;
+            return isDouble;
         }
 
         protected override void OnKeys(ToolContext ctx)

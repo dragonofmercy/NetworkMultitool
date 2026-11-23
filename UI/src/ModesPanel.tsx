@@ -63,8 +63,12 @@ export const ModesPanel = () => {
             {current && <div className={styles.title}>{t(current.textKey, current.label)}</div>}
             {status && <div className={styles.status}>{status}</div>}
             {values && <Rows text={values} className={styles.values} />}
-            {current?.terrain && <Toggle on={followTerrain} onClick={toggleFollowTerrain} label={t("UI.FollowTerrain", "Follow terrain")} />}
-            {current?.terrain && <Toggle on={hidePreview} onClick={toggleHidePreview} label={t("UI.HidePreview", "Hide game preview")} />}
+            {current?.terrain && (
+                <>
+                    <Toggle on={followTerrain} onClick={toggleFollowTerrain} label={t("UI.FollowTerrain", "Follow terrain")} />
+                    <Toggle on={hidePreview} onClick={toggleHidePreview} label={t("UI.HidePreview", "Hide game preview")} />
+                </>
+            )}
             {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>{t("UI.Apply", "Apply")}</Button>}
             {hints && <Rows text={hints} className={styles.hints} />}
         </Panel>

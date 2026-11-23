@@ -127,7 +127,8 @@ namespace NetworkMultitool.Tests
 
             foreach (var turn in new[] { Turn.Right, Turn.Left })
             {
-                var index = solver.InsertArc(1, hit);
+                const int index = 1;
+                solver.InsertArc(index, hit);
                 if (solver.Arcs[index].Turn != turn)
                     solver.SwitchSide(index);
                 Assert.Equal(3, solver.Arcs.Count);

@@ -124,13 +124,12 @@ namespace NetworkMultitool.Geometry
             SetRadius(index, math.lengthsq(q) / (2f * side));
         }
 
-        /// <summary>CS1 double click on a straight: a new free arc centered at the position, inserted where that straight was. Returns its index.</summary>
-        public int InsertArc(int straight, float3 position)
+        /// <summary>CS1 double click on a straight: a new free arc centered at the position, inserted where that straight was (its index is the straight's).</summary>
+        public void InsertArc(int straight, float3 position)
         {
             var arc = new Arc { Height = height, Radius = Clamp(DefaultRadius), Turn = Turn.Right };
             arc.Center = position;
             arcs.Insert(straight, arc);
-            return straight;
         }
 
         /// <summary>Removes a middle arc; the edge arcs stay.</summary>
@@ -162,7 +161,7 @@ namespace NetworkMultitool.Geometry
                     continue;
                 var a = Vec.Flat(s.Start);
                 var along = math.dot(p - a, s.Direction);
-                if (along >= 0f && along <= math.distance(a, Vec.Flat(s.End)) && math.distance(p, a + s.Direction * along) <= halfWidth)
+                if (along >= 0f && along <= s.Length && math.distance(p, a + s.Direction * along) <= halfWidth)
                     return i;
             }
 
