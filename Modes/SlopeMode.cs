@@ -49,25 +49,36 @@ namespace NetworkMultitool.Modes
 
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
+            // Like CS1 SlopeNode: each segment shows its current slope at its middle.
+            var degrees = InDegrees(ctx);
             for (var i = 0; i < Nodes.Count - 1; i++)
-                overlay.Edge(ChainEdge(ctx, i), Overlay.Yellow);
+            {
+                var edge = ChainEdge(ctx, i);
+                overlay.Edge(edge, Overlay.Yellow);
+                overlay.Label(MathUtils.Position(ctx.Net.Curve(edge), 0.5f), float3.zero, SlopeText(ctx, i, degrees));
+            }
         }
+
+        private static bool InDegrees(ToolContext ctx) => ctx.Settings != null && ctx.Settings.SlopeInDegrees;
 
         // Current slope of each segment, in chain order.
         private string Slopes(ToolContext ctx)
         {
-            var net = ctx.Net;
-            var degrees = ctx.Settings != null && ctx.Settings.SlopeInDegrees;
+            var degrees = InDegrees(ctx);
             var text = new StringBuilder();
             for (var i = 0; i < Nodes.Count - 1; i++)
-            {
-                var length = MathUtils.Length(net.Curve(ChainEdge(ctx, i)));
-                var slope = length > 0f ? (net.NodePosition(Nodes[i + 1]).y - net.NodePosition(Nodes[i]).y) / length : 0f;
-                var value = degrees ? math.degrees(math.atan(slope)) : slope * 100f;
-                text.Append('\n').Append(T("SlopeSegment", i + 1)).Append(": ").Append(value.ToString("+0.0;-0.0", CultureInfo.InvariantCulture)).Append(degrees ? "\u00b0" : "%");
-            }
-
+                text.Append('\n').Append(T("SlopeSegment", i + 1)).Append(": ").Append(SlopeText(ctx, i, degrees));
             return text.ToString();
+        }
+
+        /// <summary>Slope of chain segment i, from node i to node i + 1, in percent or degrees.</summary>
+        private string SlopeText(ToolContext ctx, int i, bool degrees)
+        {
+            var net = ctx.Net;
+            var length = MathUtils.Length(net.Curve(ChainEdge(ctx, i)));
+            var slope = length > 0f ? (net.NodePosition(Nodes[i + 1]).y - net.NodePosition(Nodes[i]).y) / length : 0f;
+            var value = degrees ? math.degrees(math.atan(slope)) : slope * 100f;
+            return value.ToString("+0.0;-0.0", CultureInfo.InvariantCulture) + (degrees ? "°" : "%");
         }
     }
 }
