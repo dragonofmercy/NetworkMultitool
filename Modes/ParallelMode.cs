@@ -5,6 +5,7 @@ using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -35,11 +36,11 @@ namespace NetworkMultitool.Modes
             get
             {
                 if (Nodes.Count < 2)
-                    return base.Info + "\nCtrl+click a segment: pick its type";
-                var status = State != ChainState.None ? base.Info : $"Press {KeyNames.Of(ToolAction.Apply)} to create";
-                return $"{status}\n\nType: {_prefabName ?? "?"}\nOffset: {_shift:0.0} m\nHeight: {_height:0.0} m\n\n" +
-                       $"Ctrl+click segment: pick type\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height\n" +
-                       $"{KeyNames.Of(ToolAction.Side)}: side";
+                    return base.Info + "\n" + T("ParallelPickHover");
+                var status = State != ChainState.None ? base.Info : T("PressToCreate", KeyNames.Of(ToolAction.Apply));
+                return $"{status}\n\n{T("ParallelType")}: {_prefabName ?? "?"}\n{T("Offset")}: {_shift:0.0} m\n{T("Height")}: {_height:0.0} m\n\n" +
+                       $"{T("ParallelHintPick")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
+                       T("ParallelHintSide", KeyNames.Of(ToolAction.Side));
             }
         }
 

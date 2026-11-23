@@ -2,6 +2,7 @@ import { useValue } from "cs2/api";
 import { Button, Panel } from "cs2/ui";
 import { active$, apply, followTerrain$, hidePreview$, info$, mode$, setMode, toggleFollowTerrain, toggleHidePreview } from "bindings";
 import { groups, ModeEntry } from "modes";
+import { useText } from "l10n";
 import styles from "./panel.module.scss";
 
 // "Label: value" lines become two columns; other lines span the row.
@@ -34,6 +35,7 @@ export const ModesPanel = () => {
     const info = useValue(info$);
     const followTerrain = useValue(followTerrain$);
     const hidePreview = useValue(hidePreview$);
+    const t = useText();
     if (!active)
         return null;
 
@@ -47,10 +49,10 @@ export const ModesPanel = () => {
         <Panel className={styles.panel} contentClassName={styles.content} header="Network Multitool">
             {groups.map((group) => (
                 <div key={group.label} className={styles.group}>
-                    <div className={styles.groupLabel}>{group.label}</div>
+                    <div className={styles.groupLabel}>{t(group.textKey, group.label)}</div>
                     <div className={styles.modes}>
                         {group.modes.map((m) => (
-                            <Button key={m.id} variant="flat" className={mode === m.id ? `${styles.mode} ${styles.selected}` : styles.mode} selected={mode === m.id} tooltipLabel={m.label} onSelect={() => setMode(m.id)}>
+                            <Button key={m.id} variant="flat" className={mode === m.id ? `${styles.mode} ${styles.selected}` : styles.mode} selected={mode === m.id} tooltipLabel={t(m.textKey, m.label)} onSelect={() => setMode(m.id)}>
                                 <img src={m.icon} className={styles.icon} />
                             </Button>
                         ))}
@@ -58,12 +60,12 @@ export const ModesPanel = () => {
                 </div>
             ))}
             <div className={styles.separator} />
-            {current && <div className={styles.title}>{current.label}</div>}
+            {current && <div className={styles.title}>{t(current.textKey, current.label)}</div>}
             {status && <div className={styles.status}>{status}</div>}
             {values && <Rows text={values} className={styles.values} />}
-            {current?.terrain && <Toggle on={followTerrain} onClick={toggleFollowTerrain} label="Follow terrain" />}
-            {current?.terrain && <Toggle on={hidePreview} onClick={toggleHidePreview} label="Hide game preview" />}
-            {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>Apply</Button>}
+            {current?.terrain && <Toggle on={followTerrain} onClick={toggleFollowTerrain} label={t("UI.FollowTerrain", "Follow terrain")} />}
+            {current?.terrain && <Toggle on={hidePreview} onClick={toggleHidePreview} label={t("UI.HidePreview", "Hide game preview")} />}
+            {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>{t("UI.Apply", "Apply")}</Button>}
             {hints && <Rows text={hints} className={styles.hints} />}
         </Panel>
     );

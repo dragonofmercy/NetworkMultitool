@@ -5,6 +5,7 @@ using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -43,10 +44,10 @@ namespace NetworkMultitool.Modes
             {
                 switch (State)
                 {
-                    case ChainState.CanAdd: return "Click to add nodes";
-                    case ChainState.IsEnd: return "Click to unselect";
-                    case ChainState.NotConnected: return "Not connected";
-                    default: return Nodes.Count >= MinNodes ? $"Press {KeyNames.Of(ToolAction.Apply)} to apply" : "Select nodes in order";
+                    case ChainState.CanAdd: return T("ChainAdd");
+                    case ChainState.IsEnd: return T("ChainUnselect");
+                    case ChainState.NotConnected: return T("ChainNotConnected");
+                    default: return Nodes.Count >= MinNodes ? T("PressToApply", KeyNames.Of(ToolAction.Apply)) : T("ChainSelect");
                 }
             }
         }

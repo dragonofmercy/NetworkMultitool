@@ -3,6 +3,7 @@ using Game.Tools;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -14,7 +15,7 @@ namespace NetworkMultitool.Modes
 
         public ToolModeId Id => ToolModeId.RemoveNode;
 
-        public string Info => _node == Entity.Null ? "Select a node to remove" : _correct ? "Click to remove this node" : "This node can't be removed";
+        public string Info => _node == Entity.Null ? T("RemoveNodeSelect") : _correct ? T("RemoveNodeClick") : T("RemoveNodeWrong");
 
         public void Enter(ToolContext ctx) => _node = Entity.Null;
 

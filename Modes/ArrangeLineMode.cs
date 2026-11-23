@@ -4,6 +4,7 @@ using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -18,7 +19,7 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.ArrangeLine;
 
-        public override string Info => _hoverGuide != Entity.Null ? base.Info + "\nClick to select as guide" : base.Info;
+        public override string Info => _hoverGuide != Entity.Null ? base.Info + "\n" + T("ArrangeGuide") : base.Info;
 
         public override void Update(ToolContext ctx)
         {

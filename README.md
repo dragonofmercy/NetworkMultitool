@@ -45,6 +45,10 @@ All rebindable in the mod options.
 | Side | Ctrl+Alt+S |
 | Switch offset | Tab |
 
+## Languages
+
+English and French, following the game language. All texts live in `Localization/Texts.cs`, one dictionary per locale; a new language is one more dictionary registered in `Texts.ByLocale`, and missing keys fall back to English. Panel lines are split on the first `": "`, so translations must keep it.
+
 ## Build
 
 Run from `build/`. Build the UI first: the C# build copies `UI/dist` into the deployed mod (it warns when `UI/dist` is empty).

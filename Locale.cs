@@ -1,62 +1,69 @@
 using System.Collections.Generic;
 using Colossal;
+using NetworkMultitool.Localization;
 
 namespace NetworkMultitool
 {
+    /// <summary>One game localization source per language, built from <see cref="Texts"/>: options screen IDs plus every mode and UI text under <see cref="Texts.Id"/>.</summary>
     public class Locale : IDictionarySource
     {
         private readonly Settings _settings;
+        private readonly Dictionary<string, string> _texts;
 
-        public Locale(Settings settings)
+        /// <param name="texts">The language's texts; English fills the keys it lacks.</param>
+        public Locale(Settings settings, Dictionary<string, string> texts, Dictionary<string, string> english)
         {
             _settings = settings;
+            _texts = new Dictionary<string, string>(english);
+            foreach (var pair in texts)
+                _texts[pair.Key] = pair.Value;
         }
 
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
             var entries = new Dictionary<string, string>
             {
-                { _settings.GetSettingsLocaleID(), "Network Multitool" },
-                { _settings.GetOptionGroupLocaleID(Settings.GeneralGroup), "General" },
-                { _settings.GetOptionGroupLocaleID(Settings.KeybindingsGroup), "Keybindings" },
-                { _settings.GetBindingMapLocaleID(), "Network Multitool" },
-
-                { _settings.GetOptionLabelLocaleID(nameof(Settings.SegmentLength)), "Segment length" },
-                { _settings.GetOptionDescLocaleID(nameof(Settings.SegmentLength)), "Target length (in meters) of the road segments created by the tool." },
-                { _settings.GetOptionLabelLocaleID(nameof(Settings.SlopeInDegrees)), "Show slope in degrees" },
-                { _settings.GetOptionDescLocaleID(nameof(Settings.SlopeInDegrees)), "Display slopes in degrees instead of percent." },
-                { _settings.GetOptionLabelLocaleID(nameof(Settings.FollowTerrain)), "Follow terrain" },
-                { _settings.GetOptionDescLocaleID(nameof(Settings.FollowTerrain)), "Let created roads follow the terrain height instead of staying flat." },
-                { _settings.GetOptionLabelLocaleID(nameof(Settings.HideGamePreview)), "Hide game preview" },
-                { _settings.GetOptionDescLocaleID(nameof(Settings.HideGamePreview)), "Hide the game's road preview in the creation modes and keep only the mod's overlay. Cost and validation still apply." },
+                { _settings.GetSettingsLocaleID(), _texts["Settings.Title"] },
+                { _settings.GetOptionGroupLocaleID(Settings.GeneralGroup), _texts["Group.General"] },
+                { _settings.GetOptionGroupLocaleID(Settings.KeybindingsGroup), _texts["Group.Keybindings"] },
+                { _settings.GetBindingMapLocaleID(), _texts["Settings.Title"] },
             };
 
-            // The options page labels each ProxyBinding property; the binding key label is shown in the key map.
-            void Bind(string action, string label, string property = null)
+            foreach (var option in new[] { nameof(Settings.SegmentLength), nameof(Settings.SlopeInDegrees), nameof(Settings.FollowTerrain), nameof(Settings.HideGamePreview) })
             {
+                entries[_settings.GetOptionLabelLocaleID(option)] = _texts["Option." + option];
+                entries[_settings.GetOptionDescLocaleID(option)] = _texts["OptionDesc." + option];
+            }
+
+            // The options page labels each ProxyBinding property; the binding key label is shown in the key map.
+            void Bind(string action, string property = null)
+            {
+                var label = _texts["Binding." + action];
                 entries[_settings.GetBindingKeyLocaleID(action)] = label;
                 entries[_settings.GetOptionLabelLocaleID(property ?? action)] = label;
             }
 
-            Bind(nameof(Settings.Toggle), "Toggle tool");
-            Bind(nameof(Settings.ModeAddNode), "Mode: add node");
-            Bind(nameof(Settings.ModeRemoveNode), "Mode: remove node");
-            Bind(nameof(Settings.ModeSlope), "Mode: slope");
-            Bind(nameof(Settings.ModeArrangeLine), "Mode: arrange");
-            Bind(nameof(Settings.ModeLoop), "Mode: loop");
-            Bind(nameof(Settings.ModeConnection), "Mode: connection");
-            Bind(nameof(Settings.ModeCurve), "Mode: curve");
-            Bind(nameof(Settings.ModeParallel), "Mode: parallel");
-            Bind(ToolActions.Apply, "Apply", nameof(Settings.ApplyKey));
-            Bind(nameof(Settings.RadiusUp), "Increase radius");
-            Bind(nameof(Settings.RadiusDown), "Decrease radius");
-            Bind(nameof(Settings.OffsetUp), "Increase offset");
-            Bind(nameof(Settings.OffsetDown), "Decrease offset");
-            Bind(nameof(Settings.HeightUp), "Raise height");
-            Bind(nameof(Settings.HeightDown), "Lower height");
-            Bind(nameof(Settings.Side), "Switch side");
-            Bind(nameof(Settings.SwitchOffset), "Switch offset");
+            Bind(nameof(Settings.Toggle));
+            Bind(nameof(Settings.ModeAddNode));
+            Bind(nameof(Settings.ModeRemoveNode));
+            Bind(nameof(Settings.ModeSlope));
+            Bind(nameof(Settings.ModeArrangeLine));
+            Bind(nameof(Settings.ModeLoop));
+            Bind(nameof(Settings.ModeConnection));
+            Bind(nameof(Settings.ModeCurve));
+            Bind(nameof(Settings.ModeParallel));
+            Bind(ToolActions.Apply, nameof(Settings.ApplyKey));
+            Bind(nameof(Settings.RadiusUp));
+            Bind(nameof(Settings.RadiusDown));
+            Bind(nameof(Settings.OffsetUp));
+            Bind(nameof(Settings.OffsetDown));
+            Bind(nameof(Settings.HeightUp));
+            Bind(nameof(Settings.HeightDown));
+            Bind(nameof(Settings.Side));
+            Bind(nameof(Settings.SwitchOffset));
 
+            foreach (var pair in _texts)
+                entries[Texts.Id(pair.Key)] = pair.Value;
             return entries;
         }
 

@@ -3,6 +3,7 @@ using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -15,9 +16,9 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Loop;
 
-        protected override string ExtraValues => _solver == null ? string.Empty : $"Radius: {_solver.Arc.Radius:0.0} m\nAngle: {math.degrees(_solver.Arc.Angle):0} deg\n";
+        protected override string ExtraValues => _solver == null ? string.Empty : $"{T("Radius")}: {_solver.Arc.Radius:0.0} m\n{T("Angle")}: {math.degrees(_solver.Arc.Angle):0}\u00b0\n";
 
-        protected override string ExtraHints => $"Drag: center or circle edge\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius\n{KeyNames.Of(ToolAction.Side)}: direct/loop\n";
+        protected override string ExtraHints => $"{T("LoopHintDrag")}\n{T("HintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("LoopHintSide", KeyNames.Of(ToolAction.Side))}\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

@@ -1,4 +1,5 @@
 using NetworkMultitool.Tool;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -7,7 +8,7 @@ namespace NetworkMultitool.Modes
     {
         public ToolModeId Id => ToolModeId.None;
 
-        public string Info => "Select a mode";
+        public string Info => T("SelectMode");
 
         public void Enter(ToolContext ctx)
         {

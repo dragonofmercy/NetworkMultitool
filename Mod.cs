@@ -3,6 +3,7 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using NetworkMultitool.Localization;
 using NetworkMultitool.Tool;
 using NetworkMultitool.UI;
 
@@ -22,7 +23,9 @@ namespace NetworkMultitool
             Settings = new Settings(this);
             Settings.RegisterKeyBindings();
             Settings.RegisterInOptionsUI();
-            GameManager.instance.localizationManager.AddSource("en-US", new Locale(Settings));
+            var locales = Texts.ByLocale;
+            foreach (var pair in locales)
+                GameManager.instance.localizationManager.AddSource(pair.Key, new Locale(Settings, pair.Value, locales["en-US"]));
             AssetDatabase.global.LoadSettings(nameof(NetworkMultitool), Settings, new Settings(this));
 
             updateSystem.UpdateAt<NetworkMultitoolSystem>(SystemUpdatePhase.ToolUpdate);

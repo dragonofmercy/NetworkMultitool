@@ -5,6 +5,7 @@ using NetworkMultitool.Geometry;
 using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -63,7 +64,7 @@ namespace NetworkMultitool.Modes
                 var length = MathUtils.Length(net.Curve(ChainEdge(ctx, i)));
                 var slope = length > 0f ? (net.NodePosition(Nodes[i + 1]).y - net.NodePosition(Nodes[i]).y) / length : 0f;
                 var value = degrees ? math.degrees(math.atan(slope)) : slope * 100f;
-                text.Append('\n').Append("Segment ").Append(i + 1).Append(": ").Append(value.ToString("+0.0;-0.0", CultureInfo.InvariantCulture)).Append(degrees ? " deg" : "%");
+                text.Append('\n').Append(T("SlopeSegment", i + 1)).Append(": ").Append(value.ToString("+0.0;-0.0", CultureInfo.InvariantCulture)).Append(degrees ? "\u00b0" : "%");
             }
 
             return text.ToString();

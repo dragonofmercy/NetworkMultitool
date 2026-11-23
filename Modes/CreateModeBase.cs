@@ -4,6 +4,7 @@ using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -30,12 +31,12 @@ namespace NetworkMultitool.Modes
             get
             {
                 if (First == Entity.Null)
-                    return "Select first segment";
+                    return T("SelectFirstSegment");
                 if (Second == Entity.Null)
-                    return "Select second segment";
+                    return T("SelectSecondSegment");
                 if (_hoverEnd)
-                    return "Click a node to change direction";
-                return $"{Status(Result)}\n\n{ExtraValues}Height: {Height:0.0} m\n\n{ExtraHints}{KeyNames.Of(ToolAction.HeightUp)}/{KeyNames.Of(ToolAction.HeightDown)}: height";
+                    return T("ClickNodeDirection");
+                return $"{Status(Result)}\n\n{ExtraValues}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}";
             }
         }
 
@@ -341,9 +342,9 @@ namespace NetworkMultitool.Modes
         {
             switch (result)
             {
-                case SolveResult.WrongShape: return "Wrong shape";
-                case SolveResult.NotIntersect: return "No intersection";
-                default: return $"Press {KeyNames.Of(ToolAction.Apply)} to create";
+                case SolveResult.WrongShape: return T("WrongShape");
+                case SolveResult.NotIntersect: return T("NoIntersection");
+                default: return T("PressToCreate", KeyNames.Of(ToolAction.Apply));
             }
         }
 

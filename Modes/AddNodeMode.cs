@@ -3,6 +3,7 @@ using Game.Tools;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
+using static NetworkMultitool.Localization.Texts;
 
 namespace NetworkMultitool.Modes
 {
@@ -30,10 +31,10 @@ namespace NetworkMultitool.Modes
             {
                 switch (_state)
                 {
-                    case State.Possible: return "Click to add a node";
-                    case State.TooClose: return "Too close to an existing node";
-                    case State.Owned: return "This segment can't be split";
-                    default: return "Select a segment to add a node";
+                    case State.Possible: return T("AddNodeClick");
+                    case State.TooClose: return T("AddNodeTooClose");
+                    case State.Owned: return T("AddNodeOwned");
+                    default: return T("AddNodeSelect");
                 }
             }
         }

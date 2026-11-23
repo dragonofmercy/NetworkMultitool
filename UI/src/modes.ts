@@ -9,7 +9,9 @@ import parallel from "images/parallel.svg";
 
 export interface ModeEntry {
     id: number;
+    /** English fallback; the translation is looked up under textKey. */
     label: string;
+    textKey: string;
     icon: string;
     /** The mode is validated with the Apply key, so the panel shows an Apply button. */
     apply?: boolean;
@@ -19,6 +21,7 @@ export interface ModeEntry {
 
 export interface ModeGroup {
     label: string;
+    textKey: string;
     modes: ModeEntry[];
 }
 
@@ -26,20 +29,22 @@ export interface ModeGroup {
 export const groups: ModeGroup[] = [
     {
         label: "Edit nodes",
+        textKey: "UI.GroupEditNodes",
         modes: [
-            { id: 1, label: "Add node", icon: addNode },
-            { id: 2, label: "Remove node", icon: removeNode },
-            { id: 3, label: "Slope", icon: slope, apply: true },
-            { id: 7, label: "Arrange", icon: arrange, apply: true },
+            { id: 1, label: "Add node", textKey: "UI.ModeAddNode", icon: addNode },
+            { id: 2, label: "Remove node", textKey: "UI.ModeRemoveNode", icon: removeNode },
+            { id: 3, label: "Slope", textKey: "UI.ModeSlope", icon: slope, apply: true },
+            { id: 7, label: "Arrange", textKey: "UI.ModeArrange", icon: arrange, apply: true },
         ],
     },
     {
         label: "Connect segments",
+        textKey: "UI.GroupConnect",
         modes: [
-            { id: 5, label: "Connection", icon: connection, apply: true, terrain: true },
-            { id: 4, label: "Loop", icon: loop, apply: true, terrain: true },
-            { id: 6, label: "Curve", icon: curve, apply: true, terrain: true },
-            { id: 8, label: "Parallel", icon: parallel, apply: true, terrain: true },
+            { id: 5, label: "Connection", textKey: "UI.ModeConnection", icon: connection, apply: true, terrain: true },
+            { id: 4, label: "Loop", textKey: "UI.ModeLoop", icon: loop, apply: true, terrain: true },
+            { id: 6, label: "Curve", textKey: "UI.ModeCurve", icon: curve, apply: true, terrain: true },
+            { id: 8, label: "Parallel", textKey: "UI.ModeParallel", icon: parallel, apply: true, terrain: true },
         ],
     },
 ];
