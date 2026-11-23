@@ -108,7 +108,7 @@ namespace NetworkMultitool.Modes
             var sum = Vec.Flat(arc.StartRadiusDir + arc.EndRadiusDir);
             var labelDir = arc.IsCorrect && math.lengthsq(sum) > 1e-6f ? -math.normalize(sum) : new float3(0f, 0f, 1f);
             var text = arc.IsCorrect ? $"{arc.Radius:0.0} m\n{math.degrees(arc.Angle):0}\u00b0" : $"{arc.Radius:0.0} m";
-            overlay.Label(center + labelDir * 5f, text);
+            overlay.Label(center + labelDir * 5f, labelDir, text);
         }
 
         protected void MarkDirty() => _dirty = true;

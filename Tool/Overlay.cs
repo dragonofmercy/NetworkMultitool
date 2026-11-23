@@ -27,9 +27,9 @@ namespace NetworkMultitool.Tool
 
         private readonly OverlayRenderSystem.Buffer _buffer;
         private readonly NetQuery _net;
-        private readonly List<(float3 Position, string Text)> _labels;
+        private readonly List<(float3 Position, float3 Direction, string Text)> _labels;
 
-        public Overlay(OverlayRenderSystem.Buffer buffer, NetQuery net, List<(float3, string)> labels)
+        public Overlay(OverlayRenderSystem.Buffer buffer, NetQuery net, List<(float3, float3, string)> labels)
         {
             _buffer = buffer;
             _net = net;
@@ -37,7 +37,8 @@ namespace NetworkMultitool.Tool
         }
 
         /// <summary>Text shown by the UI at the screen position of a world point; lines are separated by '\n'.</summary>
-        public void Label(float3 position, string text) => _labels.Add((position, text));
+        /// <param name="direction">World direction the text extends to from the point (CS1 InfoLabel.Direction).</param>
+        public void Label(float3 position, float3 direction, string text) => _labels.Add((position, direction, text));
 
         /// <summary>A thin line at the given height.</summary>
         public void GroundLine(float3 a, float3 b, Color color, float width = 1f) => _buffer.DrawLine(color, color, 0f, 0, new Colossal.Mathematics.Line3.Segment(a, b), width, new float2(0f, 0f));

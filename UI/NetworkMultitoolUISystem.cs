@@ -32,22 +32,27 @@ namespace NetworkMultitool.UI
             AddBinding(new TriggerBinding(Group, "apply", tool.RequestApply));
         }
 
-        // One label per line: viewport x, viewport y (from the top), then the text lines, tab-separated. Points behind the camera are dropped.
+        // One label per line: viewport x, viewport y (from the top), screen direction x, y (y down), then the text lines, tab-separated. Points behind the camera are dropped.
         private static string ScreenLabels(NetworkMultitoolSystem tool)
         {
             var camera = Camera.main;
             if (!tool.IsActive || camera == null || tool.Labels.Count == 0)
                 return "";
             var sb = new StringBuilder();
-            foreach (var (position, text) in tool.Labels)
+            foreach (var (position, direction, text) in tool.Labels)
             {
                 var p = camera.WorldToViewportPoint(position);
                 if (p.z <= 0f)
                     continue;
-                sb.Append(p.x.ToString("0.0000", CultureInfo.InvariantCulture)).Append('\t').Append((1f - p.y).ToString("0.0000", CultureInfo.InvariantCulture)).Append('\t').Append(text.Replace('\n', '\t')).Append('\n');
+                // Direction on screen in pixels, so the text box can be pushed off the point on that side.
+                var d = (Vector2)(camera.WorldToScreenPoint((Vector3)(position + direction)) - camera.WorldToScreenPoint(position));
+                d = d.sqrMagnitude > 1e-6f ? d.normalized : Vector2.zero;
+                sb.Append(F(p.x)).Append('\t').Append(F(1f - p.y)).Append('\t').Append(F(d.x)).Append('\t').Append(F(-d.y)).Append('\t').Append(text.Replace('\n', '\t')).Append('\n');
             }
             return sb.ToString();
         }
+
+        private static string F(float value) => value.ToString("0.0000", CultureInfo.InvariantCulture);
 
         // Same setting as the options screen; the creation modes read it every frame.
         private static void ToggleFollowTerrain()

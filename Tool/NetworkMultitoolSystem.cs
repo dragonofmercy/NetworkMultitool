@@ -49,7 +49,7 @@ namespace NetworkMultitool.Tool
         public string Info => m_Mode.Info;
 
         /// <summary>World labels drawn by the mode last frame, positioned on screen by the UI system.</summary>
-        public List<(float3 Position, string Text)> Labels { get; } = new List<(float3, string)>();
+        public List<(float3 Position, float3 Direction, string Text)> Labels { get; } = new List<(float3, float3, string)>();
 
         internal float TerrainHeight(float3 position)
         {
