@@ -3,19 +3,21 @@ using Unity.Mathematics;
 
 namespace NetworkMultitool.Geometry
 {
-    /// <summary>Two arcs, each tangent to one guide ray, joined by a common tangent; port of CS1 BaseCreateConnectionMode with its two EdgeCircles (no snapping).</summary>
+    /// <summary>A chain of arcs joined by common tangents; the first and last are each tangent to one guide ray, the middle ones are placed freely.
+    /// Port of CS1 BaseCreateConnectionMode / CreateConnectionMode (no snapping).</summary>
     public sealed class ConnectionSolver
     {
         private const float MaxOffset = 5000f;
+        private const float DefaultRadius = 50f;
 
         private readonly Point start;
         private readonly Point end;
         private readonly float minRadius;
         private readonly float maxRadius;
         private readonly float height;
+        private readonly List<Arc> arcs = new List<Arc>();
+        private readonly List<Straight> straights = new List<Straight>();
 
-        private float firstRadius;
-        private float secondRadius;
         private float firstOffset;
         private float secondOffset;
 
@@ -27,27 +29,32 @@ namespace NetworkMultitool.Geometry
             this.minRadius = minRadius;
             this.maxRadius = maxRadius;
             height = (start.Position.y + end.Position.y) / 2f;
-            FirstRadius = 50f;
-            SecondRadius = 50f;
+            arcs.Add(new Arc());
+            arcs.Add(new Arc());
+            FirstRadius = DefaultRadius;
+            SecondRadius = DefaultRadius;
             SetSides();
         }
 
-        public Arc First { get; } = new Arc();
-        public Arc Second { get; } = new Arc();
-        public Straight StartStraight { get; private set; }
-        public Straight MiddleStraight { get; private set; }
-        public Straight EndStraight { get; private set; }
+        public IReadOnlyList<Arc> Arcs => arcs;
+
+        /// <summary>One more than the arcs: from the start node, between consecutive arcs, to the end node. Filled by <see cref="Solve"/>.</summary>
+        public IReadOnlyList<Straight> Straights => straights;
+
+        public Arc First => arcs[0];
+        public Arc Second => arcs[arcs.Count - 1];
+        private int Last => arcs.Count - 1;
 
         public float FirstRadius
         {
-            get => firstRadius;
-            set => firstRadius = math.clamp(value, minRadius, maxRadius);
+            get => First.Radius;
+            set => First.Radius = Clamp(value);
         }
 
         public float SecondRadius
         {
-            get => secondRadius;
-            set => secondRadius = math.clamp(value, minRadius, maxRadius);
+            get => Second.Radius;
+            set => Second.Radius = Clamp(value);
         }
 
         /// <summary>Distance along the start guide where the first arc begins (CS1 EdgeCircle.Offset).</summary>
@@ -57,23 +64,36 @@ namespace NetworkMultitool.Geometry
             set => firstOffset = math.clamp(value, 0f, MaxOffset);
         }
 
-        /// <summary>Distance along the end guide where the second arc ends.</summary>
+        /// <summary>Distance along the end guide where the last arc ends.</summary>
         public float SecondOffset
         {
             get => secondOffset;
             set => secondOffset = math.clamp(value, 0f, MaxOffset);
         }
 
+        public bool IsMiddle(int index) => index > 0 && index < Last;
+
+        public void SetRadius(int index, float radius) => arcs[index].Radius = Clamp(radius);
+
+        private float Clamp(float radius) => math.clamp(radius, minRadius, maxRadius);
+
         /// <summary>Flips one arc to the other turning sense.</summary>
-        public void SwitchSide(bool first)
+        public void SwitchSide(int index)
         {
-            var arc = first ? First : Second;
+            var arc = arcs[index];
             arc.Turn = arc.Turn == Turn.Right ? Turn.Left : Turn.Right;
         }
 
-        /// <summary>Slides the arc along its guide so its center follows a dragged position; the radius is kept.</summary>
-        public void DragCenter(bool first, float3 position)
+        /// <summary>Edge arcs slide along their guide so the center follows the position (radius kept); a middle arc is moved there.</summary>
+        public void DragCenter(int index, float3 position)
         {
+            if (IsMiddle(index))
+            {
+                arcs[index].Center = position;
+                return;
+            }
+
+            var first = index == 0;
             var guide = first ? start : end;
             var offset = Vec.DotXZ(position - guide.Position, guide.Direction);
             if (first)
@@ -82,9 +102,16 @@ namespace NetworkMultitool.Geometry
                 SecondOffset = offset;
         }
 
-        /// <summary>Sets the radius so the circle, still tangent to its guide at the current offset, passes through a dragged position.</summary>
-        public void DragEdge(bool first, float3 position)
+        /// <summary>Sets the radius so the circle passes through the position; an edge circle stays tangent to its guide at the current offset.</summary>
+        public void DragEdge(int index, float3 position)
         {
+            if (IsMiddle(index))
+            {
+                SetRadius(index, math.distance(Vec.Flat(position), Vec.Flat(arcs[index].Center)));
+                return;
+            }
+
+            var first = index == 0;
             var guide = first ? start : end;
             // Same normal as the centers in Solve: guide point + normal * radius.
             var normal = first ? Vec.Turn90(start.Direction, First.Turn == Turn.Right) : -Vec.Turn90(end.Direction, Second.Turn == Turn.Right);
@@ -94,11 +121,52 @@ namespace NetworkMultitool.Geometry
             if (side <= 0f)
                 return;
 
-            var radius = math.lengthsq(q) / (2f * side);
-            if (first)
-                FirstRadius = radius;
-            else
-                SecondRadius = radius;
+            SetRadius(index, math.lengthsq(q) / (2f * side));
+        }
+
+        /// <summary>CS1 double click on a straight: a new free arc centered at the position, inserted where that straight was. Returns its index.</summary>
+        public int InsertArc(int straight, float3 position)
+        {
+            var arc = new Arc { Height = height, Radius = Clamp(DefaultRadius), Turn = Turn.Right };
+            arc.Center = position;
+            arcs.Insert(straight, arc);
+            return straight;
+        }
+
+        /// <summary>Removes a middle arc; the edge arcs stay.</summary>
+        public void RemoveArc(int index)
+        {
+            if (IsMiddle(index))
+                arcs.RemoveAt(index);
+        }
+
+        /// <summary>Takes over the user settings of a solver built for other end points: radii, offsets and the middle arcs.</summary>
+        public void CopyFrom(ConnectionSolver old)
+        {
+            FirstRadius = old.FirstRadius;
+            SecondRadius = old.SecondRadius;
+            FirstOffset = old.FirstOffset;
+            SecondOffset = old.SecondOffset;
+            for (var i = 1; i < old.Last; i++)
+                arcs.Insert(i, old.arcs[i]);
+        }
+
+        /// <summary>Index of the straight between two arcs (never the guide ones) passing within halfWidth of the position, or -1.</summary>
+        public int StraightAt(float3 position, float halfWidth)
+        {
+            var p = Vec.Flat(position);
+            for (var i = 1; i < straights.Count - 1; i++)
+            {
+                var s = straights[i];
+                if (s.IsShort)
+                    continue;
+                var a = Vec.Flat(s.Start);
+                var along = math.dot(p - a, s.Direction);
+                if (along >= 0f && along <= math.distance(a, Vec.Flat(s.End)) && math.distance(p, a + s.Direction * along) <= halfWidth)
+                    return i;
+            }
+
+            return -1;
         }
 
         public SolveResult Solve(float maxSegmentLength, List<Point> points)
@@ -107,53 +175,66 @@ namespace NetworkMultitool.Geometry
             var startPos = Vec.WithY(start.Position, height);
             var endPos = Vec.WithY(end.Position, height);
 
+            foreach (var arc in arcs)
+            {
+                arc.Height = height;
+                arc.MinRadius = minRadius;
+                arc.MaxRadius = maxRadius;
+                arc.IsCorrect = true;
+            }
+
             // EdgeCircle.Calculate + CenterPos getter: the guide is tangent to the arc at node + dir * offset.
-            Setup(First, firstRadius);
             First.StartRadiusDir = -Vec.Turn90(start.Direction, First.Turn == Turn.Right);
-            First.Center = startPos + start.Direction * firstOffset - First.StartRadiusDir * firstRadius;
-
-            Setup(Second, secondRadius);
+            First.Center = startPos + start.Direction * firstOffset - First.StartRadiusDir * First.Radius;
             Second.EndRadiusDir = Vec.Turn90(end.Direction, Second.Turn == Turn.Right);
-            Second.Center = endPos + end.Direction * secondOffset - Second.EndRadiusDir * secondRadius;
+            Second.Center = endPos + end.Direction * secondOffset - Second.EndRadiusDir * Second.Radius;
 
-            var isCorrect = Arc.CheckRadii(First, Second);
-            First.IsCorrect = isCorrect;
-            Second.IsCorrect = isCorrect;
+            for (var i = 1; i < arcs.Count; i++)
+            {
+                var isCorrect = Arc.CheckRadii(arcs[i - 1], arcs[i]);
+                arcs[i - 1].IsCorrect = arcs[i - 1].IsCorrect && isCorrect;
+                arcs[i].IsCorrect = arcs[i].IsCorrect && isCorrect;
+            }
 
-            StartStraight = new Straight(startPos, First.StartPos);
-            Arc.Connect(First, Second);
-            MiddleStraight = Arc.GetStraight(First, Second, height);
-            EndStraight = new Straight(Second.EndPos, endPos);
+            straights.Clear();
+            straights.Add(new Straight(startPos, First.StartPos));
+            for (var i = 1; i < arcs.Count; i++)
+            {
+                Arc.Connect(arcs[i - 1], arcs[i]);
+                straights.Add(Arc.GetStraight(arcs[i - 1], arcs[i], height));
+            }
 
-            if (!First.IsCorrect || !Second.IsCorrect)
-                return SolveResult.WrongShape;
+            straights.Add(new Straight(Second.EndPos, endPos));
 
-            // GetParts with every circle correct.
+            foreach (var arc in arcs)
+            {
+                if (!arc.IsCorrect)
+                    return SolveResult.WrongShape;
+            }
+
+            // CS1 GetParts with every circle correct: straight 0, arc 0, straight 1, ..., arc n-1, straight n.
             points.Add(new Point(startPos, start.Direction));
-            if (!StartStraight.IsShort)
-                points.AddRange(StartStraight.Parts(maxSegmentLength));
-            points.AddRange(First.GetParts(StartStraight, MiddleStraight, maxSegmentLength));
-            if (!MiddleStraight.IsShort)
-                points.AddRange(MiddleStraight.Parts(maxSegmentLength));
-            else if (!First.IsShort && !Second.IsShort)
-                points.Add(MiddleStraight.MiddlePoint);
-            else if (!First.IsShort)
-                points.Add(MiddleStraight.StartPoint);
-            else if (!Second.IsShort)
-                points.Add(MiddleStraight.EndPoint);
-            points.AddRange(Second.GetParts(MiddleStraight, EndStraight, maxSegmentLength));
-            if (!EndStraight.IsShort)
-                points.AddRange(EndStraight.Parts(maxSegmentLength));
+            for (var j = 0; j < straights.Count; j++)
+            {
+                var straight = straights[j];
+                if (!straight.IsShort)
+                    points.AddRange(straight.Parts(maxSegmentLength));
+                else if (j != 0 && j != straights.Count - 1)
+                {
+                    if (!arcs[j - 1].IsShort && !arcs[j].IsShort)
+                        points.Add(straight.MiddlePoint);
+                    else if (!arcs[j - 1].IsShort)
+                        points.Add(straight.StartPoint);
+                    else if (!arcs[j].IsShort)
+                        points.Add(straight.EndPoint);
+                }
+
+                if (j < arcs.Count)
+                    points.AddRange(arcs[j].GetParts(straight, straights[j + 1], maxSegmentLength));
+            }
+
             points.Add(new Point(endPos, -end.Direction));
             return SolveResult.Ok;
-        }
-
-        private void Setup(Arc arc, float radius)
-        {
-            arc.Height = height;
-            arc.MinRadius = minRadius;
-            arc.MaxRadius = maxRadius;
-            arc.Radius = radius;
         }
 
         // Port of EdgeCircle.GetSides; CS1 CrossXZ is the negated Vec cross, hence the <= 0 tests.

@@ -68,6 +68,9 @@ namespace NetworkMultitool.Modes
         /// <summary>Called on a left click before the base selection logic; return true when the mode handled the click itself.</summary>
         protected virtual bool ConsumeClick(ToolContext ctx) => false;
 
+        /// <summary>Called on a right click before the base deselection; return true when the mode handled the click itself.</summary>
+        protected virtual bool ConsumeSecondaryClick(ToolContext ctx) => false;
+
         protected const float GrabDistance = 5f;
 
         protected enum Drag
@@ -227,6 +230,8 @@ namespace NetworkMultitool.Modes
 
             if (ctx.SecondaryPressed)
             {
+                if (ConsumeSecondaryClick(ctx))
+                    return;
                 if (Second != Entity.Null)
                 {
                     Second = Entity.Null;

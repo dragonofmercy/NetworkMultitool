@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
@@ -6,24 +7,44 @@ using Unity.Mathematics;
 
 namespace NetworkMultitool.Modes
 {
-    /// <summary>Connects two segments with two arcs joined by a straight (port of CS1 CreateConnectionMode).</summary>
+    /// <summary>Connects two segments with a chain of arcs joined by straights (port of CS1 CreateConnectionMode).</summary>
     public sealed class ConnectionMode : CreateModeBase
     {
+        // Close to the Windows default double-click time.
+        private const float DoubleClickTime = 0.5f;
+
         private ConnectionSolver _solver;
         private Point _start;
         private Point _end;
-        private bool _selectFirst = true;
+        private int _selected;
         private bool _firstSwitched;
         private bool _secondSwitched;
+        private float _lastClick = -1f;
+        private float _lastSecondaryClick = -1f;
 
-        /// <summary>Both arcs are placed, even when they overlap: the circles stay visible and draggable so the shape can be fixed.</summary>
+        /// <summary>All arcs are placed, even when they overlap: the circles stay visible and draggable so the shape can be fixed.</summary>
         private bool HasArcs => _solver != null && Second != Entity.Null && FirstNode != SecondNode && (Result == SolveResult.Ok || Result == SolveResult.WrongShape);
+
+        private int LastArc => _solver.Arcs.Count - 1;
 
         public override ToolModeId Id => ToolModeId.Connection;
 
-        protected override string ExtraValues => _solver == null ? string.Empty : $"First radius: {_solver.FirstRadius:0.0} m\nFirst offset: {_solver.FirstOffset:0.0} m\nSecond radius: {_solver.SecondRadius:0.0} m\nSecond offset: {_solver.SecondOffset:0.0} m\n";
+        protected override string ExtraValues
+        {
+            get
+            {
+                if (_solver == null)
+                    return string.Empty;
+                var sb = new StringBuilder();
+                for (var i = 0; i < _solver.Arcs.Count; i++)
+                    sb.Append($"Radius {i + 1}: {_solver.Arcs[i].Radius:0.0} m\n");
+                sb.Append($"First offset: {_solver.FirstOffset:0.0} m\nLast offset: {_solver.SecondOffset:0.0} m\n");
+                return sb.ToString();
+            }
+        }
 
-        protected override string ExtraHints => $"Drag edge: radius\nDrag center: offset\n{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius (Shift: both)\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.SwitchOffset)}: switch circle\n{KeyNames.Of(ToolAction.Side)}: switch circle side\n";
+        protected override string ExtraHints => "Drag edge: radius\nDrag center: move/offset\nDouble-click center: direction\nDouble-click straight: add circle\nRight double-click center: remove circle\n" +
+            $"{KeyNames.Of(ToolAction.RadiusUp)}/{KeyNames.Of(ToolAction.RadiusDown)}: radius (Shift: all)\n{KeyNames.Of(ToolAction.OffsetDown)}/{KeyNames.Of(ToolAction.OffsetUp)}: offset\n{KeyNames.Of(ToolAction.SwitchOffset)}: switch circle\n{KeyNames.Of(ToolAction.Side)}: switch circle side\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
@@ -34,18 +55,13 @@ namespace NetworkMultitool.Modes
                 _end = EndPoint;
                 _solver = new ConnectionSolver(StartPoint, EndPoint, ctx.Net.Width(First), 5000f);
                 if (old != null)
-                {
-                    _solver.FirstRadius = old.FirstRadius;
-                    _solver.SecondRadius = old.SecondRadius;
-                    _solver.FirstOffset = old.FirstOffset;
-                    _solver.SecondOffset = old.SecondOffset;
-                }
+                    _solver.CopyFrom(old);
 
-                // The side is kept relative to the geometric default the new solver computed.
+                // The edge sides are kept relative to the geometric default the new solver computed.
                 if (_firstSwitched)
-                    _solver.SwitchSide(true);
+                    _solver.SwitchSide(0);
                 if (_secondSwitched)
-                    _solver.SwitchSide(false);
+                    _solver.SwitchSide(LastArc);
             }
 
             return _solver.Solve(ctx.MaxSegmentLength, points);
@@ -53,53 +69,107 @@ namespace NetworkMultitool.Modes
 
         protected override bool ConsumeClick(ToolContext ctx)
         {
-            Dragging = Grab(ctx, out var first);
+            var now = UnityEngine.Time.realtimeSinceStartup;
+            var isDouble = now - _lastClick < DoubleClickTime;
+            _lastClick = isDouble ? -1f : now;
+
+            var grab = Grab(ctx, out var index);
+            if (isDouble && HasArcs && grab == Drag.Center)
+            {
+                SwitchSide(index);
+                return true;
+            }
+
+            if (isDouble && HasArcs && ctx.HasHit)
+            {
+                var straight = _solver.StraightAt(ctx.MousePosition, ctx.Net.Width(First) / 2f);
+                if (straight >= 0)
+                {
+                    _selected = _solver.InsertArc(straight, ctx.MousePosition);
+                    MarkDirty();
+                    return true;
+                }
+            }
+
+            Dragging = grab;
             if (Dragging != Drag.None)
-                _selectFirst = first;
+                _selected = index;
             return Dragging != Drag.None;
         }
 
-        /// <summary>What a click at the cursor would grab, and on which circle.</summary>
-        private Drag Grab(ToolContext ctx, out bool first)
+        /// <summary>A right click on a center never deselects the segment (CS1); a right double click there removes a middle circle.</summary>
+        protected override bool ConsumeSecondaryClick(ToolContext ctx)
         {
-            first = _selectFirst;
+            if (Grab(ctx, out var index) != Drag.Center)
+                return false;
+
+            var now = UnityEngine.Time.realtimeSinceStartup;
+            var isDouble = now - _lastSecondaryClick < DoubleClickTime;
+            _lastSecondaryClick = isDouble ? -1f : now;
+            if (isDouble && _solver.IsMiddle(index))
+            {
+                _solver.RemoveArc(index);
+                if (_selected >= index)
+                    _selected = math.max(_selected - 1, 0);
+                MarkDirty();
+            }
+
+            return true;
+        }
+
+        /// <summary>What a click at the cursor would grab, and on which circle.</summary>
+        private Drag Grab(ToolContext ctx, out int index)
+        {
+            index = _selected;
             if (!HasArcs || !ctx.HasHit)
                 return Drag.None;
 
             var mouse = Vec.Flat(ctx.MousePosition);
-            var toFirst = math.distance(mouse, Vec.Flat(_solver.First.Center));
-            var toSecond = math.distance(mouse, Vec.Flat(_solver.Second.Center));
-            // Centers first: one circle's edge can pass over the other's center.
-            if (math.min(toFirst, toSecond) < GrabDistance)
+            var arcs = _solver.Arcs;
+            // Centers first: one circle's edge can pass over another's center.
+            var best = float.MaxValue;
+            for (var i = 0; i < arcs.Count; i++)
             {
-                first = toFirst <= toSecond;
-                return Drag.Center;
+                var distance = math.distance(mouse, Vec.Flat(arcs[i].Center));
+                if (distance < GrabDistance && distance < best)
+                {
+                    best = distance;
+                    index = i;
+                }
             }
 
-            // Each circle touches its guide near a node: a click on an end node keeps changing the direction.
+            if (best < float.MaxValue)
+                return Drag.Center;
+
+            // The edge circles touch their guide near a node: a click on an end node keeps changing the direction.
             if (HoverEnd)
                 return Drag.None;
-            var firstEdge = math.abs(toFirst - _solver.First.Radius);
-            var secondEdge = math.abs(toSecond - _solver.Second.Radius);
-            if (math.min(firstEdge, secondEdge) >= GrabDistance)
-                return Drag.None;
-            first = firstEdge <= secondEdge;
-            return Drag.Edge;
+            for (var i = 0; i < arcs.Count; i++)
+            {
+                var distance = math.abs(math.distance(mouse, Vec.Flat(arcs[i].Center)) - arcs[i].Radius);
+                if (distance < GrabDistance && distance < best)
+                {
+                    best = distance;
+                    index = i;
+                }
+            }
+
+            return best < float.MaxValue ? Drag.Edge : Drag.None;
         }
 
         protected override void OnKeys(ToolContext ctx)
         {
-            if (ctx.Pressed(ToolAction.SwitchOffset))
-                _selectFirst = !_selectFirst;
             if (_solver == null || Second == Entity.Null)
                 return;
+            if (ctx.Pressed(ToolAction.SwitchOffset))
+                _selected = (_selected + 1) % _solver.Arcs.Count;
 
-            // Shift is the only modifier giving StepMultiplier 10, so it doubles as the "both radii" signal.
-            var both = ctx.StepMultiplier == 10f;
+            // Shift is the only modifier giving StepMultiplier 10, so it doubles as the "all radii" signal.
+            var all = ctx.StepMultiplier == 10f;
             if (ctx.Pressed(ToolAction.RadiusUp))
-                ChangeRadius(10f * ctx.StepMultiplier, both);
+                ChangeRadius(10f * ctx.StepMultiplier, all);
             if (ctx.Pressed(ToolAction.RadiusDown))
-                ChangeRadius(-10f * ctx.StepMultiplier, both);
+                ChangeRadius(-10f * ctx.StepMultiplier, all);
 
             if (ctx.Pressed(ToolAction.OffsetUp))
                 ChangeOffset(ctx.StepMultiplier);
@@ -107,56 +177,76 @@ namespace NetworkMultitool.Modes
                 ChangeOffset(-ctx.StepMultiplier);
 
             if (ctx.Pressed(ToolAction.Side))
-            {
-                if (_selectFirst)
-                    _firstSwitched = !_firstSwitched;
-                else
-                    _secondSwitched = !_secondSwitched;
-                _solver.SwitchSide(_selectFirst);
-                MarkDirty();
-            }
+                SwitchSide(_selected);
         }
 
         protected override void OnDrag(ToolContext ctx)
         {
             if (Dragging == Drag.Center)
-                _solver.DragCenter(_selectFirst, ctx.MousePosition);
+                _solver.DragCenter(_selected, ctx.MousePosition);
             else
-                _solver.DragEdge(_selectFirst, ctx.MousePosition);
+                _solver.DragEdge(_selected, ctx.MousePosition);
         }
 
         protected override void RenderShape(ToolContext ctx, Overlay overlay)
         {
             if (!HasArcs)
                 return;
-            var first = _selectFirst;
-            var grab = Dragging != Drag.None ? Dragging : Grab(ctx, out first);
-            DrawHandles(ctx, overlay, _solver.First, IdleColor(_selectFirst), first ? grab : Drag.None);
-            DrawHandles(ctx, overlay, _solver.Second, IdleColor(!_selectFirst), first ? Drag.None : grab);
+            var index = _selected;
+            var grab = Dragging != Drag.None ? Dragging : Grab(ctx, out index);
+            for (var i = 0; i < _solver.Arcs.Count; i++)
+                DrawHandles(ctx, overlay, _solver.Arcs[i], IdleColor(i == _selected), i == index ? grab : Drag.None);
+
+            // The straight a double click would split with a new circle.
+            if (grab == Drag.None && Dragging == Drag.None && ctx.HasHit)
+            {
+                var width = ctx.Net.Width(First);
+                var straight = _solver.StraightAt(ctx.MousePosition, width / 2f);
+                if (straight >= 0)
+                {
+                    var s = _solver.Straights[straight];
+                    overlay.Path(new[] { s.StartPoint, s.EndPoint }, width + 0.7f, Overlay.Green);
+                }
+            }
         }
 
         protected override void OnReset()
         {
             _solver = null;
-            _selectFirst = true;
+            _selected = 0;
             _firstSwitched = false;
             _secondSwitched = false;
+            _lastClick = -1f;
+            _lastSecondaryClick = -1f;
         }
 
-        private void ChangeRadius(float delta, bool both)
+        private void SwitchSide(int index)
         {
-            if (both || _selectFirst)
-                _solver.FirstRadius += delta;
-            if (both || !_selectFirst)
-                _solver.SecondRadius += delta;
+            if (index == 0)
+                _firstSwitched = !_firstSwitched;
+            else if (index == LastArc)
+                _secondSwitched = !_secondSwitched;
+            _solver.SwitchSide(index);
             MarkDirty();
         }
 
+        private void ChangeRadius(float delta, bool all)
+        {
+            for (var i = 0; i < _solver.Arcs.Count; i++)
+            {
+                if (all || i == _selected)
+                    _solver.SetRadius(i, _solver.Arcs[i].Radius + delta);
+            }
+
+            MarkDirty();
+        }
+
+        /// <summary>Only the edge circles have an offset along their guide.</summary>
         private void ChangeOffset(float delta)
         {
-            if (_selectFirst)
+            if (_selected == 0)
                 _solver.FirstOffset += delta;
-            else
+            else if (_selected == LastArc)
                 _solver.SecondOffset += delta;
             MarkDirty();
         }

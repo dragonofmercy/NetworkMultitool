@@ -112,6 +112,42 @@ namespace NetworkMultitool.Tests
         }
 
         [Fact]
+        public void Connection_InsertAndRemoveMiddleArc()
+        {
+            var start = P(0, 0, 0, 1, 0);
+            var end = P(300, 0, 120, -1, 0);
+            var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius);
+            var pts = new List<Point>();
+            Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+
+            var middle = solver.Straights[1];
+            var hit = math.lerp(middle.Start, middle.End, 0.5f);
+            Assert.Equal(1, solver.StraightAt(hit, 4f));
+            Assert.Equal(-1, solver.StraightAt(hit + new float3(0, 0, 30), 4f));
+
+            foreach (var turn in new[] { Turn.Right, Turn.Left })
+            {
+                var index = solver.InsertArc(1, hit);
+                if (solver.Arcs[index].Turn != turn)
+                    solver.SwitchSide(index);
+                Assert.Equal(3, solver.Arcs.Count);
+                Assert.True(solver.IsMiddle(1));
+                Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+                AssertContinuous(pts, start, end, 40f);
+                Assert.Equal(4, solver.Straights.Count);
+
+                solver.DragCenter(1, hit + new float3(0, 0, 40));
+                solver.DragEdge(1, hit + new float3(30, 0, 40));
+                Assert.Equal(30f, solver.Arcs[1].Radius, 3);
+
+                solver.RemoveArc(1);
+                solver.RemoveArc(0);
+                Assert.Equal(2, solver.Arcs.Count);
+                Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
+            }
+        }
+
+        [Fact]
         public void Connection_Default_Ok()
         {
             var start = P(0, 0, 0, 1, 0);
@@ -141,12 +177,12 @@ namespace NetworkMultitool.Tests
         {
             var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius) { FirstRadius = 80f, SecondRadius = 80f };
             // Circles tangent to the guides at the nodes: radius 50 centered at (0, 50) and (300, 70).
-            solver.DragEdge(true, new float3(50, 0, 50));
-            solver.DragEdge(false, new float3(300, 0, 20));
+            solver.DragEdge(0, new float3(50, 0, 50));
+            solver.DragEdge(1, new float3(300, 0, 20));
             Assert.Equal(50f, solver.FirstRadius, 3);
             Assert.Equal(50f, solver.SecondRadius, 3);
             // Behind the guide: ignored.
-            solver.DragEdge(true, new float3(10, 0, -40));
+            solver.DragEdge(0, new float3(10, 0, -40));
             Assert.Equal(50f, solver.FirstRadius, 3);
         }
 
@@ -154,12 +190,12 @@ namespace NetworkMultitool.Tests
         public void Connection_DragCenter_SlidesAlongGuide()
         {
             var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius);
-            solver.DragCenter(true, new float3(30, 0, 77));
-            solver.DragCenter(false, new float3(250, 0, 0));
+            solver.DragCenter(0, new float3(30, 0, 77));
+            solver.DragCenter(1, new float3(250, 0, 0));
             Assert.Equal(30f, solver.FirstOffset, 3);
             Assert.Equal(50f, solver.SecondOffset, 3);
             Assert.Equal(50f, solver.FirstRadius, 3);
-            solver.DragCenter(true, new float3(-20, 0, 0));
+            solver.DragCenter(0, new float3(-20, 0, 0));
             Assert.Equal(0f, solver.FirstOffset, 3);
         }
 
@@ -176,8 +212,8 @@ namespace NetworkMultitool.Tests
             var start = P(0, 0, 0, 1, 0);
             var end = P(300, 0, 120, -1, 0);
             var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
-            solver.SwitchSide(true);
-            solver.SwitchSide(false);
+            solver.SwitchSide(0);
+            solver.SwitchSide(1);
             var pts = new List<Point>();
             Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
             AssertContinuous(pts, start, end, 40f);
@@ -193,7 +229,7 @@ namespace NetworkMultitool.Tests
             var end = P(300, 0, 120, -1, 0);
             var solver = new ConnectionSolver(start, end, MinRadius, MaxRadius) { FirstRadius = 50f, SecondRadius = 50f };
             var second = solver.Second.Turn;
-            solver.SwitchSide(true);
+            solver.SwitchSide(0);
             var pts = new List<Point>();
             Assert.Equal(SolveResult.Ok, solver.Solve(40f, pts));
             AssertContinuous(pts, start, end, 40f);
