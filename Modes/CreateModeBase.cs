@@ -179,7 +179,7 @@ namespace NetworkMultitool.Modes
             }
 
             if (Points.Count >= 2)
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.White : Overlay.Red);
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Blue : Overlay.Red);
 
             RenderShape(ctx, overlay);
         }

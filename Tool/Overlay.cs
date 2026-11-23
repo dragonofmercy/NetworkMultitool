@@ -46,11 +46,13 @@ namespace NetworkMultitool.Tool
 
         public void Edge(Entity edge, Color color) => _buffer.DrawCurve(color, _net.Curve(edge), _net.Width(edge));
 
-        /// <summary>One curve per consecutive pair, leaving each point along its forward direction.</summary>
+        /// <summary>One curve per consecutive pair, leaving each point along its forward direction: the color at 25% inside an opaque outline.</summary>
         public void Path(IReadOnlyList<Point> points, float width, Color color)
         {
+            var outline = new Color(color.r, color.g, color.b, 1f);
+            var fill = new Color(color.r, color.g, color.b, 0.25f);
             for (var i = 1; i < points.Count; i++)
-                _buffer.DrawCurve(color, CourseEmitter.Fit(points[i - 1], points[i]), width);
+                _buffer.DrawCurve(outline, fill, RingWidth, 0, CourseEmitter.Fit(points[i - 1], points[i]), width);
         }
 
         // The drag handles are projected on the ground: the cursor hits the terrain, so a shape floating at the arc height would not be where the click lands.

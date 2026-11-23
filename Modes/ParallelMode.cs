@@ -129,7 +129,7 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.White);
+                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Blue);
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
         }
