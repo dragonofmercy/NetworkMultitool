@@ -25,9 +25,11 @@ namespace NetworkMultitool.UI
             AddUpdateBinding(new GetterValueBinding<string>(Group, "toggleKeys", () => KeyNames.Of(ToolActions.Toggle)));
 
             AddUpdateBinding(new GetterValueBinding<bool>(Group, "followTerrain", () => Mod.Settings != null && Mod.Settings.FollowTerrain));
+            AddUpdateBinding(new GetterValueBinding<bool>(Group, "hidePreview", () => Mod.Settings != null && Mod.Settings.HideGamePreview));
 
             AddBinding(new TriggerBinding(Group, "toggle", tool.Toggle));
-            AddBinding(new TriggerBinding(Group, "toggleFollowTerrain", ToggleFollowTerrain));
+            AddBinding(new TriggerBinding(Group, "toggleFollowTerrain", () => ToggleSetting(s => s.FollowTerrain = !s.FollowTerrain)));
+            AddBinding(new TriggerBinding(Group, "toggleHidePreview", () => ToggleSetting(s => s.HideGamePreview = !s.HideGamePreview)));
             AddBinding(new TriggerBinding<int>(Group, "setMode", id => tool.SetMode((ToolModeId)id)));
             AddBinding(new TriggerBinding(Group, "apply", tool.RequestApply));
         }
@@ -54,13 +56,13 @@ namespace NetworkMultitool.UI
 
         private static string F(float value) => value.ToString("0.0000", CultureInfo.InvariantCulture);
 
-        // Same setting as the options screen; the creation modes read it every frame.
-        private static void ToggleFollowTerrain()
+        // Same settings as the options screen; the creation modes read them every frame.
+        private static void ToggleSetting(System.Action<Settings> toggle)
         {
             var settings = Mod.Settings;
             if (settings == null)
                 return;
-            settings.FollowTerrain = !settings.FollowTerrain;
+            toggle(settings);
             settings.ApplyAndSave();
         }
     }

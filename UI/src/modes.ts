@@ -13,7 +13,7 @@ export interface ModeEntry {
     icon: string;
     /** The mode is validated with the Apply key, so the panel shows an Apply button. */
     apply?: boolean;
-    /** The mode builds roads, so the panel shows the Follow terrain toggle. */
+    /** The mode builds roads, so the panel shows the Follow terrain and Hide game preview toggles. */
     terrain?: boolean;
 }
 

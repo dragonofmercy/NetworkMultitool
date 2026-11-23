@@ -1,6 +1,6 @@
 import { useValue } from "cs2/api";
 import { Button, Panel } from "cs2/ui";
-import { active$, apply, followTerrain$, info$, mode$, setMode, toggleFollowTerrain } from "bindings";
+import { active$, apply, followTerrain$, hidePreview$, info$, mode$, setMode, toggleFollowTerrain, toggleHidePreview } from "bindings";
 import { groups, ModeEntry } from "modes";
 import styles from "./panel.module.scss";
 
@@ -19,11 +19,21 @@ const Rows = ({ text, className }: { text: string; className: string }) => (
     </div>
 );
 
+const Toggle = ({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) => (
+    <div className={styles.toggle} onClick={onClick}>
+        <div className={on ? `${styles.switch} ${styles.on}` : styles.switch}>
+            <div className={styles.knob} />
+        </div>
+        {label}
+    </div>
+);
+
 export const ModesPanel = () => {
     const active = useValue(active$);
     const mode = useValue(mode$);
     const info = useValue(info$);
     const followTerrain = useValue(followTerrain$);
+    const hidePreview = useValue(hidePreview$);
     if (!active)
         return null;
 
@@ -51,14 +61,8 @@ export const ModesPanel = () => {
             {current && <div className={styles.title}>{current.label}</div>}
             {status && <div className={styles.status}>{status}</div>}
             {values && <Rows text={values} className={styles.values} />}
-            {current?.terrain && (
-                <div className={styles.toggle} onClick={toggleFollowTerrain}>
-                    <div className={followTerrain ? `${styles.switch} ${styles.on}` : styles.switch}>
-                        <div className={styles.knob} />
-                    </div>
-                    Follow terrain
-                </div>
-            )}
+            {current?.terrain && <Toggle on={followTerrain} onClick={toggleFollowTerrain} label="Follow terrain" />}
+            {current?.terrain && <Toggle on={hidePreview} onClick={toggleHidePreview} label="Hide game preview" />}
             {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>Apply</Button>}
             {hints && <Rows text={hints} className={styles.hints} />}
         </Panel>

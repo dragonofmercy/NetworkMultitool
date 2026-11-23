@@ -9,8 +9,10 @@ export const labels$ = bindValue<string>(GROUP, "labels", "");
 export const toggleKeys$ = bindValue<string>(GROUP, "toggleKeys", "");
 
 export const followTerrain$ = bindValue<boolean>(GROUP, "followTerrain", true);
+export const hidePreview$ = bindValue<boolean>(GROUP, "hidePreview", true);
 
 export const toggle = () => trigger(GROUP, "toggle");
 export const setMode = (id: number) => trigger(GROUP, "setMode", id);
 export const apply = () => trigger(GROUP, "apply");
 export const toggleFollowTerrain = () => trigger(GROUP, "toggleFollowTerrain");
+export const toggleHidePreview = () => trigger(GROUP, "toggleHidePreview");
