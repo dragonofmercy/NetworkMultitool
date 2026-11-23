@@ -1,6 +1,12 @@
 # Network Multitool (Cities: Skylines II)
 
-Port of MacSergey's Network Multitool (Cities: Skylines 1) to Cities: Skylines II. A tool panel with 7 modes for editing road and rail networks. The mod lives in `build/`.
+A tool panel with 7 modes for editing road and rail networks in Cities: Skylines II.
+
+This mod is a port of [Network Multitool](https://steamcommunity.com/sharedfiles/filedetails/?id=2560782729) for Cities: Skylines 1, by [MacSergey](https://github.com/MacSergey). The modes, their behavior and the geometry come from his mod; this version rewrites them for the Cities: Skylines II API.
+
+## Credits
+
+All credit for the original design and geometry goes to MacSergey, author of Network Multitool and of the `ModsCommon` library it is built on. This port is not affiliated with him.
 
 ## Modes
 
