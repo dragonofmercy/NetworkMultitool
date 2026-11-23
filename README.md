@@ -70,3 +70,7 @@ feature is tested by hand by me before it is released.
 If this project helps to increase your productivity, you can give me a cup of coffee :)
 
 <a href="https://ko-fi.com/dragonofmercy"><img src="https://cdn.ko-fi.com/cdn/kofi2.png?v=3" alt="Donate" width="160"></a>
+
+## License
+
+[MIT](LICENSE).
