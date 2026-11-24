@@ -82,6 +82,8 @@ module.exports = {
   },
   output: {
     path: OUTPUT_DIR,
+    // Images of removed icons would otherwise stay in dist and ship with the mod.
+    clean: true,
     library: {
       type: "module",
     },
