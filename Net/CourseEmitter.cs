@@ -36,8 +36,9 @@ namespace NetworkMultitool.Net
         /// Without it the heights are kept, and <paramref name="terrainHeight"/> gives inner points their real elevation so bridges and pillars match.
         /// <paramref name="prefab"/>, when set, replaces the template's type; the upgrades are then copied only when it is the template's type.
         /// A free end (<c>Entity.Null</c> node) takes its elevation from <paramref name="terrainHeight"/> when given, else zero.
+        /// <paramref name="subElevation"/> (CreationFlags.SubElevation, as the vanilla net tool) makes the game split elevated courses every m_ElevatedLength (80 m for roads) instead of m_EdgeLengthRange.max (200 m).
         /// </remarks>
-        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, Entity template, bool invertTemplate, bool followTerrain, System.Func<float3, float> terrainHeight, Entity prefab = default)
+        public void Chain(Entity startNode, Entity endNode, IReadOnlyList<Point> points, Entity template, bool invertTemplate, bool followTerrain, System.Func<float3, float> terrainHeight, Entity prefab = default, bool subElevation = true)
         {
             var last = points.Count - 1;
             if (last < 1)
@@ -67,7 +68,7 @@ namespace NetworkMultitool.Net
                 var start = Pos(i == 0 ? startNode : Entity.Null, p0.Position, MathUtils.StartTangent(curve), 0f, ElevationAt(i, p0.Position), common | (i == 0 ? CoursePosFlags.IsFirst : 0));
                 var end = Pos(i + 1 == last ? endNode : Entity.Null, p1.Position, MathUtils.EndTangent(curve), 1f, ElevationAt(i + 1, p1.Position), common | (i + 1 == last ? CoursePosFlags.IsLast : 0));
 
-                var definition = Emit(new CreationDefinition { m_Prefab = prefab, m_Flags = CreationFlags.SubElevation | (HidePreview ? CreationFlags.Hidden : 0), m_RandomSeed = i }, new NetCourse
+                var definition = Emit(new CreationDefinition { m_Prefab = prefab, m_Flags = (subElevation ? CreationFlags.SubElevation : 0) | (HidePreview ? CreationFlags.Hidden : 0), m_RandomSeed = i }, new NetCourse
                 {
                     m_Curve = curve,
                     m_Length = MathUtils.Length(curve),
