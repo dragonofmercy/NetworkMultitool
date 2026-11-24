@@ -70,7 +70,8 @@ namespace NetworkMultitool.Tool
         /// <summary>One curve per consecutive pair, leaving each point along its forward direction: the color at 25% inside an opaque outline.</summary>
         /// <param name="ground">With Follow terrain the game puts every created node on the terrain (CoursePosFlags.FreeHeight): the points are drawn there too.</param>
         /// <param name="groundEnds">False when the ends are existing nodes, which keep their height.</param>
-        public void Path(IReadOnlyList<Point> points, float width, Color color, System.Func<float3, float> ground = null, bool groundEnds = false)
+        /// <param name="faint">Outline only, half transparent: the game's own preview is drawn under it and must stay visible.</param>
+        public void Path(IReadOnlyList<Point> points, float width, Color color, System.Func<float3, float> ground = null, bool groundEnds = false, bool faint = false)
         {
             if (ground != null)
             {
@@ -84,8 +85,8 @@ namespace NetworkMultitool.Tool
                 points = grounded;
             }
 
-            var outline = new Color(color.r, color.g, color.b, 1f);
-            var fill = new Color(color.r, color.g, color.b, 0.25f);
+            var outline = new Color(color.r, color.g, color.b, faint ? 0.5f : 1f);
+            var fill = faint ? Color.clear : new Color(color.r, color.g, color.b, 0.25f);
             for (var i = 1; i < points.Count; i++)
                 _buffer.DrawCurve(outline, fill, RingWidth, 0, Vec.ConstantSlope(CourseEmitter.Fit(points[i - 1], points[i])), width);
         }

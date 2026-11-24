@@ -132,7 +132,7 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true);
+                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true, ctx.GamePreviewShown);
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
         }

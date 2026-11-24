@@ -185,7 +185,8 @@ namespace NetworkMultitool.Modes
             }
 
             if (Points.Count >= 2)
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null);
+                // Only a solved path is emitted, so only then does the game draw its preview under the overlay.
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, false, Result == SolveResult.Ok && ctx.GamePreviewShown);
 
             RenderShape(ctx, overlay);
         }

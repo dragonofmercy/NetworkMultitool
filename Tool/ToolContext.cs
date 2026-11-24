@@ -113,7 +113,10 @@ namespace NetworkMultitool.Tool
             return _actions.TryGetValue(action, out var proxy) && proxy.WasPressedThisFrame();
         }
 
-        public CourseEmitter Emitter() => new CourseEmitter(Ecb, Net) { HidePreview = Settings != null && Settings.HideGamePreview };
+        /// <summary>The game renders its own Temp preview of the emitted courses (Hide game preview is off).</summary>
+        public bool GamePreviewShown => Settings == null || !Settings.HideGamePreview;
+
+        public CourseEmitter Emitter() => new CourseEmitter(Ecb, Net) { HidePreview = !GamePreviewShown };
 
         /// <summary>
         /// Turns an edge hover into a node hover when the hit is close to one of the edge ends: plain nodes between two segments have almost no
