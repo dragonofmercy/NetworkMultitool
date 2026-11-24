@@ -28,6 +28,8 @@ With a one-way road, the preview shows the traffic direction with arrows and Ctr
 	<Screenshot Value="Properties/Loop.jpg" />
 	<Screenshot Value="Properties/Curve.jpg" />
 	<Screenshot Value="Properties/Slope.jpg" />
+	<!--Tag, can be set multiple times-->
+	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
