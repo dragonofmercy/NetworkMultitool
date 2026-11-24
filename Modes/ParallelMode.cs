@@ -99,8 +99,7 @@ namespace NetworkMultitool.Modes
             var chainEdge = ChainEdge(ctx, 0);
             var template = _picked && ctx.Em.Exists(_pickedEdge) ? _pickedEdge : chainEdge;
             var invertTemplate = template == chainEdge && !net.IsStart(chainEdge, Nodes[0]) != Reversed;
-            // Without SubElevation, elevated spans are split at 200 m instead of 80 m: far fewer nodes and pillars on a parallel bridge.
-            ctx.Emitter().Chain(Entity.Null, Entity.Null, _points, template, invertTemplate, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, _prefab, false);
+            ctx.Emitter().Chain(Entity.Null, Entity.Null, _points, template, invertTemplate, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, _prefab);
         }
 
         protected override void OnChainChanged(ToolContext ctx)
