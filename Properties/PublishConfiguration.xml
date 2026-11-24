@@ -6,7 +6,8 @@
 	<!--Short description of the mod-->
 	<ShortDescription Value="Network editing tools: connections, curves, loops, parallels, slopes and node editing" />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-	<LongDescription>
+	<LongDescription># Network Multitool
+
 Port of the Network Multitool by MacSergey for Cities: Skylines, published with his permission. Eight modes to edit roads and rails:
 
 * Add node: split a segment with a new node
@@ -19,7 +20,10 @@ Port of the Network Multitool by MacSergey for Cities: Skylines, published with 
 * Parallel: build a new road or track alongside a chain of segments
 
 With a one-way road, the preview shows the traffic direction with arrows and Ctrl+Alt+I reverses it. Elevated roads get a pillar every 200 m at most instead of 80 m. Every key can be changed in the mod options. Translated into every language of the game.
-	</LongDescription>
+
+### Credits
+
+* MacSergey - author of the original Network Multitool for Cities: Skylines</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.jpg" />
 	<!--Screenshot, can be set multiple times-->
