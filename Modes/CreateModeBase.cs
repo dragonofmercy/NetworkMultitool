@@ -24,6 +24,11 @@ namespace NetworkMultitool.Modes
         protected SolveResult Result;
         protected float Height;
         private bool _followTerrain;
+        private readonly List<Point> _emitted = new List<Point>();
+
+        // The direction of the new road only matters for one-way types: Invert is offered and arrows are drawn only then.
+        private int _oneWay;
+        private bool _invert;
 
         public abstract ToolModeId Id { get; }
 
@@ -37,7 +42,8 @@ namespace NetworkMultitool.Modes
                     return T("SelectSecondSegment");
                 if (_hoverEnd)
                     return T("ClickNodeDirection");
-                return $"{Status(Result)}\n\n{ExtraValues}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}";
+                var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
+                return $"{Status(Result)}\n\n{ExtraValues}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
 
@@ -127,11 +133,12 @@ namespace NetworkMultitool.Modes
                 Reset();
 
             HandleSelection(ctx);
+            var net = ctx.Net;
+            _oneWay = First != Entity.Null ? net.OneWay(net.Prefab(First)) : 0;
             HandleKeys(ctx);
             if (Second == Entity.Null)
                 return;
 
-            var net = ctx.Net;
             if (_dirty)
             {
                 _dirty = false;
@@ -156,12 +163,24 @@ namespace NetworkMultitool.Modes
 
             var startNode = FirstNode;
             var endNode = SecondNode;
+            _emitted.Clear();
+            if (_invert)
+            {
+                startNode = SecondNode;
+                endNode = FirstNode;
+                for (var i = Points.Count - 1; i >= 0; i--)
+                    _emitted.Add(new Point(Points[i].Position, -Points[i].InDirection, -Points[i].Direction));
+            }
+            else
+            {
+                _emitted.AddRange(Points);
+            }
 
             // Ground-level networks may follow the terrain; anything elevated, lowered or offset keeps the solved heights.
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = _followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter().Chain(startNode, endNode, Points, First, net.IsStart(First, FirstNode), followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
+            ctx.Emitter().Chain(startNode, endNode, _emitted, First, net.IsStart(First, FirstNode) != _invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -186,7 +205,12 @@ namespace NetworkMultitool.Modes
 
             if (Points.Count >= 2)
                 // Only a solved path is emitted, so only then does the game draw its preview under the overlay.
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, false, Result == SolveResult.Ok && ctx.GamePreviewShown);
+            {
+                var ground = _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null;
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, ground, false, Result == SolveResult.Ok && ctx.GamePreviewShown);
+                if (_oneWay != 0)
+                    overlay.Arrows(Points, ctx.Net.Width(First), _invert ? -_oneWay : _oneWay, Overlay.White, ground);
+            }
 
             RenderShape(ctx, overlay);
         }
@@ -280,6 +304,9 @@ namespace NetworkMultitool.Modes
                 _dirty = true;
             }
 
+            if (_oneWay != 0 && ctx.Pressed(ToolAction.Invert))
+                _invert = !_invert;
+
             OnKeys(ctx);
 
             if (Dragging == Drag.None)
@@ -357,6 +384,7 @@ namespace NetworkMultitool.Modes
             Points.Clear();
             Result = SolveResult.Ok;
             Height = 0f;
+            _invert = false;
             _hoverEnd = false;
             _dirty = true;
             Dragging = Drag.None;

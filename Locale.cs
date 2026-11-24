@@ -60,6 +60,7 @@ namespace NetworkMultitool
             Bind(nameof(Settings.HeightUp));
             Bind(nameof(Settings.HeightDown));
             Bind(nameof(Settings.Side));
+            Bind(nameof(Settings.Invert));
             Bind(nameof(Settings.SwitchOffset));
 
             foreach (var pair in _texts)

@@ -24,11 +24,14 @@ namespace NetworkMultitool.Modes
         private bool _picked;
         private Entity _pickHover;
         private Entity _pickedEdge;
+        private int _oneWay;
+        private bool _invert;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
         // Direction follows side, like CS1: on the left the new path runs against the chain, as an opposite carriageway in right-hand traffic.
-        private bool Reversed => _left;
+        // A one-way type can be inverted on top of that.
+        private bool Reversed => _left != (_oneWay != 0 && _invert);
 
         protected override int MinNodes => 2;
 
@@ -41,7 +44,7 @@ namespace NetworkMultitool.Modes
                 var status = State != ChainState.None ? base.Info : T("PressToCreate", KeyNames.Of(ToolAction.Apply));
                 return $"{status}\n\n{T("ParallelType")}: {_prefabName ?? "?"}\n{T("Offset")}: {_shift:0.0} m\n{T("Height")}: {_height:0.0} m\n\n" +
                        $"{T("ParallelHintPick")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
-                       T("ParallelHintSide", KeyNames.Of(ToolAction.SwitchOffset));
+                       T("ParallelHintSide", KeyNames.Of(ToolAction.SwitchOffset)) + (_oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty);
             }
         }
 
@@ -79,6 +82,7 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
+            _oneWay = ctx.Net.OneWay(_prefab);
             HandleKeys(ctx);
             _points = Solve(ctx);
 
@@ -110,6 +114,7 @@ namespace NetworkMultitool.Modes
                 _shift = 0f;
                 _shiftEdited = false;
                 _left = true;
+                _invert = false;
                 _height = 0f;
                 _points.Clear();
                 return;
@@ -133,7 +138,12 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true, ctx.GamePreviewShown);
+            {
+                var ground = _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null;
+                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, ground, true, ctx.GamePreviewShown);
+                if (_oneWay != 0)
+                    overlay.Arrows(_points, ctx.Net.PrefabWidth(_prefab), _oneWay, Overlay.White, ground, true);
+            }
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
         }
@@ -158,6 +168,8 @@ namespace NetworkMultitool.Modes
                 _height -= ctx.StepMultiplier;
             if (ctx.Pressed(ToolAction.SwitchOffset))
                 _left = !_left;
+            if (_oneWay != 0 && ctx.Pressed(ToolAction.Invert))
+                _invert = !_invert;
         }
 
         // Gap left between the chain and the new network by default, so their edges and pillars do not touch.

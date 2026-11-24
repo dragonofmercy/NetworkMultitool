@@ -125,6 +125,15 @@ namespace NetworkMultitool.Net
         /// <summary>Default width of a net prefab, 8 m when unknown.</summary>
         public float PrefabWidth(Entity prefab) => prefab != Entity.Null && _em.HasComponent<NetGeometryData>(prefab) ? _em.GetComponentData<NetGeometryData>(prefab).m_DefaultWidth : DefaultWidth;
 
+        /// <summary>+1 when every road lane of the prefab runs along the edge direction, -1 when against it, 0 for two-way or non-road types (RoadFlags set by NetInitializeSystem).</summary>
+        public int OneWay(Entity prefab)
+        {
+            if (prefab == Entity.Null || !_em.HasComponent<RoadData>(prefab))
+                return 0;
+            var flags = _em.GetComponentData<RoadData>(prefab).m_Flags;
+            return (flags & Game.Prefabs.RoadFlags.DefaultIsForward) != 0 ? 1 : (flags & Game.Prefabs.RoadFlags.DefaultIsBackward) != 0 ? -1 : 0;
+        }
+
         public float2 Elevation(Entity entity) => _em.HasComponent<Elevation>(entity) ? _em.GetComponentData<Elevation>(entity).m_Elevation : float2.zero;
 
         /// <summary>True when the entity's net prefab is on one of the layers.</summary>

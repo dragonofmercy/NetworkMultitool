@@ -29,6 +29,8 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 
 Loop, Connection and Curve also use PageUp/PageDown (height), click a node to change direction, and `Enter` to apply.
 
+With a one-way road type, the creation modes and Parallel draw arrows along the preview in the traffic direction, and `Ctrl+Alt+I` inverts it.
+
 The creation modes hide the game's own road preview and show only the mod's overlay; turn off "Hide game preview" in the panel or the mod options to see it again.
 
 ## Default keybindings
@@ -45,6 +47,7 @@ All rebindable in the mod options.
 | Offset up / down | Right / Left |
 | Height up / down | PageUp / PageDown |
 | Direct/loop (Loop) | Ctrl+Alt+S |
+| Invert direction (one-way types) | Ctrl+Alt+I |
 | Switch circle (Connection) / side (Parallel) | Tab |
 
 ## Languages

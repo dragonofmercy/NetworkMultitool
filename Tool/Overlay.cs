@@ -73,22 +73,49 @@ namespace NetworkMultitool.Tool
         /// <param name="faint">Outline only, half transparent: the game's own preview is drawn under it and must stay visible.</param>
         public void Path(IReadOnlyList<Point> points, float width, Color color, System.Func<float3, float> ground = null, bool groundEnds = false, bool faint = false)
         {
-            if (ground != null)
-            {
-                var grounded = new List<Point>(points.Count);
-                for (var i = 0; i < points.Count; i++)
-                {
-                    var p = points[i];
-                    grounded.Add(!groundEnds && (i == 0 || i == points.Count - 1) ? p : new Point(Vec.WithY(p.Position, ground(p.Position)), p.Direction, p.InDirection));
-                }
-
-                points = grounded;
-            }
-
+            points = Grounded(points, ground, groundEnds);
             var outline = new Color(color.r, color.g, color.b, faint ? 0.5f : 1f);
             var fill = faint ? Color.clear : new Color(color.r, color.g, color.b, 0.25f);
             for (var i = 1; i < points.Count; i++)
                 _buffer.DrawCurve(outline, fill, RingWidth, 0, Vec.ConstantSlope(CourseEmitter.Fit(points[i - 1], points[i])), width);
+        }
+
+        /// <summary>Chevrons along a path showing the traffic direction of a one-way road: <paramref name="direction"/> +1 along the point order, -1 against it.</summary>
+        public void Arrows(IReadOnlyList<Point> points, float width, int direction, Color color, System.Func<float3, float> ground = null, bool groundEnds = false)
+        {
+            points = Grounded(points, ground, groundEnds);
+            var size = math.clamp(width * 0.3f, 1.5f, 4f);
+            for (var i = 1; i < points.Count; i++)
+            {
+                var curve = Vec.ConstantSlope(CourseEmitter.Fit(points[i - 1], points[i]));
+                var count = math.max(1, (int)math.round(Colossal.Mathematics.MathUtils.Length(curve) / ArrowSpacing));
+                for (var k = 0; k < count; k++)
+                {
+                    var t = (k + 0.5f) / count;
+                    var tip = Colossal.Mathematics.MathUtils.Position(curve, t);
+                    var forward = Vec.NormalizeXZ(Colossal.Mathematics.MathUtils.Tangent(curve, t)) * direction;
+                    var side = Vec.Turn90(forward, true);
+                    var back = tip - forward * size;
+                    GroundLine(back + side * size, tip, color, 0.5f);
+                    GroundLine(back - side * size, tip, color, 0.5f);
+                }
+            }
+        }
+
+        private const float ArrowSpacing = 20f;
+
+        private static IReadOnlyList<Point> Grounded(IReadOnlyList<Point> points, System.Func<float3, float> ground, bool groundEnds)
+        {
+            if (ground == null)
+                return points;
+            var grounded = new List<Point>(points.Count);
+            for (var i = 0; i < points.Count; i++)
+            {
+                var p = points[i];
+                grounded.Add(!groundEnds && (i == 0 || i == points.Count - 1) ? p : new Point(Vec.WithY(p.Position, ground(p.Position)), p.Direction, p.InDirection));
+            }
+
+            return grounded;
         }
 
         // Drawn at the given height, not projected: projected shapes are hidden under trees, absolute ones stay visible over them.

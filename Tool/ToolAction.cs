@@ -11,6 +11,7 @@ namespace NetworkMultitool.Tool
         HeightUp,
         HeightDown,
         Side,
+        Invert,
         SwitchOffset,
     }
 }

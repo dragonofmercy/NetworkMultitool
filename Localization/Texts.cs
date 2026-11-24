@@ -60,6 +60,7 @@ namespace NetworkMultitool.Localization
             ["Binding.HeightUp"] = "Raise height",
             ["Binding.HeightDown"] = "Lower height",
             ["Binding.Side"] = "Direct/loop",
+            ["Binding.Invert"] = "Invert one-way direction",
             ["Binding.SwitchOffset"] = "Switch circle or side",
 
             // UI panel and button
@@ -88,6 +89,7 @@ namespace NetworkMultitool.Localization
             ["HintHeight"] = "{0}/{1}: height",
             ["HintOffset"] = "{0}/{1}: offset",
             ["HintRadius"] = "{0}/{1}: radius",
+            ["HintInvert"] = "{0}: invert direction (one-way)",
 
             // Add node / remove node
             ["AddNodeSelect"] = "Select a segment to add a node",
@@ -163,6 +165,7 @@ namespace NetworkMultitool.Localization
             ["Binding.HeightUp"] = "Monter",
             ["Binding.HeightDown"] = "Descendre",
             ["Binding.Side"] = "Direct/boucle",
+            ["Binding.Invert"] = "Inverser le sens unique",
             ["Binding.SwitchOffset"] = "Changer de cercle ou de côté",
 
             ["UI.Tooltip"] = "Modifier les routes et les voies ferrées: ajouter ou supprimer des nœuds, régler les pentes, arranger les nœuds et relier des segments par des courbes.",
@@ -189,6 +192,7 @@ namespace NetworkMultitool.Localization
             ["HintHeight"] = "{0}/{1}: hauteur",
             ["HintOffset"] = "{0}/{1}: décalage",
             ["HintRadius"] = "{0}/{1}: rayon",
+            ["HintInvert"] = "{0}: inverser le sens (sens unique)",
 
             ["AddNodeSelect"] = "Sélectionner un segment pour ajouter un nœud",
             ["AddNodeClick"] = "Cliquer pour ajouter un nœud",
