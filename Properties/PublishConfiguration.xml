@@ -21,9 +21,13 @@ Port of the Network Multitool by MacSergey for Cities: Skylines, published with 
 With a one-way road, the preview shows the traffic direction with arrows and Ctrl+Alt+I reverses it. Elevated roads get a pillar every 200 m at most instead of 80 m. Every key can be changed in the mod options. English and French.
 	</LongDescription>
 	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail.png" />
-	<!--Screenshot, can be set multiple times (2880x1800 PNG, like RoadVisualTweaks)-->
-	<!--Screenshot Value="Properties/Screenshot1.png" /-->
+	<Thumbnail Value="Properties/Thumbnail.jpg" />
+	<!--Screenshot, can be set multiple times-->
+	<Screenshot Value="Properties/Parallel.jpg" />
+	<Screenshot Value="Properties/Connection.jpg" />
+	<Screenshot Value="Properties/Loop.jpg" />
+	<Screenshot Value="Properties/Curve.jpg" />
+	<Screenshot Value="Properties/Slope.jpg" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
