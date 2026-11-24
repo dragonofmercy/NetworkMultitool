@@ -22,6 +22,8 @@ With a one-way road, the preview shows the traffic direction with arrows and Ctr
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
+	<!--Screenshot, can be set multiple times (2880x1800 PNG, like RoadVisualTweaks)-->
+	<!--Screenshot Value="Properties/Screenshot1.png" /-->
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
@@ -30,4 +32,6 @@ With a one-way road, the preview shows the traffic direction with arrows and Ctr
 	<GameVersion Value="1.6.*" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<ChangeLog Value="" />
+	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon, buymeacoffee, kofi, crowdin, gitlab-->
+	<ExternalLink Type="github" Url="https://github.com/dragonofmercy/NetworkMultitool" />
 </Publish>
