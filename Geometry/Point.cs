@@ -19,5 +19,8 @@ namespace NetworkMultitool.Geometry
             Direction = direction;
             InDirection = inDirection;
         }
+
+        /// <summary>The same point on the path run the other way: tangents negated, and in/out swapped.</summary>
+        public Point Reversed() => new Point(Position, -InDirection, -Direction);
     }
 }

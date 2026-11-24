@@ -24,7 +24,7 @@ namespace NetworkMultitool.Modes
         protected SolveResult Result;
         protected float Height;
         private bool _followTerrain;
-        private readonly List<Point> _emitted = new List<Point>();
+        private readonly List<Point> _reversed = new List<Point>();
 
         // The direction of the new road only matters for one-way types: Invert is offered and arrows are drawn only then.
         private int _oneWay;
@@ -161,26 +161,22 @@ namespace NetworkMultitool.Modes
                 return;
             }
 
-            var startNode = FirstNode;
-            var endNode = SecondNode;
-            _emitted.Clear();
+            var startNode = _invert ? SecondNode : FirstNode;
+            var endNode = _invert ? FirstNode : SecondNode;
+            var emitted = Points;
             if (_invert)
             {
-                startNode = SecondNode;
-                endNode = FirstNode;
+                _reversed.Clear();
                 for (var i = Points.Count - 1; i >= 0; i--)
-                    _emitted.Add(new Point(Points[i].Position, -Points[i].InDirection, -Points[i].Direction));
-            }
-            else
-            {
-                _emitted.AddRange(Points);
+                    _reversed.Add(Points[i].Reversed());
+                emitted = _reversed;
             }
 
             // Ground-level networks may follow the terrain; anything elevated, lowered or offset keeps the solved heights.
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = _followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter().Chain(startNode, endNode, _emitted, First, net.IsStart(First, FirstNode) != _invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
+            ctx.Emitter().Chain(startNode, endNode, emitted, First, net.IsStart(First, FirstNode) != _invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -205,12 +201,7 @@ namespace NetworkMultitool.Modes
 
             if (Points.Count >= 2)
                 // Only a solved path is emitted, so only then does the game draw its preview under the overlay.
-            {
-                var ground = _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null;
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, ground, false, Result == SolveResult.Ok && ctx.GamePreviewShown);
-                if (_oneWay != 0)
-                    overlay.Arrows(Points, ctx.Net.Width(First), _invert ? -_oneWay : _oneWay, Overlay.White, ground);
-            }
+                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, false, Result == SolveResult.Ok && ctx.GamePreviewShown, _invert ? -_oneWay : _oneWay);
 
             RenderShape(ctx, overlay);
         }

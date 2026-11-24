@@ -12,6 +12,9 @@ namespace NetworkMultitool.Modes
     /// <summary>Builds a new network alongside the selected chain, shifted sideways (port of CS1 CreateParallel). Ctrl+click on a segment picks the new network's type.</summary>
     public sealed class ParallelMode : NodeChainMode
     {
+        // Gap left between the chain and the new network by default, so their edges and pillars do not touch.
+        private const float DefaultGap = 4f;
+
         private readonly List<Bezier4x3> _edges = new List<Bezier4x3>();
         private List<Point> _points = new List<Point>();
         private bool _followTerrain;
@@ -138,12 +141,7 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-            {
-                var ground = _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null;
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, ground, true, ctx.GamePreviewShown);
-                if (_oneWay != 0)
-                    overlay.Arrows(_points, ctx.Net.PrefabWidth(_prefab), _oneWay, Overlay.White, ground, true);
-            }
+                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true, ctx.GamePreviewShown, _oneWay);
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
         }
@@ -171,9 +169,6 @@ namespace NetworkMultitool.Modes
             if (_oneWay != 0 && ctx.Pressed(ToolAction.Invert))
                 _invert = !_invert;
         }
-
-        // Gap left between the chain and the new network by default, so their edges and pillars do not touch.
-        private const float DefaultGap = 4f;
 
         // CS1: mean half width of the chain edges plus half the new type's width, plus a gap.
         private float DefaultShift(ToolContext ctx)
@@ -203,7 +198,7 @@ namespace NetworkMultitool.Modes
             {
                 points.Reverse();
                 for (var i = 0; i < points.Count; i++)
-                    points[i] = new Point(points[i].Position, -points[i].InDirection, -points[i].Direction);
+                    points[i] = points[i].Reversed();
             }
 
             return points;
