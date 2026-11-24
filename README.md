@@ -25,11 +25,13 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 | Loop | Select two segments, build a loop or direct arc between them: drag the center or the circle edge (or Up/Down) for the radius, `Ctrl+Alt+S` direct/loop. |
 | Connection | Select two segments, connect them with a chain of arcs: drag a circle edge for its radius and its center for its offset (end circles) or position (added circles). Double-click a center to flip that circle's direction, double-click a straight between two circles to add a circle there, right double-click an added circle's center to remove it. Keys for fine steps: Up/Down radius (Shift: all), Left/Right offsets, `Tab` switches circle. |
 | Curve | Select two segments, connect them with a smooth curve. |
-| Parallel | Select a chain, build a new network alongside it. Left/Right offset, PageUp/PageDown height, `Tab` side (the left side runs the other way), Ctrl+click any segment to use its type, `Enter` to create. |
+| Parallel | Select a chain, build a new network alongside it, 4 m away from its edge by default. Left/Right offset, PageUp/PageDown height, `Tab` side (the left side runs the other way), Ctrl+click any segment to use its type, `Enter` to create. |
 
 Loop, Connection and Curve also use PageUp/PageDown (height), click a node to change direction, and `Enter` to apply.
 
 With a one-way road type, the creation modes and Parallel draw arrows along the preview in the traffic direction, and `Ctrl+Alt+I` inverts it.
+
+Elevated roads built by the mod get a node and a pillar at least every 200 m, where the vanilla road tool puts one every 80 m.
 
 The creation modes hide the game's own road preview and show only the mod's overlay; turn off "Hide game preview" in the panel or the mod options to see it again.
 
@@ -56,7 +58,7 @@ English and French, following the game language. All texts live in `Localization
 
 ## Build
 
-Run from `build/`. Build the UI first: the C# build copies `UI/dist` into the deployed mod (it warns when `UI/dist` is empty).
+Run from the repository root. Build the UI first: the C# build copies `UI/dist` into the deployed mod (it warns when `UI/dist` is empty).
 
 ```
 cd UI && npm install && npm run build && cd ..
