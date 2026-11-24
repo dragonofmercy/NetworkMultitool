@@ -87,6 +87,8 @@
     <Target Name="DeployUI" AfterTargets="DeployWIP">
         <ItemGroup><UIFiles Include="$(MSBuildProjectDirectory)\UI\dist\**\*.*" /></ItemGroup>
         <Warning Condition="'@(UIFiles)' == ''" Text="UI/dist is empty: run npm run build in UI first" />
+        <!-- The images folder only holds UI files: clear it so removed icons are not published. -->
+        <RemoveDir Directories="$(DeployDir)\images" />
         <Copy SourceFiles="@(UIFiles)" DestinationFiles="@(UIFiles->'$(DeployDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 
