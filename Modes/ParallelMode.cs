@@ -160,7 +160,10 @@ namespace NetworkMultitool.Modes
                 _left = !_left;
         }
 
-        // CS1: mean half width of the chain edges plus half the new type's width.
+        // Gap left between the chain and the new network by default, so their edges and pillars do not touch.
+        private const float DefaultGap = 4f;
+
+        // CS1: mean half width of the chain edges plus half the new type's width, plus a gap.
         private float DefaultShift(ToolContext ctx)
         {
             if (Nodes.Count < 2)
@@ -168,7 +171,7 @@ namespace NetworkMultitool.Modes
             var sum = 0f;
             for (var i = 0; i < Nodes.Count - 1; i++)
                 sum += ctx.Net.Width(ChainEdge(ctx, i)) / 2f;
-            return sum / (Nodes.Count - 1) + ctx.Net.PrefabWidth(_prefab) / 2f;
+            return sum / (Nodes.Count - 1) + ctx.Net.PrefabWidth(_prefab) / 2f + DefaultGap;
         }
 
         // Recomputed every frame: cheap, and follows chain edges changed by other tools.
