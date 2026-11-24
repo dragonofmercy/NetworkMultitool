@@ -174,6 +174,30 @@ namespace NetworkMultitool.Tests
         }
 
         [Fact]
+        public void Loop_SetCenter_SideOfCornerPicksMode()
+        {
+            // Guides meet at (100, 0); direct centers lie towards the nodes, loop centers beyond the corner.
+            var solver = new LoopSolver(P(0, 0, 0, 1, 0), P(100, 0, 100, 0, -1), MinRadius, MaxRadius);
+            solver.SetCenter(new float3(70, 0, 30));
+            Assert.True(solver.IsDirect);
+            Assert.Equal(30f, solver.Radius, 3);
+
+            // Near the corner the radius is below the minimum: the mode must hold over repeated frames instead of flipping.
+            solver.SetCenter(new float3(105, 0, -5));
+            Assert.False(solver.IsDirect);
+            solver.SetCenter(new float3(105, 0, -5));
+            Assert.False(solver.IsDirect);
+            Assert.Equal(MinRadius, solver.Radius, 3);
+        }
+
+        [Fact]
+        public void Slope_Heights_ProportionalToLength()
+        {
+            Assert.Equal(new[] { 0f, 1f, 4f }, SlopeSolver.Heights(0f, 4f, new[] { 10f, 30f }));
+            Assert.Equal(new[] { 2f, 2f, 2f }, SlopeSolver.Heights(2f, 8f, new[] { 0f, 0f }));
+        }
+
+        [Fact]
         public void Connection_DragEdge_CircleReachesDraggedPoint()
         {
             var solver = new ConnectionSolver(P(0, 0, 0, 1, 0), P(300, 0, 120, -1, 0), MinRadius, MaxRadius) { FirstRadius = 80f, SecondRadius = 80f };

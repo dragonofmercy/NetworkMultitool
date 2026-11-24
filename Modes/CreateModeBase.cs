@@ -196,16 +196,14 @@ namespace NetworkMultitool.Modes
             var last = Points.Count - 1;
             if (last < 1)
                 return;
-            var total = 0f;
+            var lengths = new float[last];
             for (var i = 0; i < last; i++)
-                total += math.distance(Vec.Flat(Points[i].Position), Vec.Flat(Points[i + 1].Position));
+                lengths[i] = math.distance(Vec.Flat(Points[i].Position), Vec.Flat(Points[i + 1].Position));
 
-            var run = 0f;
+            var heights = SlopeSolver.Heights(StartPoint.Position.y, EndPoint.Position.y, lengths);
             for (var i = 0; i <= last; i++)
             {
-                if (i > 0)
-                    run += math.distance(Vec.Flat(Points[i - 1].Position), Vec.Flat(Points[i].Position));
-                var y = math.lerp(StartPoint.Position.y, EndPoint.Position.y, total > 0f ? run / total : 0f) + (i == 0 || i == last ? 0f : Height);
+                var y = heights[i] + (i == 0 || i == last ? 0f : Height);
                 Points[i] = new Point(Vec.WithY(Points[i].Position, y), Points[i].Direction);
             }
         }

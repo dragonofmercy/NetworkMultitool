@@ -74,10 +74,9 @@ namespace NetworkMultitool.Geometry
             var newRadius = t * math.sin(HalfAbsGuideAngle);
             if (PossibleDirect)
             {
-                newRadius = math.abs(newRadius);
-                if (newRadius < MinRadius)
-                    ForceLoop = !ForceLoop;
-                Radius = newRadius;
+                // The side of the corner picks the mode (Solve puts a direct center at -distant). CS1 toggled it below the minimum radius, which flipped every frame near the corner.
+                ForceLoop = t > 0f;
+                Radius = math.abs(newRadius);
             }
             else
                 Radius = math.max(newRadius, 0f);
