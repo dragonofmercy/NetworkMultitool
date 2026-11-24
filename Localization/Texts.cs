@@ -4,8 +4,8 @@ using Game.SceneFlow;
 namespace NetworkMultitool.Localization
 {
     /// <summary>Every user-visible text, per game locale. Mode and UI texts are registered under <see cref="Id"/>; the options screen keys are mapped by <see cref="Locale"/>.
-    /// Adding a language: one more dictionary in <see cref="ByLocale"/>; missing keys fall back to English.</summary>
-    public static class Texts
+    /// English and French are here, the other languages in Texts.<Language>.cs. Adding a language: one more dictionary in <see cref="ByLocale"/>; missing keys fall back to English.</summary>
+    public static partial class Texts
     {
         public const string Prefix = "NetworkMultitool.Text.";
 
@@ -26,6 +26,16 @@ namespace NetworkMultitool.Localization
         {
             ["en-US"] = En,
             ["fr-FR"] = Fr,
+            ["de-DE"] = De,
+            ["es-ES"] = Es,
+            ["it-IT"] = It,
+            ["pl-PL"] = Pl,
+            ["pt-BR"] = PtBr,
+            ["ru-RU"] = Ru,
+            ["ja-JP"] = Ja,
+            ["ko-KR"] = Ko,
+            ["zh-HANS"] = ZhHans,
+            ["zh-HANT"] = ZhHant,
         };
 
         // Panel lines are "Label: value" and hints "Keys: action": the panel splits them on the first ": ", so translations must keep it.

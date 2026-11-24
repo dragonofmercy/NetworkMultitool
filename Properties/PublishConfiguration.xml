@@ -18,7 +18,7 @@ Port of the Network Multitool by MacSergey for Cities: Skylines, published with 
 * Curve: connect two segments with a smooth curve
 * Parallel: build a new road or track alongside a chain of segments
 
-With a one-way road, the preview shows the traffic direction with arrows and Ctrl+Alt+I reverses it. Elevated roads get a pillar every 200 m at most instead of 80 m. Every key can be changed in the mod options. English and French.
+With a one-way road, the preview shows the traffic direction with arrows and Ctrl+Alt+I reverses it. Elevated roads get a pillar every 200 m at most instead of 80 m. Every key can be changed in the mod options. Translated into every language of the game.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.jpg" />

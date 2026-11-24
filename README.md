@@ -54,7 +54,7 @@ All rebindable in the mod options.
 
 ## Languages
 
-English and French, following the game language. All texts live in `Localization/Texts.cs`, one dictionary per locale; a new language is one more dictionary registered in `Texts.ByLocale`, and missing keys fall back to English. Panel lines are split on the first `": "`, so translations must keep it.
+Every language of the game, following its setting: English, French, German, Spanish, Italian, Polish, Brazilian Portuguese, Russian, Japanese, Korean, Simplified and Traditional Chinese. English and French live in `Localization/Texts.cs`, the others in one `Localization/Texts.<Language>.cs` file each; a new language is one more dictionary registered in `Texts.ByLocale`, and missing keys fall back to English. Panel lines are split on the first `": "`, so translations must keep it.
 
 ## Build
 
