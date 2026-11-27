@@ -30,6 +30,11 @@ namespace NetworkMultitool.Modes
         private int _oneWay;
         private bool _invert;
 
+        // Sideways shift of each end from the node axis, in meters, positive = right of the road leaving the node.
+        private float _startShift;
+        private float _endShift;
+        private int _shiftEnd;
+
         public abstract ToolModeId Id { get; }
 
         public string Info
@@ -43,7 +48,9 @@ namespace NetworkMultitool.Modes
                 if (_hoverEnd)
                     return T("ClickNodeDirection");
                 var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
-                return $"{Status(Result)}\n\n{ExtraValues}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                var shifts = $"{T("ShiftStart")}: {_startShift:0.0} m\n{T("ShiftEnd")}: {_endShift:0.0} m\n";
+                var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
+                return $"{Status(Result)}\n\n{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
 
@@ -52,6 +59,12 @@ namespace NetworkMultitool.Modes
 
         /// <summary>"Key: action" lines shown once both segments are selected; end each line with a newline.</summary>
         protected virtual string ExtraHints => string.Empty;
+
+        /// <summary>Which end the shift keys act on: 0 start, 1 end, -1 none.</summary>
+        protected virtual int ShiftedEnd => _shiftEnd;
+
+        /// <summary>Hint line (newline-terminated) for the key that switches the shifted end; empty when the mode has its own switch.</summary>
+        protected virtual string ShiftEndHint => T("HintShiftEnd", KeyNames.Of(ToolAction.SwitchOffset)) + "\n";
 
         /// <summary>Fills <paramref name="points"/> (already cleared) from <see cref="StartPoint"/> to <see cref="EndPoint"/>.</summary>
         protected abstract SolveResult Solve(ToolContext ctx, List<Point> points);
@@ -142,8 +155,8 @@ namespace NetworkMultitool.Modes
             if (_dirty)
             {
                 _dirty = false;
-                StartPoint = new Point(net.NodePosition(FirstNode), -net.DirectionAt(First, FirstNode));
-                EndPoint = new Point(net.NodePosition(SecondNode), -net.DirectionAt(Second, SecondNode));
+                StartPoint = new Point(net.NodePosition(FirstNode), -net.DirectionAt(First, FirstNode)).Shifted(_startShift);
+                EndPoint = new Point(net.NodePosition(SecondNode), -net.DirectionAt(Second, SecondNode)).Shifted(_endShift);
                 Points.Clear();
                 // Both chosen ends on the same node would make a degenerate zero-length course.
                 Result = FirstNode == SecondNode ? SolveResult.WrongShape : Solve(ctx, Points);
@@ -193,10 +206,12 @@ namespace NetworkMultitool.Modes
                 var net = ctx.Net;
                 var a = net.Ends(First);
                 var b = net.Ends(Second);
-                overlay.Node(a.m_Start, a.m_Start == FirstNode ? Overlay.Yellow : Overlay.White);
-                overlay.Node(a.m_End, a.m_End == FirstNode ? Overlay.Yellow : Overlay.White);
-                overlay.Node(b.m_Start, b.m_Start == SecondNode ? Overlay.Yellow : Overlay.White);
-                overlay.Node(b.m_End, b.m_End == SecondNode ? Overlay.Yellow : Overlay.White);
+                var firstColor = ShiftedEnd == 0 ? Overlay.Green : Overlay.Yellow;
+                var secondColor = ShiftedEnd == 1 ? Overlay.Green : Overlay.Yellow;
+                overlay.Node(a.m_Start, a.m_Start == FirstNode ? firstColor : Overlay.White);
+                overlay.Node(a.m_End, a.m_End == FirstNode ? firstColor : Overlay.White);
+                overlay.Node(b.m_Start, b.m_Start == SecondNode ? secondColor : Overlay.White);
+                overlay.Node(b.m_End, b.m_End == SecondNode ? secondColor : Overlay.White);
             }
 
             if (Points.Count >= 2)
@@ -239,6 +254,7 @@ namespace NetworkMultitool.Modes
                 {
                     Second = Entity.Null;
                     SecondNode = Entity.Null;
+                    _endShift = 0f;
                     Points.Clear();
                     _dirty = true;
                 }
@@ -267,6 +283,8 @@ namespace NetworkMultitool.Modes
                     if (SecondNode == FirstNode)
                         SecondNode = ctx.Net.OtherNode(Second, SecondNode);
                     ChooseEnds(ctx);
+                    _startShift = 0f;
+                    _endShift = 0f;
                 }
 
                 _dirty = true;
@@ -274,9 +292,16 @@ namespace NetworkMultitool.Modes
             else if (_hoverEnd)
             {
                 if (IsEnd(ctx, First, ctx.Hover))
+                {
                     FirstNode = ctx.Hover;
+                    _startShift = 0f;
+                }
                 else
+                {
                     SecondNode = ctx.Hover;
+                    _endShift = 0f;
+                }
+
                 _dirty = true;
             }
         }
@@ -297,6 +322,24 @@ namespace NetworkMultitool.Modes
 
             if (_oneWay != 0 && ctx.Pressed(ToolAction.Invert))
                 _invert = !_invert;
+
+            if (Second != Entity.Null)
+            {
+                if (ctx.Pressed(ToolAction.SwitchOffset))
+                    _shiftEnd = 1 - _shiftEnd;
+
+                var dir = (ctx.Pressed(ToolAction.ShiftRight) ? 1f : 0f) - (ctx.Pressed(ToolAction.ShiftLeft) ? 1f : 0f);
+                var end = ShiftedEnd;
+                if (dir != 0f && end >= 0)
+                {
+                    var half = ctx.Net.Width(end == 0 ? First : Second) / 2f;
+                    if (end == 0)
+                        _startShift = math.clamp(_startShift + dir * ctx.StepMultiplier, -half, half);
+                    else
+                        _endShift = math.clamp(_endShift + dir * ctx.StepMultiplier, -half, half);
+                    _dirty = true;
+                }
+            }
 
             OnKeys(ctx);
 
@@ -376,6 +419,9 @@ namespace NetworkMultitool.Modes
             Result = SolveResult.Ok;
             Height = 0f;
             _invert = false;
+            _startShift = 0f;
+            _endShift = 0f;
+            _shiftEnd = 0;
             _hoverEnd = false;
             _dirty = true;
             Dragging = Drag.None;

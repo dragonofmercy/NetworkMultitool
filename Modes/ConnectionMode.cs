@@ -30,6 +30,10 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Connection;
 
+        protected override int ShiftedEnd => _solver == null ? -1 : _selected == 0 ? 0 : _selected == LastArc ? 1 : -1;
+
+        protected override string ShiftEndHint => string.Empty;
+
         protected override string ExtraValues
         {
             get
