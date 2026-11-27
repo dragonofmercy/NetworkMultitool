@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Colossal.Mathematics;
 using Game.Tools;
 using NetworkMultitool.Geometry;
+using NetworkMultitool.Net;
 using NetworkMultitool.Tool;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -29,6 +30,10 @@ namespace NetworkMultitool.Modes
         private Entity _pickedEdge;
         private int _oneWay;
         private bool _invert;
+        private readonly List<Bezier4x3> _previewCurves = new List<Bezier4x3>();
+        private bool _hovering;
+        private bool _dragging;
+        private float _grabDelta;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
@@ -46,7 +51,7 @@ namespace NetworkMultitool.Modes
                     return base.Info + "\n" + T("ParallelPickHover");
                 var status = State != ChainState.None ? base.Info : T("PressToCreate", KeyNames.Of(ToolAction.Apply));
                 return $"{status}\n\n{T("ParallelType")}: {_prefabName ?? "?"}\n{T("Offset")}: {_shift:0.0} m\n{T("Height")}: {_height:0.0} m\n\n" +
-                       $"{T("ParallelHintPick")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
+                       $"{T("ParallelHintPick")}\n{T("ParallelHintDrag")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
                        T("ParallelHintSide", KeyNames.Of(ToolAction.SwitchOffset)) + (_oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty);
             }
         }
@@ -82,12 +87,16 @@ namespace NetworkMultitool.Modes
             if (Nodes.Count < 2)
             {
                 _points.Clear();
+                _hovering = false;
+                _dragging = false;
                 return;
             }
 
             _oneWay = ctx.Net.OneWay(_prefab);
             HandleKeys(ctx);
             _points = Solve(ctx);
+            if (UpdateDrag(ctx))
+                _points = Solve(ctx);
 
             var net = ctx.Net;
             var followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && _height == 0f;
@@ -111,6 +120,7 @@ namespace NetworkMultitool.Modes
                 _prefabName = null;
             }
 
+            _dragging = false;
             if (Nodes.Count == 0)
             {
                 _shift = 0f;
@@ -140,9 +150,46 @@ namespace NetworkMultitool.Modes
         protected override void RenderPreview(ToolContext ctx, Overlay overlay)
         {
             if (_points.Count >= 2)
-                overlay.Path(_points, ctx.Net.PrefabWidth(_prefab), Overlay.Orange, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, true, ctx.GamePreviewShown, _oneWay);
+            {
+                var ground = _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null;
+                var width = ctx.Net.PrefabWidth(_prefab);
+                overlay.Path(_points, width, Overlay.Orange, ground, true, ctx.GamePreviewShown, _oneWay);
+                if (_hovering || _dragging)
+                    overlay.Path(_points, width + 0.7f, Overlay.Green, ground, true);
+            }
+
             if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
                 overlay.Edge(_pickHover, Overlay.Blue);
+        }
+
+        // Left press on the preview grabs it; while held, the cursor's signed distance to the chain sets side and offset. Returns true when the offset changed and the preview must be solved again.
+        private bool UpdateDrag(ToolContext ctx)
+        {
+            if (!ctx.ApplyHeld)
+                _dragging = false;
+
+            _hovering = false;
+            if (!_dragging && ctx.HasHit && !ctx.CtrlHeld && State == ChainState.None && _points.Count >= 2)
+            {
+                _previewCurves.Clear();
+                for (var i = 0; i < _points.Count - 1; i++)
+                    _previewCurves.Add(CourseEmitter.Fit(_points[i], _points[i + 1]));
+                _hovering = math.abs(ParallelSolver.SignedOffset(_previewCurves, ctx.MousePosition)) <= ctx.Net.PrefabWidth(_prefab) / 2f;
+            }
+
+            if (_hovering && ctx.ApplyPressed)
+            {
+                _dragging = true;
+                _grabDelta = ParallelSolver.SignedOffset(_edges, ctx.MousePosition) - (_left ? _shift : -_shift);
+            }
+
+            if (!_dragging || !ctx.HasHit)
+                return false;
+            var signed = ParallelSolver.SignedOffset(_edges, ctx.MousePosition) - _grabDelta;
+            _left = signed >= 0f;
+            _shift = math.abs(signed);
+            _shiftEdited = true;
+            return true;
         }
 
         private void HandleKeys(ToolContext ctx)

@@ -148,6 +148,7 @@ namespace NetworkMultitool.Localization
             ["ParallelPickHover"] = "Ctrl+click a segment: pick its type",
             ["ParallelType"] = "Type",
             ["ParallelHintPick"] = "Ctrl+click segment: pick type",
+            ["ParallelHintDrag"] = "Drag the preview: offset and side",
             ["ParallelHintSide"] = "{0}: side",
         };
 
@@ -253,6 +254,7 @@ namespace NetworkMultitool.Localization
             ["ParallelPickHover"] = "Ctrl+clic sur un segment: prendre son type",
             ["ParallelType"] = "Type",
             ["ParallelHintPick"] = "Ctrl+clic sur un segment: choisir le type",
+            ["ParallelHintDrag"] = "Glisser l'aperçu: décalage et côté",
             ["ParallelHintSide"] = "{0}: côté",
         };
     }

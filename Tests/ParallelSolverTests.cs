@@ -116,5 +116,31 @@ namespace NetworkMultitool.Tests
             var points = Solve(10f, true, 5f, Line(new float3(0, 0, 0), new float3(100, 0, 0)));
             Assert.All(points, p => Assert.Equal(5f, p.Position.y, 3));
         }
+    
+
+        [Fact]
+        public void SignedOffset_LeftIsPositive()
+        {
+            var edges = new[] { Line(new float3(0, 0, 0), new float3(0, 0, 100)) };
+            Assert.Equal(5f, ParallelSolver.SignedOffset(edges, new float3(-5, 0, 50)), 3);
+            Assert.Equal(-7f, ParallelSolver.SignedOffset(edges, new float3(7, 3, 50)), 3);
+        }
+
+        [Fact]
+        public void SignedOffset_PicksClosestEdge()
+        {
+            var edges = new[] { Line(new float3(0, 0, 0), new float3(0, 0, 100)), Line(new float3(0, 0, 100), new float3(100, 0, 100)) };
+            Assert.Equal(4f, ParallelSolver.SignedOffset(edges, new float3(50, 0, 104)), 3);
+        }
+
+        [Theory]
+        [InlineData(true, 6f)]
+        [InlineData(false, -6f)]
+        public void SignedOffset_MatchesSolve(bool left, float expected)
+        {
+            var edges = new[] { Line(new float3(0, 0, 0), new float3(0, 0, 100)) };
+            var points = ParallelSolver.Solve(edges, 6f, left, 0f);
+            Assert.Equal(expected, ParallelSolver.SignedOffset(edges, (points[0].Position + points[1].Position) / 2f), 3);
+        }
     }
 }

@@ -113,6 +113,7 @@ namespace NetworkMultitool.Localization
             ["ParallelPickHover"] = "세그먼트 Ctrl+클릭: 해당 유형 선택",
             ["ParallelType"] = "유형",
             ["ParallelHintPick"] = "세그먼트 Ctrl+클릭: 유형 선택",
+            ["ParallelHintDrag"] = "미리보기 끌기: 간격 및 방향",
             ["ParallelHintSide"] = "{0}: 측면",
         };
     }

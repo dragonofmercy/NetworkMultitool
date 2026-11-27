@@ -113,6 +113,7 @@ namespace NetworkMultitool.Localization
             ["ParallelPickHover"] = "Ctrl+clic su un segmento: usa il suo tipo",
             ["ParallelType"] = "Tipo",
             ["ParallelHintPick"] = "Ctrl+clic su un segmento: scegli il tipo",
+            ["ParallelHintDrag"] = "Trascina l'anteprima: distanza e lato",
             ["ParallelHintSide"] = "{0}: lato",
         };
     }

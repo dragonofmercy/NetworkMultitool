@@ -113,6 +113,7 @@ namespace NetworkMultitool.Localization
             ["ParallelPickHover"] = "Ctrl+点击路段: 选取其类型",
             ["ParallelType"] = "类型",
             ["ParallelHintPick"] = "Ctrl+点击路段: 选取类型",
+            ["ParallelHintDrag"] = "拖动预览: 偏移与侧",
             ["ParallelHintSide"] = "{0}: 侧边",
         };
     }
