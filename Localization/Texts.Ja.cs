@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "直接/ループ",
             ["Binding.Invert"] = "一方通行の向きを反転",
             ["Binding.SwitchOffset"] = "円または側を切り替え",
+            ["Binding.ShiftLeft"] = "端を左にシフト",
+            ["Binding.ShiftRight"] = "端を右にシフト",
 
             // UI panel and button
             ["UI.Tooltip"] = "道路と線路を編集: ノードの追加・削除、勾配の設定、ノードの整列、カーブによるセグメントの接続。",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "オフセット",
             ["HintHeight"] = "{0}/{1}: 高さ",
             ["HintOffset"] = "{0}/{1}: オフセット",
+            ["ShiftStart"] = "始点シフト",
+            ["ShiftEnd"] = "終点シフト",
+            ["HintShift"] = "{0}/{1}: アクティブな端を横にシフト",
+            ["HintShiftEnd"] = "{0}: シフトする端を切り替え",
             ["HintRadius"] = "{0}/{1}: 半径",
             ["HintInvert"] = "{0}: 向きを反転 (一方通行)",
 

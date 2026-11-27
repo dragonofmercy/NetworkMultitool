@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "직접/루프",
             ["Binding.Invert"] = "일방통행 방향 반전",
             ["Binding.SwitchOffset"] = "원 또는 측면 전환",
+            ["Binding.ShiftLeft"] = "끝점 왼쪽으로 이동",
+            ["Binding.ShiftRight"] = "끝점 오른쪽으로 이동",
 
             // UI panel and button
             ["UI.Tooltip"] = "도로와 철도 편집: 노드 추가/제거, 경사 설정, 노드 정렬, 곡선으로 세그먼트 연결.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "오프셋",
             ["HintHeight"] = "{0}/{1}: 높이",
             ["HintOffset"] = "{0}/{1}: 오프셋",
+            ["ShiftStart"] = "시작점 이동",
+            ["ShiftEnd"] = "끝점 이동",
+            ["HintShift"] = "{0}/{1}: 활성 끝점을 옆으로 이동",
+            ["HintShiftEnd"] = "{0}: 이동할 끝점 전환",
             ["HintRadius"] = "{0}/{1}: 반경",
             ["HintInvert"] = "{0}: 방향 반전 (일방통행)",
 

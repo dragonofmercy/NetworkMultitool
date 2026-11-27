@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Diretto/anello",
             ["Binding.Invert"] = "Inverti senso unico",
             ["Binding.SwitchOffset"] = "Cambia cerchio o lato",
+            ["Binding.ShiftLeft"] = "Sposta estremità a sinistra",
+            ["Binding.ShiftRight"] = "Sposta estremità a destra",
 
             // UI panel and button
             ["UI.Tooltip"] = "Modifica strade e ferrovie: aggiungi o rimuovi nodi, imposta pendenze, allinea nodi e collega segmenti con curve.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Scostamento",
             ["HintHeight"] = "{0}/{1}: altezza",
             ["HintOffset"] = "{0}/{1}: scostamento",
+            ["ShiftStart"] = "Spostamento inizio",
+            ["ShiftEnd"] = "Spostamento fine",
+            ["HintShift"] = "{0}/{1}: sposta lateralmente l'estremità attiva",
+            ["HintShiftEnd"] = "{0}: cambia l'estremità spostata",
             ["HintRadius"] = "{0}/{1}: raggio",
             ["HintInvert"] = "{0}: inverti direzione (senso unico)",
 

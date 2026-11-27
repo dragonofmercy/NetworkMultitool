@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Bezpośrednio/pętla",
             ["Binding.Invert"] = "Odwróć kierunek jednokierunkowej",
             ["Binding.SwitchOffset"] = "Zmień okrąg lub stronę",
+            ["Binding.ShiftLeft"] = "Przesuń koniec w lewo",
+            ["Binding.ShiftRight"] = "Przesuń koniec w prawo",
 
             // UI panel and button
             ["UI.Tooltip"] = "Edytuj drogi i tory: dodawaj lub usuwaj węzły, ustawiaj nachylenie, wyrównuj węzły i łącz segmenty łukami.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Przesunięcie",
             ["HintHeight"] = "{0}/{1}: wysokość",
             ["HintOffset"] = "{0}/{1}: przesunięcie",
+            ["ShiftStart"] = "Przesunięcie początku",
+            ["ShiftEnd"] = "Przesunięcie końca",
+            ["HintShift"] = "{0}/{1}: przesuń aktywny koniec w bok",
+            ["HintShiftEnd"] = "{0}: zmień przesuwany koniec",
             ["HintRadius"] = "{0}/{1}: promień",
             ["HintInvert"] = "{0}: odwróć kierunek (jednokierunkowa)",
 

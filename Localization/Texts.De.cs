@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Direkt/Schleife",
             ["Binding.Invert"] = "Einbahnrichtung umkehren",
             ["Binding.SwitchOffset"] = "Kreis oder Seite wechseln",
+            ["Binding.ShiftLeft"] = "Ende nach links verschieben",
+            ["Binding.ShiftRight"] = "Ende nach rechts verschieben",
 
             // UI panel and button
             ["UI.Tooltip"] = "Straßen und Schienen bearbeiten: Knoten hinzufügen oder entfernen, Steigungen festlegen, Knoten anordnen und Segmente mit Kurven verbinden.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Versatz",
             ["HintHeight"] = "{0}/{1}: Höhe",
             ["HintOffset"] = "{0}/{1}: Versatz",
+            ["ShiftStart"] = "Versatz Start",
+            ["ShiftEnd"] = "Versatz Ende",
+            ["HintShift"] = "{0}/{1}: aktives Ende seitlich verschieben",
+            ["HintShiftEnd"] = "{0}: verschobenes Ende wechseln",
             ["HintRadius"] = "{0}/{1}: Radius",
             ["HintInvert"] = "{0}: Richtung umkehren (Einbahn)",
 

@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "直接/環形",
             ["Binding.Invert"] = "反轉單行方向",
             ["Binding.SwitchOffset"] = "切換圓或側邊",
+            ["Binding.ShiftLeft"] = "向左移動端點",
+            ["Binding.ShiftRight"] = "向右移動端點",
 
             // UI panel and button
             ["UI.Tooltip"] = "編輯道路與鐵路: 新增或刪除節點、設定坡度、排列節點，並以曲線連接路段。",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "偏移",
             ["HintHeight"] = "{0}/{1}: 高度",
             ["HintOffset"] = "{0}/{1}: 偏移",
+            ["ShiftStart"] = "起點偏移",
+            ["ShiftEnd"] = "終點偏移",
+            ["HintShift"] = "{0}/{1}: 將目前端點向側邊移動",
+            ["HintShiftEnd"] = "{0}: 切換移動的端點",
             ["HintRadius"] = "{0}/{1}: 半徑",
             ["HintInvert"] = "{0}: 反轉方向（單行）",
 

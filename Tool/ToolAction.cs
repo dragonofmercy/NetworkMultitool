@@ -13,5 +13,7 @@ namespace NetworkMultitool.Tool
         Side,
         Invert,
         SwitchOffset,
+        ShiftLeft,
+        ShiftRight,
     }
 }

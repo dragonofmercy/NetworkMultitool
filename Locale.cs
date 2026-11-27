@@ -62,6 +62,8 @@ namespace NetworkMultitool
             Bind(nameof(Settings.Side));
             Bind(nameof(Settings.Invert));
             Bind(nameof(Settings.SwitchOffset));
+            Bind(nameof(Settings.ShiftLeft));
+            Bind(nameof(Settings.ShiftRight));
 
             foreach (var pair in _texts)
                 entries[Texts.Id(pair.Key)] = pair.Value;

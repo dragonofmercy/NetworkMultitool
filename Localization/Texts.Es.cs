@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Directo/bucle",
             ["Binding.Invert"] = "Invertir sentido único",
             ["Binding.SwitchOffset"] = "Cambiar de círculo o lado",
+            ["Binding.ShiftLeft"] = "Desplazar extremo a la izquierda",
+            ["Binding.ShiftRight"] = "Desplazar extremo a la derecha",
 
             // UI panel and button
             ["UI.Tooltip"] = "Editar carreteras y vías férreas: añadir o eliminar nodos, ajustar pendientes, alinear nodos y unir segmentos con curvas.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Desplazamiento",
             ["HintHeight"] = "{0}/{1}: altura",
             ["HintOffset"] = "{0}/{1}: desplazamiento",
+            ["ShiftStart"] = "Desplazamiento inicio",
+            ["ShiftEnd"] = "Desplazamiento final",
+            ["HintShift"] = "{0}/{1}: desplazar el extremo activo hacia un lado",
+            ["HintShiftEnd"] = "{0}: cambiar el extremo desplazado",
             ["HintRadius"] = "{0}/{1}: radio",
             ["HintInvert"] = "{0}: invertir sentido (sentido único)",
 

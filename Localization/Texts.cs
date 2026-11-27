@@ -72,6 +72,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Direct/loop",
             ["Binding.Invert"] = "Invert one-way direction",
             ["Binding.SwitchOffset"] = "Switch circle or side",
+            ["Binding.ShiftLeft"] = "Shift end left",
+            ["Binding.ShiftRight"] = "Shift end right",
 
             // UI panel and button
             ["UI.Tooltip"] = "Edit roads and rails: add or remove nodes, set slopes, arrange nodes and connect segments with curves.",
@@ -98,6 +100,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Offset",
             ["HintHeight"] = "{0}/{1}: height",
             ["HintOffset"] = "{0}/{1}: offset",
+            ["ShiftStart"] = "Start shift",
+            ["ShiftEnd"] = "End shift",
+            ["HintShift"] = "{0}/{1}: shift the active end sideways",
+            ["HintShiftEnd"] = "{0}: switch the shifted end",
             ["HintRadius"] = "{0}/{1}: radius",
             ["HintInvert"] = "{0}: invert direction (one-way)",
 
@@ -177,6 +183,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Direct/boucle",
             ["Binding.Invert"] = "Inverser le sens unique",
             ["Binding.SwitchOffset"] = "Changer de cercle ou de côté",
+            ["Binding.ShiftLeft"] = "Décaler l'extrémité à gauche",
+            ["Binding.ShiftRight"] = "Décaler l'extrémité à droite",
 
             ["UI.Tooltip"] = "Modifier les routes et les voies ferrées: ajouter ou supprimer des nœuds, régler les pentes, arranger les nœuds et relier des segments par des courbes.",
             ["UI.GroupEditNodes"] = "Modifier les nœuds",
@@ -201,6 +209,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Décalage",
             ["HintHeight"] = "{0}/{1}: hauteur",
             ["HintOffset"] = "{0}/{1}: décalage",
+            ["ShiftStart"] = "Décalage latéral départ",
+            ["ShiftEnd"] = "Décalage latéral arrivée",
+            ["HintShift"] = "{0}/{1} : décaler l'extrémité active sur le côté",
+            ["HintShiftEnd"] = "{0} : changer d'extrémité décalée",
             ["HintRadius"] = "{0}/{1}: rayon",
             ["HintInvert"] = "{0}: inverser le sens (sens unique)",
 

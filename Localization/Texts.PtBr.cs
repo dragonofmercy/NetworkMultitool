@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Direto/laço",
             ["Binding.Invert"] = "Inverter sentido único",
             ["Binding.SwitchOffset"] = "Trocar círculo ou lado",
+            ["Binding.ShiftLeft"] = "Deslocar extremidade para a esquerda",
+            ["Binding.ShiftRight"] = "Deslocar extremidade para a direita",
 
             // UI panel and button
             ["UI.Tooltip"] = "Edite vias e trilhos: adicione ou remova nós, ajuste inclinações, alinhe nós e conecte segmentos com curvas.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Deslocamento",
             ["HintHeight"] = "{0}/{1}: altura",
             ["HintOffset"] = "{0}/{1}: deslocamento",
+            ["ShiftStart"] = "Deslocamento do início",
+            ["ShiftEnd"] = "Deslocamento do fim",
+            ["HintShift"] = "{0}/{1}: deslocar a extremidade ativa para o lado",
+            ["HintShiftEnd"] = "{0}: trocar a extremidade deslocada",
             ["HintRadius"] = "{0}/{1}: raio",
             ["HintInvert"] = "{0}: inverter sentido (mão única)",
 

@@ -37,6 +37,8 @@ namespace NetworkMultitool.Localization
             ["Binding.Side"] = "Прямо/петля",
             ["Binding.Invert"] = "Развернуть одностороннее движение",
             ["Binding.SwitchOffset"] = "Сменить круг или сторону",
+            ["Binding.ShiftLeft"] = "Сдвинуть конец влево",
+            ["Binding.ShiftRight"] = "Сдвинуть конец вправо",
 
             // UI panel and button
             ["UI.Tooltip"] = "Правка дорог и путей: добавление и удаление узлов, настройка уклона, выравнивание узлов и соединение сегментов кривыми.",
@@ -63,6 +65,10 @@ namespace NetworkMultitool.Localization
             ["Offset"] = "Смещение",
             ["HintHeight"] = "{0}/{1}: высота",
             ["HintOffset"] = "{0}/{1}: смещение",
+            ["ShiftStart"] = "Сдвиг начала",
+            ["ShiftEnd"] = "Сдвиг конца",
+            ["HintShift"] = "{0}/{1}: сдвинуть активный конец вбок",
+            ["HintShiftEnd"] = "{0}: сменить сдвигаемый конец",
             ["HintRadius"] = "{0}/{1}: радиус",
             ["HintInvert"] = "{0}: развернуть (одностороннее)",
 

@@ -28,6 +28,8 @@ namespace NetworkMultitool
         public const string Side = nameof(Side);
         public const string Invert = nameof(Invert);
         public const string SwitchOffset = nameof(SwitchOffset);
+        public const string ShiftLeft = nameof(ShiftLeft);
+        public const string ShiftRight = nameof(ShiftRight);
     }
 
     [FileLocation("ModsSettings\\NetworkMultitool\\NetworkMultitool")]
@@ -52,6 +54,8 @@ namespace NetworkMultitool
     [SettingsUIKeyboardAction(ToolActions.Side, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.Invert, Usages.kToolUsage)]
     [SettingsUIKeyboardAction(ToolActions.SwitchOffset, Usages.kToolUsage)]
+    [SettingsUIKeyboardAction(ToolActions.ShiftLeft, Usages.kToolUsage)]
+    [SettingsUIKeyboardAction(ToolActions.ShiftRight, Usages.kToolUsage)]
     public class Settings : ModSetting
     {
         public const string GeneralGroup = "General";
@@ -145,6 +149,14 @@ namespace NetworkMultitool
         [SettingsUIKeyboardBinding(BindingKeyboard.Tab, ToolActions.SwitchOffset)]
         [SettingsUISection(KeybindingsGroup)]
         public ProxyBinding SwitchOffset { get; set; }
+
+        [SettingsUIKeyboardBinding(BindingKeyboard.Home, ToolActions.ShiftLeft)]
+        [SettingsUISection(KeybindingsGroup)]
+        public ProxyBinding ShiftLeft { get; set; }
+
+        [SettingsUIKeyboardBinding(BindingKeyboard.End, ToolActions.ShiftRight)]
+        [SettingsUISection(KeybindingsGroup)]
+        public ProxyBinding ShiftRight { get; set; }
 
         public Settings(IMod mod) : base(mod)
         {
