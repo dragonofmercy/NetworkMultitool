@@ -29,6 +29,10 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 
 Loop, Connection and Curve also use PageUp/PageDown (height), `Home`/`End` (shift the active end sideways; `Tab` switches the active end in Curve and Loop, Connection shifts the end of the selected end circle), click a node to change direction, `Ctrl`+click any segment to use its type for the new road, and `Enter` to apply.
 
+Hold `Shift` while dragging (Loop, Connection, Parallel) to snap the dragged radius, offset or circle center to whole meters.
+
+The panel lists the shortcuts of the current mode, with the keys as currently bound.
+
 With a one-way road type, the creation modes and Parallel draw arrows along the preview in the traffic direction, and `Ctrl+Alt+I` inverts it.
 
 Elevated roads built by the mod get a node and a pillar at least every 200 m, where the vanilla road tool puts one every 80 m.
@@ -55,7 +59,7 @@ All rebindable in the mod options.
 
 ## Languages
 
-Every language of the game, following its setting: English, French, German, Spanish, Italian, Polish, Brazilian Portuguese, Russian, Japanese, Korean, Simplified and Traditional Chinese. English and French live in `Localization/Texts.cs`, the others in one `Localization/Texts.<Language>.cs` file each; a new language is one more dictionary registered in `Texts.ByLocale`, and missing keys fall back to English. Panel lines are split on the first `": "`, so translations must keep it.
+Every language of the game, following its setting: English, French, German, Spanish, Italian, Polish, Brazilian Portuguese, Russian, Japanese, Korean, Simplified and Traditional Chinese. English and French live in `Localization/Texts.cs`, the others in one `Localization/Texts.<Language>.cs` file each; a new language is one more dictionary registered in `Texts.ByLocale`, and missing keys fall back to English. Panel value lines are split on the first `": "`, so translations must keep it. Shortcut hints only hold the action text: the keys are added by the code (`Texts.Hint`).
 
 ## Build
 
@@ -66,6 +70,8 @@ cd UI && npm install && npm run build && cd ..
 dotnet build NetworkMultitool.csproj -c Release
 dotnet test Tests/NetworkMultitool.Tests.csproj
 ```
+
+To work on the UI, run `npm run dev` in `UI/`: webpack watches the sources and writes straight into the deployed mod folder. Start the game with the `--uiDeveloperMode` launch option and it reloads the UI on each change; the UI DevTools are then at `http://localhost:9444`. C# changes still need a `dotnet build` and a game restart.
 
 Requirements: the CS2 modding toolchain (environment variables `CSII_TOOLPATH`, `CSII_USERDATAPATH`, `CSII_LOCALMODSPATH`), Node >= 18 and npm. Bun is not used.
 
