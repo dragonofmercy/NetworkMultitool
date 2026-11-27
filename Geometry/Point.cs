@@ -22,5 +22,8 @@ namespace NetworkMultitool.Geometry
 
         /// <summary>The same point on the path run the other way: tangents negated, and in/out swapped.</summary>
         public Point Reversed() => new Point(Position, -InDirection, -Direction);
+
+        /// <summary>The same directions moved sideways by shift metres: positive goes right of Direction, negative left.</summary>
+        public Point Shifted(float shift) => new Point(Position + Vec.Turn90(Direction, true) * shift, Direction, InDirection);
     }
 }
