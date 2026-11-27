@@ -291,15 +291,18 @@ namespace NetworkMultitool.Modes
             }
             else if (_hoverEnd)
             {
+                // A click on the already chosen node keeps its shift.
                 if (IsEnd(ctx, First, ctx.Hover))
                 {
+                    if (FirstNode != ctx.Hover)
+                        _startShift = 0f;
                     FirstNode = ctx.Hover;
-                    _startShift = 0f;
                 }
                 else
                 {
+                    if (SecondNode != ctx.Hover)
+                        _endShift = 0f;
                     SecondNode = ctx.Hover;
-                    _endShift = 0f;
                 }
 
                 _dirty = true;
