@@ -45,6 +45,21 @@ namespace NetworkMultitool.Tool
         /// <summary>Raycast hit position on a node, an edge or the terrain; keeps the last value when nothing is hit.</summary>
         public float3 MousePosition { get; internal set; }
 
+        /// <summary>Where the mouse ray crosses the horizontal plane at height <paramref name="y"/>: the ray runs from the camera through <see cref="MousePosition"/>,
+        /// so a shape floating above the ground (elevated road) is grabbed where it is seen, not where the terrain under the cursor is.</summary>
+        public float3 MouseAtHeight(float y)
+        {
+            var camera = UnityEngine.Camera.main;
+            if (camera == null)
+                return MousePosition;
+            float3 eye = camera.transform.position;
+            var dy = MousePosition.y - eye.y;
+            // A ray nearly parallel to the plane, or a plane above the camera, has no usable crossing.
+            if (math.abs(dy) < 1e-3f || (y - eye.y) / dy <= 0f)
+                return MousePosition;
+            return eye + (MousePosition - eye) * ((y - eye.y) / dy);
+        }
+
         /// <summary>Mouse primary click this frame (selection). Validation is <c>Pressed(ToolAction.Apply)</c> (Enter key or UI Apply button); modes must use that one to validate.</summary>
         public bool ApplyPressed { get; internal set; }
 

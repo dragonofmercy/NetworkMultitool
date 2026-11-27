@@ -34,6 +34,7 @@ namespace NetworkMultitool.Modes
         private bool _hovering;
         private bool _dragging;
         private float _grabDelta;
+        private float _grabY;
 
         public override ToolModeId Id => ToolModeId.Parallel;
 
@@ -171,21 +172,31 @@ namespace NetworkMultitool.Modes
             _hovering = false;
             if (!_dragging && ctx.HasHit && !ctx.CtrlHeld && State == ChainState.None && _points.Count >= 2)
             {
-                _previewCurves.Clear();
-                for (var i = 0; i < _points.Count - 1; i++)
+                // Each piece is tested where the mouse ray crosses its own height: an elevated preview is not above the terrain hit.
+                var half = ctx.Net.PrefabWidth(_prefab) / 2f;
+                for (var i = 0; i < _points.Count - 1 && !_hovering; i++)
+                {
+                    _previewCurves.Clear();
                     _previewCurves.Add(CourseEmitter.Fit(_points[i], _points[i + 1]));
-                _hovering = math.abs(ParallelSolver.SignedOffset(_previewCurves, ctx.MousePosition)) <= ctx.Net.PrefabWidth(_prefab) / 2f;
+                    var y = (_points[i].Position.y + _points[i + 1].Position.y) / 2f;
+                    if (math.abs(ParallelSolver.SignedOffset(_previewCurves, ctx.MouseAtHeight(y))) <= half)
+                    {
+                        _hovering = true;
+                        _grabY = y;
+                    }
+                }
             }
 
             if (_hovering && ctx.ApplyPressed)
             {
                 _dragging = true;
-                _grabDelta = ParallelSolver.SignedOffset(_edges, ctx.MousePosition) - (_left ? _shift : -_shift);
+                _grabDelta = ParallelSolver.SignedOffset(_edges, ctx.MouseAtHeight(_grabY)) - (_left ? _shift : -_shift);
             }
 
             if (!_dragging || !ctx.HasHit)
                 return false;
-            var signed = ParallelSolver.SignedOffset(_edges, ctx.MousePosition) - _grabDelta;
+            // The grab height stays fixed during the drag, so the preview follows the cursor at the height it was taken.
+            var signed = ParallelSolver.SignedOffset(_edges, ctx.MouseAtHeight(_grabY)) - _grabDelta;
             _left = signed >= 0f;
             _shift = math.abs(signed);
             _shiftEdited = true;
