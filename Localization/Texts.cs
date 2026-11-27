@@ -211,8 +211,8 @@ namespace NetworkMultitool.Localization
             ["HintOffset"] = "{0}/{1}: décalage",
             ["ShiftStart"] = "Décalage latéral départ",
             ["ShiftEnd"] = "Décalage latéral arrivée",
-            ["HintShift"] = "{0}/{1} : décaler l'extrémité active sur le côté",
-            ["HintShiftEnd"] = "{0} : changer d'extrémité décalée",
+            ["HintShift"] = "{0}/{1}: décaler l'extrémité active sur le côté",
+            ["HintShiftEnd"] = "{0}: changer d'extrémité décalée",
             ["HintRadius"] = "{0}/{1}: rayon",
             ["HintInvert"] = "{0}: inverser le sens (sens unique)",
 
