@@ -13,6 +13,7 @@ namespace NetworkMultitool.Modes
         private LoopSolver _solver;
         private Point _start;
         private Point _end;
+        private float _width;
 
         public override ToolModeId Id => ToolModeId.Loop;
 
@@ -22,12 +23,13 @@ namespace NetworkMultitool.Modes
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
-            if (_solver == null || !_start.Equals(StartPoint) || !_end.Equals(EndPoint))
+            if (_solver == null || !_start.Equals(StartPoint) || !_end.Equals(EndPoint) || _width != NewWidth(ctx))
             {
                 var old = _solver;
                 _start = StartPoint;
                 _end = EndPoint;
-                _solver = new LoopSolver(StartPoint, EndPoint, ctx.Net.Width(First), 5000f);
+                _width = NewWidth(ctx);
+                _solver = new LoopSolver(StartPoint, EndPoint, _width, 5000f);
                 if (old != null)
                 {
                     // ForceLoop first: the radius clamp depends on it.

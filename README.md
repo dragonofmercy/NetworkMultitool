@@ -27,7 +27,7 @@ Left click selects/applies, right click goes back/clears. Slope, Arrange and Par
 | Curve | Select two segments, connect them with a smooth curve. |
 | Parallel | Select a chain, build a new network alongside it, 4 m away from its edge by default. Left/Right offset, PageUp/PageDown height, `Tab` side (the left side runs the other way), or drag the preview to set offset and side, Ctrl+click any segment to use its type, `Enter` to create. |
 
-Loop, Connection and Curve also use PageUp/PageDown (height), `Home`/`End` (shift the active end sideways; `Tab` switches the active end in Curve and Loop, Connection shifts the end of the selected end circle), click a node to change direction, and `Enter` to apply.
+Loop, Connection and Curve also use PageUp/PageDown (height), `Home`/`End` (shift the active end sideways; `Tab` switches the active end in Curve and Loop, Connection shifts the end of the selected end circle), click a node to change direction, `Ctrl`+click any segment to use its type for the new road, and `Enter` to apply.
 
 With a one-way road type, the creation modes and Parallel draw arrows along the preview in the traffic direction, and `Ctrl+Alt+I` inverts it.
 

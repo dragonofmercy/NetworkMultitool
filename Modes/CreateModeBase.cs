@@ -35,6 +35,15 @@ namespace NetworkMultitool.Modes
         private float _endShift;
         private int _shiftEnd;
 
+        // Ctrl+click on a segment picks the type of the new road; the pick survives Apply so several roads of that type can be built in a row.
+        private bool _picked;
+        private Entity _pickedEdge;
+        private Entity _pickedPrefab;
+        private string _pickedName;
+        private Entity _pickHover;
+        private Entity _shownPrefab;
+        private string _shownName;
+
         public abstract ToolModeId Id { get; }
 
         public string Info
@@ -42,15 +51,18 @@ namespace NetworkMultitool.Modes
             get
             {
                 if (First == Entity.Null)
-                    return T("SelectFirstSegment");
+                    return T("SelectFirstSegment") + "\n" + T("ParallelPickHover");
                 if (Second == Entity.Null)
-                    return T("SelectSecondSegment");
+                    return T("SelectSecondSegment") + "\n" + T("ParallelPickHover");
                 if (_hoverEnd)
                     return T("ClickNodeDirection");
+                var typeName = (_picked ? _pickedName : _shownName) ?? "?";
+                var pickHint = T("ParallelHintPick") + "\n";
+                var type = T("ParallelType") + ": " + typeName + "\n";
                 var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
                 var shifts = $"{T("ShiftStart")}: {_startShift:0.0} m\n{T("ShiftEnd")}: {_endShift:0.0} m\n";
                 var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
-                return $"{Status(Result)}\n\n{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                return $"{Status(Result)}\n\n{type}{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
 
@@ -117,7 +129,7 @@ namespace NetworkMultitool.Modes
             overlay.Handle(center, grab == Drag.Center ? 6f : 4f, grab == Drag.Center ? Overlay.Green : Overlay.White);
 
             // The radius lines stop at the road edge, as in CS1 RenderRadius.
-            var inner = math.max(arc.Radius - ctx.Net.Width(First) / 2f, 0f);
+            var inner = math.max(arc.Radius - NewWidth(ctx) / 2f, 0f);
             if (arc.IsCorrect)
             {
                 overlay.GroundLine(center, center + arc.StartRadiusDir * inner, idle);
@@ -132,12 +144,25 @@ namespace NetworkMultitool.Modes
 
         protected void MarkDirty() => _dirty = true;
 
+        /// <summary>Prefab of the road that will be created: the picked type, else the first segment's.</summary>
+        protected Entity NewPrefab(ToolContext ctx) => _picked ? _pickedPrefab : ctx.Net.Prefab(First);
+
+        protected float NewWidth(ToolContext ctx) => ctx.Net.PrefabWidth(NewPrefab(ctx));
+
         /// <summary>True when a click would change the direction on a hovered end node.</summary>
         protected bool HoverEnd => _hoverEnd;
 
-        public virtual void Enter(ToolContext ctx) => Reset();
+        public virtual void Enter(ToolContext ctx)
+        {
+            _picked = false;
+            Reset();
+        }
 
-        public virtual void Exit(ToolContext ctx) => Reset();
+        public virtual void Exit(ToolContext ctx)
+        {
+            _picked = false;
+            Reset();
+        }
 
         public void Update(ToolContext ctx)
         {
@@ -145,9 +170,30 @@ namespace NetworkMultitool.Modes
             if ((First != Entity.Null && !em.Exists(First)) || (Second != Entity.Null && !em.Exists(Second)) || (FirstNode != Entity.Null && !em.Exists(FirstNode)) || (SecondNode != Entity.Null && !em.Exists(SecondNode)))
                 Reset();
 
+            // Tested before HandleSelection, which snaps an edge hover near its ends to a node.
+            _pickHover = ctx.CtrlHeld && ctx.HoverIsEdge && em.Exists(ctx.Hover) && !ctx.Net.HasOwner(ctx.Hover) ? ctx.Hover : Entity.Null;
+            if (ctx.PickPressed && _pickHover != Entity.Null)
+            {
+                _picked = true;
+                _pickedEdge = _pickHover;
+                _pickedPrefab = ctx.Net.Prefab(_pickHover);
+                _pickedName = ctx.PrefabName(_pickedPrefab);
+                _dirty = true;
+            }
+
             HandleSelection(ctx);
             var net = ctx.Net;
-            _oneWay = First != Entity.Null ? net.OneWay(net.Prefab(First)) : 0;
+            if (First != Entity.Null)
+            {
+                var firstPrefab = net.Prefab(First);
+                if (firstPrefab != _shownPrefab)
+                {
+                    _shownPrefab = firstPrefab;
+                    _shownName = ctx.PrefabName(firstPrefab);
+                }
+            }
+
+            _oneWay = First != Entity.Null || _picked ? net.OneWay(NewPrefab(ctx)) : 0;
             HandleKeys(ctx);
             if (Second == Entity.Null)
                 return;
@@ -189,7 +235,17 @@ namespace NetworkMultitool.Modes
             var startElevation = net.Elevation(startNode);
             var endElevation = net.Elevation(endNode);
             var followTerrain = _followTerrain = ctx.Settings != null && ctx.Settings.FollowTerrain && Height == 0f && math.all(math.abs(startElevation) < 1f) && math.all(math.abs(endElevation) < 1f);
-            ctx.Emitter().Chain(startNode, endNode, emitted, First, net.IsStart(First, FirstNode) != _invert, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight);
+            var terrain = followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight;
+            if (_picked)
+            {
+                // A deleted picked segment falls back to the first one as template, keeping the picked type.
+                var template = em.Exists(_pickedEdge) ? _pickedEdge : First;
+                ctx.Emitter().Chain(startNode, endNode, emitted, template, template == First && net.IsStart(First, FirstNode) != _invert, followTerrain, terrain, _pickedPrefab);
+            }
+            else
+            {
+                ctx.Emitter().Chain(startNode, endNode, emitted, First, net.IsStart(First, FirstNode) != _invert, followTerrain, terrain);
+            }
         }
 
         public void Render(ToolContext ctx, Overlay overlay)
@@ -216,7 +272,10 @@ namespace NetworkMultitool.Modes
 
             if (Points.Count >= 2)
                 // Only a solved path is emitted, so only then does the game draw its preview under the overlay.
-                overlay.Path(Points, ctx.Net.Width(First), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, false, Result == SolveResult.Ok && ctx.GamePreviewShown, _invert ? -_oneWay : _oneWay);
+                overlay.Path(Points, NewWidth(ctx), Result == SolveResult.Ok ? Overlay.Orange : Overlay.Red, _followTerrain ? ctx.TerrainHeight : (System.Func<float3, float>)null, false, Result == SolveResult.Ok && ctx.GamePreviewShown, _invert ? -_oneWay : _oneWay);
+
+            if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
+                overlay.Edge(_pickHover, Overlay.Blue);
 
             RenderShape(ctx, overlay);
         }

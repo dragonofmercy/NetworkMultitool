@@ -17,6 +17,7 @@ namespace NetworkMultitool.Modes
         private ConnectionSolver _solver;
         private Point _start;
         private Point _end;
+        private float _width;
         private int _selected;
         private bool _firstSwitched;
         private bool _secondSwitched;
@@ -54,12 +55,13 @@ namespace NetworkMultitool.Modes
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {
-            if (_solver == null || !_start.Equals(StartPoint) || !_end.Equals(EndPoint))
+            if (_solver == null || !_start.Equals(StartPoint) || !_end.Equals(EndPoint) || _width != NewWidth(ctx))
             {
                 var old = _solver;
                 _start = StartPoint;
                 _end = EndPoint;
-                _solver = new ConnectionSolver(StartPoint, EndPoint, ctx.Net.Width(First), 5000f);
+                _width = NewWidth(ctx);
+                _solver = new ConnectionSolver(StartPoint, EndPoint, _width, 5000f);
                 if (old != null)
                     _solver.CopyFrom(old);
 
@@ -85,7 +87,7 @@ namespace NetworkMultitool.Modes
 
             if (isDouble && HasArcs && ctx.HasHit)
             {
-                var straight = _solver.StraightAt(ctx.MousePosition, ctx.Net.Width(First) / 2f);
+                var straight = _solver.StraightAt(ctx.MousePosition, NewWidth(ctx) / 2f);
                 if (straight >= 0)
                 {
                     _solver.InsertArc(straight, ctx.MousePosition);
@@ -204,7 +206,7 @@ namespace NetworkMultitool.Modes
             // The straight a double click would split with a new circle.
             if (grab == Drag.None && Dragging == Drag.None && ctx.HasHit)
             {
-                var width = ctx.Net.Width(First);
+                var width = NewWidth(ctx);
                 var straight = _solver.StraightAt(ctx.MousePosition, width / 2f);
                 if (straight >= 0)
                 {
