@@ -52,12 +52,12 @@ namespace NetworkMultitool.Modes
                     return T("SelectSecondSegment") + "\n" + T("ParallelPickHover");
                 var typeName = (_picker.Picked ? _picker.Name : _shownName) ?? "?";
                 var pickHint = T("ParallelHintPick") + "\n";
-                var type = T("ParallelType") + ": " + typeName + "\n";
+                var type = T("ParallelType") + ": " + typeName;
                 var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
                 var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
                 // Hovering an end node only changes the status line: values and hints stay.
                 var status = _hoverEnd ? T("ClickNodeDirection") : Status(Result);
-                return $"{status}\n\n{type}\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                return $"{status}\n\n{type}\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
 

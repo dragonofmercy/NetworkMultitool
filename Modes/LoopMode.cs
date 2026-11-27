@@ -87,8 +87,7 @@ namespace NetworkMultitool.Modes
                 _solver.SetCenter(ctx.MousePosition);
             else
                 _solver.SetEdge(ctx.MousePosition);
-            if (ctx.ShiftHeld)
-                _solver.Radius = math.round(_solver.Radius);
+            _solver.Radius = ctx.Snap(_solver.Radius);
         }
 
         protected override void RenderShape(ToolContext ctx, Overlay overlay)

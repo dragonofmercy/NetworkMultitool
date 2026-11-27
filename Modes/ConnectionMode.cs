@@ -173,23 +173,22 @@ namespace NetworkMultitool.Modes
 
         protected override void OnDrag(ToolContext ctx)
         {
-            var snap = ctx.ShiftHeld;
+            var p = ctx.MousePosition;
             if (Dragging == Drag.Edge)
             {
-                _solver.DragEdge(_selected, ctx.MousePosition);
-                if (snap)
-                    _solver.SetRadius(_selected, math.round(_solver.Arcs[_selected].Radius));
+                _solver.DragEdge(_selected, p);
+                _solver.SetRadius(_selected, ctx.Snap(_solver.Arcs[_selected].Radius));
             }
             else if (_solver.IsMiddle(_selected))
                 // A free circle center snaps to the world 1 m grid.
-                _solver.DragCenter(_selected, snap ? new float3(math.round(ctx.MousePosition.x), ctx.MousePosition.y, math.round(ctx.MousePosition.z)) : ctx.MousePosition);
+                _solver.DragCenter(_selected, new float3(ctx.Snap(p.x), p.y, ctx.Snap(p.z)));
             else
             {
-                _solver.DragCenter(_selected, ctx.MousePosition);
-                if (snap && _selected == 0)
-                    _solver.FirstOffset = math.round(_solver.FirstOffset);
-                else if (snap)
-                    _solver.SecondOffset = math.round(_solver.SecondOffset);
+                _solver.DragCenter(_selected, p);
+                if (_selected == 0)
+                    _solver.FirstOffset = ctx.Snap(_solver.FirstOffset);
+                else
+                    _solver.SecondOffset = ctx.Snap(_solver.SecondOffset);
             }
         }
 

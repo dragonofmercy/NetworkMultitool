@@ -189,7 +189,7 @@ namespace NetworkMultitool.Modes
             // The grab height stays fixed during the drag, so the preview follows the cursor at the height it was taken.
             var signed = ParallelSolver.SignedOffset(_edges, ctx.MouseAtHeight(_grabY)) - _grabDelta;
             _left = signed >= 0f;
-            _shift = ctx.ShiftHeld ? math.round(math.abs(signed)) : math.abs(signed);
+            _shift = ctx.Snap(math.abs(signed));
             _shiftEdited = true;
             return true;
         }

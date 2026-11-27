@@ -4,6 +4,7 @@ import toolIcon from "images/tool.svg";
 import { active$, toggle, toggleKeys$ } from "bindings";
 import { useText } from "l10n";
 import styles from "./panel.module.scss";
+import { Keys } from "Keycap";
 
 export const ToolButton = () => {
     const active = useValue(active$);
@@ -15,7 +16,7 @@ export const ToolButton = () => {
             <div className={styles.tooltipText}>{t("UI.Tooltip", "Edit roads and rails: add or remove nodes, set slopes, arrange nodes and connect segments with curves.")}</div>
             {keys && (
                 <div className={styles.tooltipKeys}>
-                    {keys.split("+").map((key) => <span key={key} className={styles.tooltipKey}>{key}</span>)}
+                    <Keys combo={keys} />
                 </div>
             )}
         </div>

@@ -97,8 +97,10 @@ namespace NetworkMultitool.Tool
             }
         }
 
-        /// <summary>Shift held during a drag: the dragged value snaps to whole meters.</summary>
         public bool ShiftHeld => Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+
+        /// <summary>A dragged length in meters, rounded to whole meters while Shift is held.</summary>
+        public float Snap(float meters) => ShiftHeld ? math.round(meters) : meters;
 
         public bool CtrlHeld => Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
 
