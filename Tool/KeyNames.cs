@@ -7,6 +7,9 @@ namespace NetworkMultitool.Tool
     {
         public static string Of(ToolAction action) => Of(action.ToString());
 
+        /// <summary>Two alternative keys, "Up/Down".</summary>
+        public static string Of(ToolAction first, ToolAction second) => Of(first) + "/" + Of(second);
+
         /// <summary>Takes a <see cref="ToolActions"/> name; empty when unbound.</summary>
         public static string Of(string action)
         {

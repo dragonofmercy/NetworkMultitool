@@ -17,7 +17,8 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Loop;
 
-        protected override string ExtraHints => $"{T("LoopHintDrag")}\n{T("HintSnap")}\n{T("HintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("LoopHintSide", KeyNames.Of(ToolAction.Side))}\n";
+        protected override string ExtraHints =>
+            Hint(DragMouse, "LoopHintDrag") + Hint("Shift+" + DragMouse, "HintSnap") + Hint(KeyNames.Of(ToolAction.RadiusUp, ToolAction.RadiusDown), "HintRadius") + Hint(KeyNames.Of(ToolAction.Side), "LoopHintSide");
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

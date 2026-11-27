@@ -49,8 +49,9 @@ namespace NetworkMultitool.Modes
                     return base.Info + "\n" + T("ParallelPickHover");
                 var status = State != ChainState.None ? base.Info : T("PressToCreate", KeyNames.Of(ToolAction.Apply));
                 return $"{status}\n\n{T("ParallelType")}: {_prefabName ?? "?"}\n{T("Offset")}: {_shift:0.0} m\n{T("Height")}: {_height:0.0} m\n\n" +
-                       $"{T("ParallelHintPick")}\n{T("ParallelHintDrag")}\n{T("HintSnap")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
-                       T("ParallelHintSide", KeyNames.Of(ToolAction.SwitchOffset)) + (_oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty);
+                       Hint("Ctrl+" + Click, "ParallelHintPick") + Hint(DragMouse, "ParallelHintDrag") + Hint("Shift+" + DragMouse, "HintSnap") +
+                       Hint(KeyNames.Of(ToolAction.OffsetDown, ToolAction.OffsetUp), "HintOffset") + Hint(KeyNames.Of(ToolAction.HeightUp, ToolAction.HeightDown), "HintHeight") +
+                       Hint(KeyNames.Of(ToolAction.SwitchOffset), "ParallelHintSide") + (_oneWay != 0 ? Hint(KeyNames.Of(ToolAction.Invert), "HintInvert") : string.Empty);
             }
         }
 

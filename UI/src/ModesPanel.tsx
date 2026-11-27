@@ -22,16 +22,16 @@ const Rows = ({ text }: { text: string }) => (
     </div>
 );
 
-// Hint lines are "Keys: action": "/" separates alternatives and "+" combines keys (see Texts.cs).
+// Hint lines are "keys<tab>action" (Texts.Hint in C#): "/" separates alternative keys and "+" combines them.
 // Memoized: the status line changes far more often than the hints.
 const Hints = memo(({ text }: { text: string }) => (
     <div className={styles.hints}>
         {text.split("\n").filter((line) => line.length > 0).map((line, i) => {
-            const cut = line.indexOf(": ");
+            const cut = line.indexOf("\t");
             const keys = cut < 0 ? [] : line.slice(0, cut).split("/").filter((alt) => alt.length > 0);
             return (
                 <div key={i} className={styles.hint}>
-                    <span className={styles.hintAction}>{cut < 0 ? line : line.slice(cut + 2)}</span>
+                    <span className={styles.hintAction}>{cut < 0 ? line : line.slice(cut + 1)}</span>
                     <span className={styles.hintKeys}>
                         {keys.map((alt, j) => (
                             <span key={j} className={styles.hintAlt}>

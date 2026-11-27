@@ -34,9 +34,11 @@ namespace NetworkMultitool.Modes
 
         protected override string ShiftEndHint => string.Empty;
 
-        protected override string ExtraHints => $"{T("ConnectionHintDragEdge")}\n{T("ConnectionHintDragCenter")}\n{T("HintSnap")}\n{T("ConnectionHintFlip")}\n{T("ConnectionHintAdd")}\n{T("ConnectionHintRemove")}\n" +
-            $"{T("ConnectionHintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n" +
-            $"{T("ConnectionHintSwitch", KeyNames.Of(ToolAction.SwitchOffset))}\n";
+        protected override string ExtraHints =>
+            Hint(DragMouse, "ConnectionHintDragEdge") + Hint(DragMouse, "ConnectionHintDragCenter") + Hint("Shift+" + DragMouse, "HintSnap") +
+            Hint(DoubleClick, "ConnectionHintFlip") + Hint(DoubleClick, "ConnectionHintAdd") + Hint(RightDoubleClick, "ConnectionHintRemove") +
+            Hint(KeyNames.Of(ToolAction.RadiusUp, ToolAction.RadiusDown), "ConnectionHintRadius") + Hint(KeyNames.Of(ToolAction.OffsetDown, ToolAction.OffsetUp), "HintOffset") +
+            Hint(KeyNames.Of(ToolAction.SwitchOffset), "ConnectionHintSwitch");
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)
         {

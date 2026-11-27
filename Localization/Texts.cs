@@ -22,6 +22,19 @@ namespace NetworkMultitool.Localization
 
         public static string T(string key, params object[] args) => string.Format(T(key), args);
 
+        /// <summary>One panel hint line: keys, a tab, then the translated action, capitalized. Keys use "/" for alternatives, "+" for combinations, and
+        /// <see cref="Click"/>, <see cref="DoubleClick"/>, <see cref="RightDoubleClick"/>, <see cref="DragMouse"/> for mouse icons. Translations only hold the action.</summary>
+        public static string Hint(string keys, string key)
+        {
+            var action = T(key);
+            return keys + "\t" + (action.Length == 0 ? action : char.ToUpper(action[0]) + action.Substring(1)) + "\n";
+        }
+
+        public const string Click = "@click";
+        public const string DoubleClick = "@dblclick";
+        public const string RightDoubleClick = "@rdblclick";
+        public const string DragMouse = "@drag";
+
         public static Dictionary<string, Dictionary<string, string>> ByLocale => new Dictionary<string, Dictionary<string, string>>
         {
             ["en-US"] = En,
@@ -38,8 +51,7 @@ namespace NetworkMultitool.Localization
             ["zh-HANT"] = ZhHant,
         };
 
-        // Panel lines are "Label: value" and hints "Keys: action": the panel splits them on the first ": ", so translations must keep it.
-        // In hint keys "/" separates alternatives, "+" combines keys, and @click, @dblclick, @rdblclick, @drag are mouse icons: never translate them.
+        // Panel value lines are "Label: value": the panel splits them on the first ": ". Hint texts are the action only (see Hint).
         private static readonly Dictionary<string, string> En = new Dictionary<string, string>
         {
             // Options screen
@@ -98,13 +110,13 @@ namespace NetworkMultitool.Localization
             ["PressToApply"] = "Press {0} to apply",
             ["Height"] = "Height",
             ["Offset"] = "Offset",
-            ["HintHeight"] = "{0}/{1}: height",
-            ["HintSnap"] = "Shift+@drag: snap to whole meters",
-            ["HintOffset"] = "{0}/{1}: offset",
-            ["HintShift"] = "{0}/{1}: shift the active end sideways",
-            ["HintShiftEnd"] = "{0}: switch the shifted end",
-            ["HintRadius"] = "{0}/{1}: radius",
-            ["HintInvert"] = "{0}: invert direction (one-way)",
+            ["HintHeight"] = "height",
+            ["HintSnap"] = "snap to whole meters",
+            ["HintOffset"] = "offset",
+            ["HintShift"] = "shift the active end sideways",
+            ["HintShiftEnd"] = "switch the shifted end",
+            ["HintRadius"] = "radius",
+            ["HintInvert"] = "invert direction (one-way)",
 
             // Add node / remove node
             ["AddNodeSelect"] = "Select a segment to add a node",
@@ -129,22 +141,22 @@ namespace NetworkMultitool.Localization
             ["ClickNodeDirection"] = "Click a node to change direction",
             ["WrongShape"] = "Wrong shape",
             ["NoIntersection"] = "No intersection",
-            ["LoopHintDrag"] = "@drag: move the center or the circle edge",
-            ["LoopHintSide"] = "{0}: direct/loop",
-            ["ConnectionHintDragEdge"] = "@drag: radius (circle edge)",
-            ["ConnectionHintDragCenter"] = "@drag: move/offset (circle center)",
-            ["ConnectionHintFlip"] = "@dblclick: direction (circle center)",
-            ["ConnectionHintAdd"] = "@dblclick: add a circle (on a straight)",
-            ["ConnectionHintRemove"] = "@rdblclick: remove the circle (center)",
-            ["ConnectionHintRadius"] = "{0}/{1}: radius (Shift: all)",
-            ["ConnectionHintSwitch"] = "{0}: switch circle",
+            ["LoopHintDrag"] = "move the center or the circle edge",
+            ["LoopHintSide"] = "direct/loop",
+            ["ConnectionHintDragEdge"] = "radius (circle edge)",
+            ["ConnectionHintDragCenter"] = "move/offset (circle center)",
+            ["ConnectionHintFlip"] = "direction (circle center)",
+            ["ConnectionHintAdd"] = "add a circle (on a straight)",
+            ["ConnectionHintRemove"] = "remove the circle (center)",
+            ["ConnectionHintRadius"] = "radius (Shift: all)",
+            ["ConnectionHintSwitch"] = "switch circle",
 
             // Parallel
             ["ParallelPickHover"] = "Ctrl+click a segment: pick its type",
             ["ParallelType"] = "Type",
-            ["ParallelHintPick"] = "Ctrl+@click: pick the road type (on a segment)",
-            ["ParallelHintDrag"] = "@drag: offset and side (on the preview)",
-            ["ParallelHintSide"] = "{0}: side",
+            ["ParallelHintPick"] = "pick the road type (on a segment)",
+            ["ParallelHintDrag"] = "offset and side (on the preview)",
+            ["ParallelHintSide"] = "side",
         };
 
         private static readonly Dictionary<string, string> Fr = new Dictionary<string, string>
@@ -202,13 +214,13 @@ namespace NetworkMultitool.Localization
             ["PressToApply"] = "Appuyer sur {0} pour appliquer",
             ["Height"] = "Hauteur",
             ["Offset"] = "Décalage",
-            ["HintHeight"] = "{0}/{1}: hauteur",
-            ["HintSnap"] = "Shift+@drag: arrondir au mètre",
-            ["HintOffset"] = "{0}/{1}: décalage",
-            ["HintShift"] = "{0}/{1}: décaler l'extrémité active sur le côté",
-            ["HintShiftEnd"] = "{0}: changer d'extrémité décalée",
-            ["HintRadius"] = "{0}/{1}: rayon",
-            ["HintInvert"] = "{0}: inverser le sens (sens unique)",
+            ["HintHeight"] = "hauteur",
+            ["HintSnap"] = "arrondir au mètre",
+            ["HintOffset"] = "décalage",
+            ["HintShift"] = "décaler l'extrémité active sur le côté",
+            ["HintShiftEnd"] = "changer d'extrémité décalée",
+            ["HintRadius"] = "rayon",
+            ["HintInvert"] = "inverser le sens (sens unique)",
 
             ["AddNodeSelect"] = "Sélectionner un segment pour ajouter un nœud",
             ["AddNodeClick"] = "Cliquer pour ajouter un nœud",
@@ -230,21 +242,21 @@ namespace NetworkMultitool.Localization
             ["ClickNodeDirection"] = "Cliquer sur un nœud pour changer de sens",
             ["WrongShape"] = "Forme impossible",
             ["NoIntersection"] = "Pas d'intersection",
-            ["LoopHintDrag"] = "@drag: déplacer le centre ou le bord du cercle",
-            ["LoopHintSide"] = "{0}: direct/boucle",
-            ["ConnectionHintDragEdge"] = "@drag: rayon (bord du cercle)",
-            ["ConnectionHintDragCenter"] = "@drag: déplacer/décaler (centre du cercle)",
-            ["ConnectionHintFlip"] = "@dblclick: sens (centre du cercle)",
-            ["ConnectionHintAdd"] = "@dblclick: ajouter un cercle (sur une droite)",
-            ["ConnectionHintRemove"] = "@rdblclick: retirer le cercle (centre)",
-            ["ConnectionHintRadius"] = "{0}/{1}: rayon (Maj: tous)",
-            ["ConnectionHintSwitch"] = "{0}: changer de cercle",
+            ["LoopHintDrag"] = "déplacer le centre ou le bord du cercle",
+            ["LoopHintSide"] = "direct/boucle",
+            ["ConnectionHintDragEdge"] = "rayon (bord du cercle)",
+            ["ConnectionHintDragCenter"] = "déplacer/décaler (centre du cercle)",
+            ["ConnectionHintFlip"] = "sens (centre du cercle)",
+            ["ConnectionHintAdd"] = "ajouter un cercle (sur une droite)",
+            ["ConnectionHintRemove"] = "retirer le cercle (centre)",
+            ["ConnectionHintRadius"] = "rayon (Maj: tous)",
+            ["ConnectionHintSwitch"] = "changer de cercle",
 
             ["ParallelPickHover"] = "Ctrl+clic sur un segment: prendre son type",
             ["ParallelType"] = "Type",
-            ["ParallelHintPick"] = "Ctrl+@click: choisir le type de route (sur un segment)",
-            ["ParallelHintDrag"] = "@drag: décalage et côté (sur l'aperçu)",
-            ["ParallelHintSide"] = "{0}: côté",
+            ["ParallelHintPick"] = "choisir le type de route (sur un segment)",
+            ["ParallelHintDrag"] = "décalage et côté (sur l'aperçu)",
+            ["ParallelHintSide"] = "côté",
         };
     }
 }

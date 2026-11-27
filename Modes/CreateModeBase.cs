@@ -51,24 +51,24 @@ namespace NetworkMultitool.Modes
                 if (Second == Entity.Null)
                     return T("SelectSecondSegment") + "\n" + T("ParallelPickHover");
                 var typeName = (_picker.Picked ? _picker.Name : _shownName) ?? "?";
-                var pickHint = T("ParallelHintPick") + "\n";
+                var pickHint = Hint("Ctrl+" + Click, "ParallelHintPick");
                 var type = T("ParallelType") + ": " + typeName;
-                var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
-                var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
+                var invert = _oneWay != 0 ? Hint(KeyNames.Of(ToolAction.Invert), "HintInvert") : string.Empty;
+                var shiftHints = Hint(KeyNames.Of(ToolAction.ShiftLeft, ToolAction.ShiftRight), "HintShift") + ShiftEndHint;
                 // Hovering an end node only changes the status line: values and hints stay.
                 var status = _hoverEnd ? T("ClickNodeDirection") : Status(Result);
-                return $"{status}\n\n{type}\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                return $"{status}\n\n{type}\n\n{ExtraHints}{pickHint}{shiftHints}{Hint(KeyNames.Of(ToolAction.HeightUp, ToolAction.HeightDown), "HintHeight")}{invert}";
             }
         }
 
-        /// <summary>"Key: action" lines shown once both segments are selected; end each line with a newline.</summary>
+        /// <summary><see cref="Hint"/> lines shown once both segments are selected.</summary>
         protected virtual string ExtraHints => string.Empty;
 
         /// <summary>Which end the shift keys act on: 0 start, 1 end, -1 none.</summary>
         protected virtual int ShiftedEnd => _shiftEnd;
 
-        /// <summary>Hint line (newline-terminated) for the key that switches the shifted end; empty when the mode has its own switch.</summary>
-        protected virtual string ShiftEndHint => T("HintShiftEnd", KeyNames.Of(ToolAction.SwitchOffset)) + "\n";
+        /// <summary>Hint line for the key that switches the shifted end; empty when the mode has its own switch.</summary>
+        protected virtual string ShiftEndHint => Hint(KeyNames.Of(ToolAction.SwitchOffset), "HintShiftEnd");
 
         /// <summary>Fills <paramref name="points"/> (already cleared) from <see cref="StartPoint"/> to <see cref="EndPoint"/>.</summary>
         protected abstract SolveResult Solve(ToolContext ctx, List<Point> points);
