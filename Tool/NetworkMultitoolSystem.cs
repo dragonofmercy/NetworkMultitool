@@ -115,6 +115,8 @@ namespace NetworkMultitool.Tool
         protected override void OnStopRunning()
         {
             m_Mode.Exit(m_Context);
+            // Closing the panel forgets the mode: it reopens with no tool selected (a mode key still opens it on that mode, SetMode runs before activation).
+            m_Mode = m_Modes[ToolModeId.None];
             m_Running = false;
             m_Context.ApplyRequested = false;
             SetToolActionsEnabled(false);
