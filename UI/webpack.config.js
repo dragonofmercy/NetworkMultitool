@@ -5,8 +5,10 @@ const { CSSPresencePlugin } = require("./tools/css-presence");
 const TerserPlugin = require("terser-webpack-plugin");
 const gray = (text) => `\x1b[90m${text}\x1b[0m`;
 
-// Copied next to the mod dll by the DeployUI target of the csproj.
-const OUTPUT_DIR = path.resolve(__dirname, "dist");
+// Build: dist, copied next to the mod dll by the DeployUI target of the csproj.
+// Watch (npm run dev): written straight into the deployed mod folder so the game reloads the UI live.
+const WATCH = process.argv.includes("--watch") && !!process.env.CSII_LOCALMODSPATH;
+const OUTPUT_DIR = WATCH ? path.join(process.env.CSII_LOCALMODSPATH, MOD.id) : path.resolve(__dirname, "dist");
 
 const banner = `
  * Cities: Skylines II UI Module
@@ -83,7 +85,8 @@ module.exports = {
   output: {
     path: OUTPUT_DIR,
     // Images of removed icons would otherwise stay in dist and ship with the mod.
-    clean: true,
+    // Never in watch mode: the target folder also holds the mod dll.
+    clean: !WATCH,
     library: {
       type: "module",
     },
