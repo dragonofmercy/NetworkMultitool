@@ -61,20 +61,23 @@ namespace NetworkMultitool.Geometry
         /// <summary>Horizontal distance from position to the closest point of the chain, positive on the left side (the side Solve takes with left = true). Edges are oriented along the chain, as for <see cref="Solve"/>.</summary>
         public static float SignedOffset(IReadOnlyList<Bezier4x3> edges, float3 position)
         {
-            var best = float.MaxValue;
-            var signed = 0f;
-            foreach (var edge in edges)
+            var signed = float.MaxValue;
+            for (var i = 0; i < edges.Count; i++)
             {
-                var distance = MathUtils.Distance(edge.xz, position.xz, out var t);
-                if (distance >= best)
-                    continue;
-                best = distance;
-                var tangent = Vec.NormalizeXZ(MathUtils.Tangent(edge, t));
-                var closest = MathUtils.Position(edge, t);
-                signed = Vec.DotXZ(Vec.Turn90(tangent, false), position - closest) >= 0f ? distance : -distance;
+                var offset = SignedOffset(edges[i], position);
+                if (math.abs(offset) < math.abs(signed))
+                    signed = offset;
             }
 
-            return signed;
+            return edges.Count > 0 ? signed : 0f;
+        }
+
+        /// <summary><see cref="SignedOffset(IReadOnlyList{Bezier4x3}, float3)"/> for a single edge.</summary>
+        public static float SignedOffset(Bezier4x3 edge, float3 position)
+        {
+            var distance = MathUtils.Distance(edge.xz, position.xz, out var t);
+            var closest = MathUtils.Position(edge, t);
+            return Vec.DotXZ(Vec.Turn90(Vec.NormalizeXZ(MathUtils.Tangent(edge, t)), false), position - closest) >= 0f ? distance : -distance;
         }
 
         private static float3 Offset(float3 position, float3 dir, float shift, bool left, float height) => position + Vec.Turn90(dir, !left) * shift + new float3(0f, height, 0f);

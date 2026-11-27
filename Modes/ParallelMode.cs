@@ -25,12 +25,9 @@ namespace NetworkMultitool.Modes
         private bool _shiftEdited;
         private bool _left = true;
         private float _height;
-        private bool _picked;
-        private Entity _pickHover;
-        private Entity _pickedEdge;
+        private readonly TypePicker _picker = new TypePicker();
         private int _oneWay;
         private bool _invert;
-        private readonly List<Bezier4x3> _previewCurves = new List<Bezier4x3>();
         private bool _hovering;
         private bool _dragging;
         private float _grabDelta;
@@ -60,26 +57,23 @@ namespace NetworkMultitool.Modes
         // A picked type survives validation, so several parallels of that type can be built in a row; leaving the mode forgets it.
         public override void Enter(ToolContext ctx)
         {
-            _picked = false;
+            _picker.Clear();
             base.Enter(ctx);
         }
 
         public override void Exit(ToolContext ctx)
         {
-            _picked = false;
+            _picker.Clear();
             base.Exit(ctx);
         }
 
         public override void Update(ToolContext ctx)
         {
             // Tested before base.Update, which snaps an edge hover near its ends to a node.
-            _pickHover = ctx.CtrlHeld && ctx.HoverIsEdge && ctx.Em.Exists(ctx.Hover) && !ctx.Net.HasOwner(ctx.Hover) ? ctx.Hover : Entity.Null;
-            if (ctx.PickPressed && _pickHover != Entity.Null)
+            if (_picker.Update(ctx))
             {
-                _picked = true;
-                _pickedEdge = _pickHover;
-                _prefab = ctx.Net.Prefab(_pickHover);
-                _prefabName = ctx.PrefabName(_prefab);
+                _prefab = _picker.Prefab;
+                _prefabName = _picker.Name;
                 if (!_shiftEdited)
                     _shift = DefaultShift(ctx);
             }
@@ -107,7 +101,7 @@ namespace NetworkMultitool.Modes
 
             // A picked segment also gives its upgrades (bike lanes, trees...); its direction has no relation to the path, so they are not swapped.
             var chainEdge = ChainEdge(ctx, 0);
-            var template = _picked && ctx.Em.Exists(_pickedEdge) ? _pickedEdge : chainEdge;
+            var template = _picker.Template(ctx, chainEdge);
             var invertTemplate = template == chainEdge && !net.IsStart(chainEdge, Nodes[0]) != Reversed;
             ctx.Emitter().Chain(Entity.Null, Entity.Null, _points, template, invertTemplate, followTerrain, followTerrain ? null : (System.Func<float3, float>)ctx.TerrainHeight, _prefab);
         }
@@ -115,7 +109,7 @@ namespace NetworkMultitool.Modes
         protected override void OnChainChanged(ToolContext ctx)
         {
             // Below 2 nodes the chain type is unknown: a re-extended chain takes its new edges' type.
-            if (Nodes.Count < 2 && !_picked)
+            if (Nodes.Count < 2 && !_picker.Picked)
             {
                 _prefab = Entity.Null;
                 _prefabName = null;
@@ -159,8 +153,7 @@ namespace NetworkMultitool.Modes
                     overlay.Path(_points, width + 0.7f, Overlay.Green, ground, true);
             }
 
-            if (_pickHover != Entity.Null && ctx.Em.Exists(_pickHover))
-                overlay.Edge(_pickHover, Overlay.Blue);
+            _picker.Render(ctx, overlay);
         }
 
         // Left press on the preview grabs it; while held, the cursor's signed distance to the chain sets side and offset. Returns true when the offset changed and the preview must be solved again.
@@ -176,10 +169,8 @@ namespace NetworkMultitool.Modes
                 var half = ctx.Net.PrefabWidth(_prefab) / 2f;
                 for (var i = 0; i < _points.Count - 1 && !_hovering; i++)
                 {
-                    _previewCurves.Clear();
-                    _previewCurves.Add(CourseEmitter.Fit(_points[i], _points[i + 1]));
                     var y = (_points[i].Position.y + _points[i + 1].Position.y) / 2f;
-                    if (math.abs(ParallelSolver.SignedOffset(_previewCurves, ctx.MouseAtHeight(y))) <= half)
+                    if (math.abs(ParallelSolver.SignedOffset(CourseEmitter.Fit(_points[i], _points[i + 1]), ctx.MouseAtHeight(y))) <= half)
                     {
                         _hovering = true;
                         _grabY = y;
