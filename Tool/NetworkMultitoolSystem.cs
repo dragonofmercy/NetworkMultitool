@@ -288,7 +288,8 @@ namespace NetworkMultitool.Tool
             if (hasHit)
                 m_Context.MousePosition = hit.m_HitPosition;
             m_Context.ApplyPressed = applyAction.WasPressedThisFrame();
-            m_Context.ApplyHeld = applyAction.IsPressed();
+            // Mouse read directly too: the Apply binding is blocked while Shift is held, which would end a Shift+drag.
+            m_Context.ApplyHeld = applyAction.IsPressed() || (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.isPressed);
             m_Context.SecondaryPressed = secondaryApplyAction.WasPressedThisFrame();
             m_Context.PickPressed = m_Context.CtrlHeld && UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame;
             m_Context.ApplyMode = ApplyMode.Clear;

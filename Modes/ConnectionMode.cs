@@ -49,7 +49,7 @@ namespace NetworkMultitool.Modes
             }
         }
 
-        protected override string ExtraHints => $"{T("ConnectionHintDragEdge")}\n{T("ConnectionHintDragCenter")}\n{T("ConnectionHintFlip")}\n{T("ConnectionHintAdd")}\n{T("ConnectionHintRemove")}\n" +
+        protected override string ExtraHints => $"{T("ConnectionHintDragEdge")}\n{T("ConnectionHintDragCenter")}\n{T("HintSnap")}\n{T("ConnectionHintFlip")}\n{T("ConnectionHintAdd")}\n{T("ConnectionHintRemove")}\n" +
             $"{T("ConnectionHintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n" +
             $"{T("ConnectionHintSwitch", KeyNames.Of(ToolAction.SwitchOffset))}\n";
 
@@ -188,10 +188,24 @@ namespace NetworkMultitool.Modes
 
         protected override void OnDrag(ToolContext ctx)
         {
-            if (Dragging == Drag.Center)
-                _solver.DragCenter(_selected, ctx.MousePosition);
-            else
+            var snap = ctx.ShiftHeld;
+            if (Dragging == Drag.Edge)
+            {
                 _solver.DragEdge(_selected, ctx.MousePosition);
+                if (snap)
+                    _solver.SetRadius(_selected, math.round(_solver.Arcs[_selected].Radius));
+            }
+            else if (_solver.IsMiddle(_selected))
+                // A free circle center snaps to the world 1 m grid.
+                _solver.DragCenter(_selected, snap ? new float3(math.round(ctx.MousePosition.x), ctx.MousePosition.y, math.round(ctx.MousePosition.z)) : ctx.MousePosition);
+            else
+            {
+                _solver.DragCenter(_selected, ctx.MousePosition);
+                if (snap && _selected == 0)
+                    _solver.FirstOffset = math.round(_solver.FirstOffset);
+                else if (snap)
+                    _solver.SecondOffset = math.round(_solver.SecondOffset);
+            }
         }
 
         protected override void RenderShape(ToolContext ctx, Overlay overlay)

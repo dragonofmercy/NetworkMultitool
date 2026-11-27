@@ -97,6 +97,9 @@ namespace NetworkMultitool.Tool
             }
         }
 
+        /// <summary>Shift held during a drag: the dragged value snaps to whole meters.</summary>
+        public bool ShiftHeld => Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+
         public bool CtrlHeld => Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
 
         /// <summary>Name of a prefab entity, "?" when unknown.</summary>

@@ -50,15 +50,15 @@ namespace NetworkMultitool.Modes
                     return T("SelectFirstSegment") + "\n" + T("ParallelPickHover");
                 if (Second == Entity.Null)
                     return T("SelectSecondSegment") + "\n" + T("ParallelPickHover");
-                if (_hoverEnd)
-                    return T("ClickNodeDirection");
                 var typeName = (_picker.Picked ? _picker.Name : _shownName) ?? "?";
                 var pickHint = T("ParallelHintPick") + "\n";
                 var type = T("ParallelType") + ": " + typeName + "\n";
                 var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
                 var shifts = $"{T("ShiftStart")}: {_shifts[0]:0.0} m\n{T("ShiftEnd")}: {_shifts[1]:0.0} m\n";
                 var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
-                return $"{Status(Result)}\n\n{type}{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                // Hovering an end node only changes the status line: values and hints stay.
+                var status = _hoverEnd ? T("ClickNodeDirection") : Status(Result);
+                return $"{status}\n\n{type}{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
 

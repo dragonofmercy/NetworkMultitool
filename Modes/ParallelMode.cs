@@ -49,7 +49,7 @@ namespace NetworkMultitool.Modes
                     return base.Info + "\n" + T("ParallelPickHover");
                 var status = State != ChainState.None ? base.Info : T("PressToCreate", KeyNames.Of(ToolAction.Apply));
                 return $"{status}\n\n{T("ParallelType")}: {_prefabName ?? "?"}\n{T("Offset")}: {_shift:0.0} m\n{T("Height")}: {_height:0.0} m\n\n" +
-                       $"{T("ParallelHintPick")}\n{T("ParallelHintDrag")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
+                       $"{T("ParallelHintPick")}\n{T("ParallelHintDrag")}\n{T("HintSnap")}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}\n" +
                        T("ParallelHintSide", KeyNames.Of(ToolAction.SwitchOffset)) + (_oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty);
             }
         }
@@ -189,7 +189,7 @@ namespace NetworkMultitool.Modes
             // The grab height stays fixed during the drag, so the preview follows the cursor at the height it was taken.
             var signed = ParallelSolver.SignedOffset(_edges, ctx.MouseAtHeight(_grabY)) - _grabDelta;
             _left = signed >= 0f;
-            _shift = math.abs(signed);
+            _shift = ctx.ShiftHeld ? math.round(math.abs(signed)) : math.abs(signed);
             _shiftEdited = true;
             return true;
         }
