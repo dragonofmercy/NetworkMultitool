@@ -17,8 +17,6 @@ namespace NetworkMultitool.Modes
 
         public override ToolModeId Id => ToolModeId.Loop;
 
-        protected override string ExtraValues => _solver == null ? string.Empty : $"{T("Radius")}: {_solver.Arc.Radius:0.0} m\n{T("Angle")}: {math.degrees(_solver.Arc.Angle):0}\u00b0\n";
-
         protected override string ExtraHints => $"{T("LoopHintDrag")}\n{T("HintSnap")}\n{T("HintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("LoopHintSide", KeyNames.Of(ToolAction.Side))}\n";
 
         protected override SolveResult Solve(ToolContext ctx, List<Point> points)

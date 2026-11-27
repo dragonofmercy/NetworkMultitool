@@ -54,16 +54,12 @@ namespace NetworkMultitool.Modes
                 var pickHint = T("ParallelHintPick") + "\n";
                 var type = T("ParallelType") + ": " + typeName + "\n";
                 var invert = _oneWay != 0 ? "\n" + T("HintInvert", KeyNames.Of(ToolAction.Invert)) : string.Empty;
-                var shifts = $"{T("ShiftStart")}: {_shifts[0]:0.0} m\n{T("ShiftEnd")}: {_shifts[1]:0.0} m\n";
                 var shiftHints = T("HintShift", KeyNames.Of(ToolAction.ShiftLeft), KeyNames.Of(ToolAction.ShiftRight)) + "\n" + ShiftEndHint;
                 // Hovering an end node only changes the status line: values and hints stay.
                 var status = _hoverEnd ? T("ClickNodeDirection") : Status(Result);
-                return $"{status}\n\n{type}{ExtraValues}{shifts}{T("Height")}: {Height:0.0} m\n\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
+                return $"{status}\n\n{type}\n{ExtraHints}{pickHint}{shiftHints}{T("HintHeight", KeyNames.Of(ToolAction.HeightUp), KeyNames.Of(ToolAction.HeightDown))}{invert}";
             }
         }
-
-        /// <summary>"Label: value" lines shown once both segments are selected; end each line with a newline.</summary>
-        protected virtual string ExtraValues => string.Empty;
 
         /// <summary>"Key: action" lines shown once both segments are selected; end each line with a newline.</summary>
         protected virtual string ExtraHints => string.Empty;

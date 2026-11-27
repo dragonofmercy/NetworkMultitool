@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using NetworkMultitool.Geometry;
 using NetworkMultitool.Tool;
 using Unity.Entities;
@@ -34,20 +33,6 @@ namespace NetworkMultitool.Modes
         protected override int ShiftedEnd => _solver == null ? -1 : _selected == 0 ? 0 : _selected == LastArc ? 1 : -1;
 
         protected override string ShiftEndHint => string.Empty;
-
-        protected override string ExtraValues
-        {
-            get
-            {
-                if (_solver == null)
-                    return string.Empty;
-                var sb = new StringBuilder();
-                for (var i = 0; i < _solver.Arcs.Count; i++)
-                    sb.Append($"{T("ConnectionRadius", i + 1)}: {_solver.Arcs[i].Radius:0.0} m\n");
-                sb.Append($"{T("ConnectionFirstOffset")}: {_solver.FirstOffset:0.0} m\n{T("ConnectionLastOffset")}: {_solver.SecondOffset:0.0} m\n");
-                return sb.ToString();
-            }
-        }
 
         protected override string ExtraHints => $"{T("ConnectionHintDragEdge")}\n{T("ConnectionHintDragCenter")}\n{T("HintSnap")}\n{T("ConnectionHintFlip")}\n{T("ConnectionHintAdd")}\n{T("ConnectionHintRemove")}\n" +
             $"{T("ConnectionHintRadius", KeyNames.Of(ToolAction.RadiusUp), KeyNames.Of(ToolAction.RadiusDown))}\n{T("HintOffset", KeyNames.Of(ToolAction.OffsetDown), KeyNames.Of(ToolAction.OffsetUp))}\n" +
