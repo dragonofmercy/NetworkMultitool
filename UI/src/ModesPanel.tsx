@@ -4,6 +4,9 @@ import { active$, apply, followTerrain$, hidePreview$, info$, mode$, setMode, to
 import { groups, ModeEntry } from "modes";
 import { useText } from "l10n";
 import styles from "./panel.module.scss";
+import mouseLeft from "images/mouse-left.svg";
+import mouseRight from "images/mouse-right.svg";
+import mouseDrag from "images/mouse-drag.svg";
 
 // "Label: value" lines become two columns; other lines span the row.
 const Rows = ({ text, className }: { text: string; className: string }) => (
@@ -20,7 +23,50 @@ const Rows = ({ text, className }: { text: string; className: string }) => (
     </div>
 );
 
-const Toggle = ({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) => (
+const mouse: Record<string, { icon: string; label?: string }> = {
+    "@click": { icon: mouseLeft },
+    "@dblclick": { icon: mouseLeft, label: "x2" },
+    "@rdblclick": { icon: mouseRight, label: "x2" },
+    "@drag": { icon: mouseDrag },
+};
+
+// Short names so the keycaps fit next to long translations.
+const keyNames: Record<string, string> = { PageUp: "PgUp", PageDown: "PgDn", Escape: "Esc", Delete: "Del", Insert: "Ins" };
+
+const Keycap = ({ name }: { name: string }) => {
+    const m = mouse[name];
+    return (
+        <span className={styles.keycap}>
+            {m ? <img src={m.icon} className={m.icon === mouseDrag ? styles.mouseDrag : styles.mouseIcon} /> : keyNames[name] ?? name}
+            {m?.label && <span className={styles.keycapLabel}>{m.label}</span>}
+        </span>
+    );
+};
+
+// Hint lines are "Keys: action": "/" separates alternatives and "+" combines keys (see Texts.cs).
+const Hints = ({ text }: { text: string }) => (
+    <div className={styles.hints}>
+        {text.split("\n").filter((line) => line.length > 0).map((line, i) => {
+            const cut = line.indexOf(": ");
+            const keys = cut < 0 ? [] : line.slice(0, cut).split("/").filter((alt) => alt.length > 0);
+            return (
+                <div key={i} className={styles.hint}>
+                    <span className={styles.hintAction}>{cut < 0 ? line : line.slice(cut + 2)}</span>
+                    <span className={styles.hintKeys}>
+                        {keys.map((alt, j) => (
+                            <span key={j} className={styles.hintAlt}>
+                                {j > 0 && <span className={styles.hintSep}>/</span>}
+                                {alt.split("+").filter((k) => k.length > 0).map((k, n) => <Keycap key={n} name={k} />)}
+                            </span>
+                        ))}
+                    </span>
+                </div>
+            );
+        })}
+    </div>
+);
+
+const Toggle =({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) => (
     <div className={styles.toggle} onClick={onClick}>
         <div className={on ? `${styles.switch} ${styles.on}` : styles.switch}>
             <div className={styles.knob} />
@@ -70,7 +116,7 @@ export const ModesPanel = () => {
                 </>
             )}
             {current?.apply && <Button variant="flat" className={styles.apply} onSelect={apply}>{t("UI.Apply", "Apply")}</Button>}
-            {hints && <Rows text={hints} className={styles.hints} />}
+            {hints && <Hints text={hints} />}
         </Panel>
     );
 };

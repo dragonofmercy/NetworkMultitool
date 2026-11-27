@@ -39,6 +39,7 @@ namespace NetworkMultitool.Localization
         };
 
         // Panel lines are "Label: value" and hints "Keys: action": the panel splits them on the first ": ", so translations must keep it.
+        // In hint keys "/" separates alternatives, "+" combines keys, and @click, @dblclick, @rdblclick, @drag are mouse icons: never translate them.
         private static readonly Dictionary<string, string> En = new Dictionary<string, string>
         {
             // Options screen
@@ -131,24 +132,24 @@ namespace NetworkMultitool.Localization
             ["WrongShape"] = "Wrong shape",
             ["NoIntersection"] = "No intersection",
             ["Angle"] = "Angle",
-            ["LoopHintDrag"] = "Drag: center or circle edge",
+            ["LoopHintDrag"] = "@drag: move the center or the circle edge",
             ["LoopHintSide"] = "{0}: direct/loop",
             ["ConnectionRadius"] = "Radius {0}",
             ["ConnectionFirstOffset"] = "First offset",
             ["ConnectionLastOffset"] = "Last offset",
-            ["ConnectionHintDragEdge"] = "Drag edge: radius",
-            ["ConnectionHintDragCenter"] = "Drag center: move/offset",
-            ["ConnectionHintFlip"] = "Double-click center: direction",
-            ["ConnectionHintAdd"] = "Double-click straight: add circle",
-            ["ConnectionHintRemove"] = "Right double-click center: remove circle",
+            ["ConnectionHintDragEdge"] = "@drag: radius (circle edge)",
+            ["ConnectionHintDragCenter"] = "@drag: move/offset (circle center)",
+            ["ConnectionHintFlip"] = "@dblclick: direction (circle center)",
+            ["ConnectionHintAdd"] = "@dblclick: add a circle (on a straight)",
+            ["ConnectionHintRemove"] = "@rdblclick: remove the circle (center)",
             ["ConnectionHintRadius"] = "{0}/{1}: radius (Shift: all)",
             ["ConnectionHintSwitch"] = "{0}: switch circle",
 
             // Parallel
             ["ParallelPickHover"] = "Ctrl+click a segment: pick its type",
             ["ParallelType"] = "Type",
-            ["ParallelHintPick"] = "Ctrl+click segment: pick type",
-            ["ParallelHintDrag"] = "Drag the preview: offset and side",
+            ["ParallelHintPick"] = "Ctrl+@click: pick the road type (on a segment)",
+            ["ParallelHintDrag"] = "@drag: offset and side (on the preview)",
             ["ParallelHintSide"] = "{0}: side",
         };
 
@@ -238,23 +239,23 @@ namespace NetworkMultitool.Localization
             ["WrongShape"] = "Forme impossible",
             ["NoIntersection"] = "Pas d'intersection",
             ["Angle"] = "Angle",
-            ["LoopHintDrag"] = "Glisser: centre ou bord du cercle",
+            ["LoopHintDrag"] = "@drag: déplacer le centre ou le bord du cercle",
             ["LoopHintSide"] = "{0}: direct/boucle",
             ["ConnectionRadius"] = "Rayon {0}",
             ["ConnectionFirstOffset"] = "Décalage début",
             ["ConnectionLastOffset"] = "Décalage fin",
-            ["ConnectionHintDragEdge"] = "Glisser le bord: rayon",
-            ["ConnectionHintDragCenter"] = "Glisser le centre: déplacer/décaler",
-            ["ConnectionHintFlip"] = "Double-clic au centre: sens",
-            ["ConnectionHintAdd"] = "Double-clic sur une droite: ajouter un cercle",
-            ["ConnectionHintRemove"] = "Double-clic droit au centre: retirer le cercle",
+            ["ConnectionHintDragEdge"] = "@drag: rayon (bord du cercle)",
+            ["ConnectionHintDragCenter"] = "@drag: déplacer/décaler (centre du cercle)",
+            ["ConnectionHintFlip"] = "@dblclick: sens (centre du cercle)",
+            ["ConnectionHintAdd"] = "@dblclick: ajouter un cercle (sur une droite)",
+            ["ConnectionHintRemove"] = "@rdblclick: retirer le cercle (centre)",
             ["ConnectionHintRadius"] = "{0}/{1}: rayon (Maj: tous)",
             ["ConnectionHintSwitch"] = "{0}: changer de cercle",
 
             ["ParallelPickHover"] = "Ctrl+clic sur un segment: prendre son type",
             ["ParallelType"] = "Type",
-            ["ParallelHintPick"] = "Ctrl+clic sur un segment: choisir le type",
-            ["ParallelHintDrag"] = "Glisser l'aperçu: décalage et côté",
+            ["ParallelHintPick"] = "Ctrl+@click: choisir le type de route (sur un segment)",
+            ["ParallelHintDrag"] = "@drag: décalage et côté (sur l'aperçu)",
             ["ParallelHintSide"] = "{0}: côté",
         };
     }
